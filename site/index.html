@@ -6,14 +6,14 @@
   <title>shrtnotes - Concise, Clear & High-Yield Study Notes</title>
   <meta name="description" content="High-yield, distraction-free study notes for Mathematics, Physics, Chemistry, Biology and more. Prepared for students with clear explanations and formulas.">
   
-  <!-- Canonical & OpenGraph -->
-  <link rel="canonical" href="https://shrtnotes.pages.dev/index.html">
+  <!-- Canonical & OpenGraph (Clean URL ending in /) -->
+  <link rel="canonical" href="https://shrtnotes.pages.dev/">
   <meta property="og:title" content="shrtnotes">
   <meta property="og:description" content="High-yield, distraction-free study notes for Mathematics, Physics, Chemistry, Biology and more. Prepared for students with clear explanations and formulas.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://shrtnotes.pages.dev/index.html">
+  <meta property="og:url" content="https://shrtnotes.pages.dev/">
   
-  <!-- CSS Stylesheet (Relative path ensures 100% zero 404s on LAN & web) -->
+  <!-- CSS Stylesheet (Clean Relative Path) -->
   <link rel="stylesheet" href="static/css/style.css">
   
   <!-- KaTeX for crisp mathematical/scientific formula rendering -->
@@ -22,10 +22,14 @@
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"
           onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
 
-  <!-- Google AdSense Integration (Non-blocking, conditional) -->
+  <!-- Universal Ad Platform Head Code (Google AdSense, Media.net, Ezoic, etc.) -->
+  
+    
+      <!-- Media.net or AdSense script -->
+    
   
 
-  <!-- Google Analytics (Optional) -->
+  <!-- Analytics Tag (Optional) -->
   
 
   
@@ -34,7 +38,7 @@
   <!-- Top Navigation Header -->
   <header class="navbar">
     <div class="nav-container">
-      <a href="index.html" class="brand-logo" aria-label="shrtnotes Home">
+      <a href="" class="brand-logo" aria-label="shrtnotes Home">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
           <path d="M6 6h10"/>
@@ -48,21 +52,21 @@
           <circle cx="11" cy="11" r="8"/>
           <path d="m21 21-4.3-4.3"/>
         </svg>
-        <input type="text" id="global-search-input" class="search-input" placeholder="Search notes..." aria-label="Search notes">
+        <input type="text" id="global-search-input" class="search-input" placeholder="Search topics..." aria-label="Search topics">
       </div>
 
       <nav>
         <ul class="nav-links">
           
-          <li><a href="mathematics/index.html" class="nav-link">Mathematics</a></li>
+          <li><a href="mathematics/" class="nav-link">Mathematics</a></li>
           
-          <li><a href="physics/index.html" class="nav-link">Physics</a></li>
+          <li><a href="physics/" class="nav-link">Physics</a></li>
           
-          <li><a href="chemistry/index.html" class="nav-link">Chemistry</a></li>
+          <li><a href="chemistry/" class="nav-link">Chemistry</a></li>
           
-          <li><a href="biology/index.html" class="nav-link">Biology</a></li>
+          <li><a href="biology/" class="nav-link">Biology</a></li>
           
-          <li><a href="pages/about.html" class="nav-link">About</a></li>
+          <li><a href="about/" class="nav-link">About</a></li>
         </ul>
       </nav>
 
@@ -107,28 +111,28 @@
       <ul class="mobile-nav-list">
         
         <li>
-          <a href="mathematics/index.html" class="mobile-nav-item">
+          <a href="mathematics/" class="mobile-nav-item">
             <span class="mobile-nav-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg></span>
             <span>Mathematics</span>
           </a>
         </li>
         
         <li>
-          <a href="physics/index.html" class="mobile-nav-item">
+          <a href="physics/" class="mobile-nav-item">
             <span class="mobile-nav-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><path d="M20.2 20.2c2.04-2.03.02-7.36-4.5-11.9-4.54-4.52-9.87-6.54-11.9-4.5-2.04 2.03-.02 7.36 4.5 11.9 4.54 4.52 9.87 6.54 11.9 4.5Z"/><path d="M15.7 15.7c4.52-4.54 6.54-9.87 4.5-11.9-2.03-2.04-7.36-.02-11.9 4.5-4.52 4.54-6.54 9.87-4.5 11.9 2.03 2.04 7.36.02 11.9-4.5Z"/></svg></span>
             <span>Physics</span>
           </a>
         </li>
         
         <li>
-          <a href="chemistry/index.html" class="mobile-nav-item">
+          <a href="chemistry/" class="mobile-nav-item">
             <span class="mobile-nav-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v7.31L4.1 20.3A2 2 0 0 0 5.8 23h12.4a2 2 0 0 0 1.7-2.7L14 9.31V2"/><path d="M8.5 2h7"/><path d="M14 9.3 8.5 19"/></svg></span>
             <span>Chemistry</span>
           </a>
         </li>
         
         <li>
-          <a href="biology/index.html" class="mobile-nav-item">
+          <a href="biology/" class="mobile-nav-item">
             <span class="mobile-nav-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 15c6.667-6 13.333 0 20-6"/><path d="M9 22c1.798-1.998 2.518-3.995 2.807-5.993"/><path d="M15 2c-1.798 1.998-2.518 3.995-2.807 5.993"/><path d="m17 6-2.5-2.5"/><path d="m14 8-1-1"/><path d="m7 18 2.5 2.5"/><path d="m3.5 14.5.5.5"/><path d="m20 9 .5.5"/><path d="m6.5 12.5 1 1"/><path d="m16.5 10.5 1 1"/><path d="m10 16 1 1"/></svg></span>
             <span>Biology</span>
           </a>
@@ -136,19 +140,30 @@
         
       </ul>
 
-      <div class="mobile-nav-section-title" style="margin-top: 1.5rem;">Information & Legal</div>
+      <div class="mobile-nav-section-title" style="margin-top: 1.5rem;">Information & Trust</div>
       <ul class="mobile-nav-list">
-        <li><a href="pages/about.html" class="mobile-nav-item">About Us</a></li>
-        <li><a href="pages/privacy-policy.html" class="mobile-nav-item">Privacy Policy</a></li>
-        <li><a href="pages/terms-and-conditions.html" class="mobile-nav-item">Terms & Conditions</a></li>
-        <li><a href="pages/contact.html" class="mobile-nav-item">Contact Us</a></li>
-        <li><a href="pages/disclaimer.html" class="mobile-nav-item">Disclaimer</a></li>
+        <li><a href="about/" class="mobile-nav-item">About Us</a></li>
+        <li><a href="privacy-policy/" class="mobile-nav-item">Privacy Policy</a></li>
+        <li><a href="terms-and-conditions/" class="mobile-nav-item">Terms & Conditions</a></li>
+        <li><a href="contact/" class="mobile-nav-item">Contact Us</a></li>
+        <li><a href="disclaimer/" class="mobile-nav-item">Disclaimer</a></li>
       </ul>
     </div>
   </div>
   <div id="mobile-backdrop" class="mobile-backdrop"></div>
 
   <!-- Top Non-Intrusive Header Ad Slot -->
+  
+  <div class="main-layout" style="padding-bottom: 0;">
+    
+        <div class="ad-slot-wrapper">
+          <span class="ad-label">Advertisement</span>
+          <div class="ad-container ad-header">
+            <div id="banner-ad-test">Custom Network Banner</div>
+          </div>
+        </div>
+        
+  </div>
   
 
   <!-- Main Content Block -->
@@ -160,10 +175,10 @@
     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
     </svg>
-    <span>Fast, Concise & High-Yield</span>
+    <span>Chapter-Wise & High-Yield</span>
   </div>
   <h1 class="hero-title">Study Faster with <span>Short Notes</span></h1>
-  <p class="hero-subtitle">Bite-sized, exam-ready summaries, formulas, and conceptual breakdowns across STEM disciplines. Zero clutter, 100% focus.</p>
+  <p class="hero-subtitle">Bite-sized, exam-ready formulas, derivations, and concepts arranged chapter-wise across STEM subjects. Distraction-free revision.</p>
 </section>
 
 <!-- Subject Categories Grid -->
@@ -173,17 +188,28 @@
 
 <div class="subjects-grid">
   
+  
+  
   <div class="subject-card">
     <div class="subject-icon-box">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>
     </div>
     <h3 class="subject-name">Mathematics</h3>
     <p class="subject-desc">Formulas, theorems, and step-by-step calculus, algebra, and geometry notes.</p>
-    <a href="mathematics/index.html" class="subject-link">
-      <span>View Notes</span>
+    
+    <div style="font-size: 0.775rem; color: var(--text-muted); margin-bottom: 1.25rem; display: flex; gap: 0.75rem;">
+      <span><strong>3</strong> Chapters</span>
+      <span>&bull;</span>
+      <span><strong>3</strong> Topics</span>
+    </div>
+
+    <a href="mathematics/" class="subject-link">
+      <span>Browse Chapters</span>
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
     </a>
   </div>
+  
+  
   
   <div class="subject-card">
     <div class="subject-icon-box">
@@ -191,11 +217,20 @@
     </div>
     <h3 class="subject-name">Physics</h3>
     <p class="subject-desc">Concepts, laws, derivation summaries, and mechanics to modern physics.</p>
-    <a href="physics/index.html" class="subject-link">
-      <span>View Notes</span>
+    
+    <div style="font-size: 0.775rem; color: var(--text-muted); margin-bottom: 1.25rem; display: flex; gap: 0.75rem;">
+      <span><strong>2</strong> Chapters</span>
+      <span>&bull;</span>
+      <span><strong>1</strong> Topics</span>
+    </div>
+
+    <a href="physics/" class="subject-link">
+      <span>Browse Chapters</span>
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
     </a>
   </div>
+  
+  
   
   <div class="subject-card">
     <div class="subject-icon-box">
@@ -203,11 +238,20 @@
     </div>
     <h3 class="subject-name">Chemistry</h3>
     <p class="subject-desc">Physical, organic, and inorganic chemistry summaries, reactions, and periodic trends.</p>
-    <a href="chemistry/index.html" class="subject-link">
-      <span>View Notes</span>
+    
+    <div style="font-size: 0.775rem; color: var(--text-muted); margin-bottom: 1.25rem; display: flex; gap: 0.75rem;">
+      <span><strong>2</strong> Chapters</span>
+      <span>&bull;</span>
+      <span><strong>1</strong> Topics</span>
+    </div>
+
+    <a href="chemistry/" class="subject-link">
+      <span>Browse Chapters</span>
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
     </a>
   </div>
+  
+  
   
   <div class="subject-card">
     <div class="subject-icon-box">
@@ -215,23 +259,42 @@
     </div>
     <h3 class="subject-name">Biology</h3>
     <p class="subject-desc">Cell biology, genetics, human physiology, ecology, and plant systems.</p>
-    <a href="biology/index.html" class="subject-link">
-      <span>View Notes</span>
+    
+    <div style="font-size: 0.775rem; color: var(--text-muted); margin-bottom: 1.25rem; display: flex; gap: 0.75rem;">
+      <span><strong>2</strong> Chapters</span>
+      <span>&bull;</span>
+      <span><strong>1</strong> Topics</span>
+    </div>
+
+    <a href="biology/" class="subject-link">
+      <span>Browse Chapters</span>
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
     </a>
   </div>
   
 </div>
 
-<!-- Recent Notes Feed -->
+<!-- Recent Topics Feed -->
 <div class="section-header">
-  <h2 class="section-title">Latest Study Notes</h2>
-  <span style="font-size: 0.85rem; color: var(--text-muted);">4 topics published</span>
+  <h2 class="section-title">Latest Study Topics</h2>
+  <span style="font-size: 0.85rem; color: var(--text-muted);">6 topics published</span>
 </div>
 
 <div class="notes-list">
   
-  <a href="biology/cell-organelles-and-atp.html" class="note-row">
+  <a href="mathematics/linear-algebra/matrix-multiplication-inverses/" class="note-row">
+    <div class="note-row-main">
+      <span class="note-row-tag">Mathematics &bull; Linear Algebra</span>
+      <h3 class="note-row-title">Matrix Multiplication & Inverses</h3>
+      <p class="note-row-excerpt">High-yield formulas for 2x2 and 3x3 matrix multiplication.</p>
+    </div>
+    <div style="color: var(--text-muted); font-size: 0.8rem; white-space: nowrap; display: flex; align-items: center; gap: 0.35rem;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span>1 min</span>
+    </div>
+  </a>
+  
+  <a href="biology/cell-biology/cell-organelles-and-atp/" class="note-row">
     <div class="note-row-main">
       <span class="note-row-tag">Biology &bull; Cell Biology</span>
       <h3 class="note-row-title">Cell Organelles, Membrane Transport & Cellular Respiration</h3>
@@ -243,7 +306,7 @@
     </div>
   </a>
   
-  <a href="chemistry/organic-reaction-mechanisms.html" class="note-row">
+  <a href="chemistry/organic-mechanisms/organic-reaction-mechanisms/" class="note-row">
     <div class="note-row-main">
       <span class="note-row-tag">Chemistry &bull; Organic Mechanisms</span>
       <h3 class="note-row-title">Electrophilic vs Nucleophilic Substitution & Elimination (SN1, SN2, E1, E2)</h3>
@@ -255,7 +318,7 @@
     </div>
   </a>
   
-  <a href="mathematics/calculus-fundamental-theorem.html" class="note-row">
+  <a href="mathematics/calculus/calculus-fundamental-theorem/" class="note-row">
     <div class="note-row-main">
       <span class="note-row-tag">Mathematics &bull; Calculus</span>
       <h3 class="note-row-title">Fundamental Theorem of Calculus & Key Derivatives</h3>
@@ -267,7 +330,19 @@
     </div>
   </a>
   
-  <a href="physics/thermodynamics-carnot-engine.html" class="note-row">
+  <a href="mathematics/differential-caculus/topic-2/" class="note-row">
+    <div class="note-row-main">
+      <span class="note-row-tag">Mathematics &bull; Differential Caculus</span>
+      <h3 class="note-row-title">topic 2</h3>
+      <p class="note-row-excerpt">yyfuyfuyf</p>
+    </div>
+    <div style="color: var(--text-muted); font-size: 0.8rem; white-space: nowrap; display: flex; align-items: center; gap: 0.35rem;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span>1 min</span>
+    </div>
+  </a>
+  
+  <a href="physics/thermodynamics/thermodynamics-carnot-engine/" class="note-row">
     <div class="note-row-main">
       <span class="note-row-tag">Physics &bull; Thermodynamics</span>
       <h3 class="note-row-title">Laws of Thermodynamics & Carnot Engine Efficiency</h3>
@@ -306,13 +381,13 @@
           <h4 class="footer-col-title">Subjects</h4>
           <ul class="footer-links">
             
-            <li><a href="mathematics/index.html">Mathematics</a></li>
+            <li><a href="mathematics/">Mathematics</a></li>
             
-            <li><a href="physics/index.html">Physics</a></li>
+            <li><a href="physics/">Physics</a></li>
             
-            <li><a href="chemistry/index.html">Chemistry</a></li>
+            <li><a href="chemistry/">Chemistry</a></li>
             
-            <li><a href="biology/index.html">Biology</a></li>
+            <li><a href="biology/">Biology</a></li>
             
           </ul>
         </div>
@@ -320,11 +395,11 @@
         <div>
           <h4 class="footer-col-title">Legal & Trust</h4>
           <ul class="footer-links">
-            <li><a href="pages/about.html">About Us</a></li>
-            <li><a href="pages/privacy-policy.html">Privacy Policy</a></li>
-            <li><a href="pages/terms-and-conditions.html">Terms & Conditions</a></li>
-            <li><a href="pages/contact.html">Contact Us</a></li>
-            <li><a href="pages/disclaimer.html">Disclaimer</a></li>
+            <li><a href="about/">About Us</a></li>
+            <li><a href="privacy-policy/">Privacy Policy</a></li>
+            <li><a href="terms-and-conditions/">Terms & Conditions</a></li>
+            <li><a href="contact/">Contact Us</a></li>
+            <li><a href="disclaimer/">Disclaimer</a></li>
           </ul>
         </div>
       </div>

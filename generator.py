@@ -2,9 +2,8 @@
 """
 shrtnotes - Core Static Site Generator (SSG)
 =============================================
-Compiles Markdown study notes, subject indices, legal pages,
-sitemap.xml, and robots.txt into a high-performance static website
-with 100% relative linking (zero 404s on LAN or web) and custom SVG icon support.
+Compiles study notes with Chapter-Wise hierarchy (Subject -> Chapter -> Topic),
+clean URLs (NO .html visible anywhere), and a universal multi-network ad engine.
 """
 
 import os
@@ -45,14 +44,56 @@ DEFAULT_ICONS = {
     "palette": '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>'
 }
 
+
 def get_icon(icon_name):
     """Return inline SVG markup for a given icon name or raw SVG."""
     if not icon_name:
         return DEFAULT_ICONS["book"]
-    s = icon_name.strip()
+    s = str(icon_name).strip()
     if s.startswith("<svg"):
         return s
     return DEFAULT_ICONS.get(s, DEFAULT_ICONS["book"])
+
+
+def get_ad_markup(slot_type, config):
+    """Generate universal ad container markup for any ad platform."""
+    ads = config.get("ads", {})
+    if not ads.get("enabled", False):
+        return ""
+
+    # 1. Check custom HTML/JS code for this slot
+    custom_code = ads.get(f"{slot_type}_ad", "").strip()
+    if custom_code:
+        return f'''
+        <div class="ad-slot-wrapper">
+          <span class="ad-label">Advertisement</span>
+          <div class="ad-container ad-{slot_type}">
+            {custom_code}
+          </div>
+        </div>
+        '''
+
+    # 2. Check AdSense fallback parameters
+    adsense = ads.get("adsense", {})
+    client_id = adsense.get("client_id", "").strip()
+    slot_id = adsense.get(f"{slot_type}_slot", "").strip()
+
+    if client_id and slot_id and client_id != "ca-pub-XXXXXXXXXXXXXXXX":
+        return f'''
+        <div class="ad-slot-wrapper">
+          <span class="ad-label">Advertisement</span>
+          <div class="ad-container ad-{slot_type}">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="{client_id}"
+                 data-ad-slot="{slot_id}"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({{}});</script>
+          </div>
+        </div>
+        '''
+    return ""
 
 
 def load_config():
@@ -97,27 +138,46 @@ def calculate_reading_time(text):
 
 
 def markdown_to_html(md_text):
-    """
-    Convert Markdown to clean HTML while preserving KaTeX math delimiters ($ and $$).
-    """
+    """Convert Markdown to clean HTML with KaTeX formulas preserved."""
     md = markdown.Markdown(
         extensions=[
-            "extra",          # tables, attr_list, def_list, fenced_code
-            "codehilite",     # code syntax styling
-            "toc",            # table of contents
-            "nl2br",          # newline to br
-            "sane_lists"      # clean list nesting
+            "extra",
+            "codehilite",
+            "toc",
+            "nl2br",
+            "sane_lists"
         ]
     )
     return md.convert(md_text)
 
 
+def write_clean_page(rel_path_dir, html_content):
+    """
+    Writes index.html inside rel_path_dir to ensure Clean URLs (no .html extension).
+    Example: rel_path_dir='about' writes to site/about/index.html (accessed as /about/).
+    """
+    if rel_path_dir:
+        out_dir = OUTPUT_DIR / rel_path_dir
+    else:
+        out_dir = OUTPUT_DIR
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_file = out_dir / "index.html"
+    with open(out_file, "w", encoding="utf-8") as f:
+        f.write(html_content)
+
+
 def build_site():
-    """Main build process that compiles all pages, sitemap, and assets with relative links."""
-    print("🚀 Starting shrtnotes static site build...")
+    """
+    Main static site generator with:
+    - Chapter-Wise hierarchy (Subject -> Chapter -> Topic)
+    - Clean URLs (NO .html visible)
+    - Universal Ad Engine (Any network or AdSense)
+    """
+    print("🚀 Starting shrtnotes static site build with Clean URLs & Chapter hierarchy...")
     config = load_config()
 
-    # Ensure output directories exist
+    # Recreate output directory
     if OUTPUT_DIR.exists():
         shutil.rmtree(OUTPUT_DIR)
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -127,51 +187,104 @@ def build_site():
     if STATIC_DIR.exists():
         shutil.copytree(STATIC_DIR, site_static)
 
-    # Initialize Jinja2 environment and register get_icon helper
+    # Initialize Jinja2 environment and helpers
     env = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)))
     env.globals["get_icon"] = get_icon
 
     template_index = env.get_template("index.html")
     template_note = env.get_template("note.html")
     template_subject = env.get_template("subject.html")
+    template_chapter = env.get_template("chapter.html")
     template_page = env.get_template("page.html")
 
     current_year = datetime.now().year
     today_str = datetime.now().strftime("%Y-%m-%d")
 
-    # Map subject metadata by id
-    subjects_map = {s["id"]: s for s in config.get("subjects", [])}
+    # Generate ad slot HTML snippets
+    ad_slots = {
+        "header": get_ad_markup("header", config),
+        "in_article": get_ad_markup("in_article", config),
+        "sidebar": get_ad_markup("sidebar", config),
+        "footer": get_ad_markup("footer", config)
+    }
 
-    # 1. Load and parse all study notes
-    notes_by_subject = {s["id"]: [] for s in config.get("subjects", [])}
+    # Prepare subjects and chapters dictionary from config
+    subjects = config.get("subjects", [])
+    subjects_dict = {}
+    for sub in subjects:
+        sub_id = sub["id"]
+        chapters_list = sub.get("chapters", [])
+        chapters_dict = {ch["id"]: ch for ch in chapters_list}
+        subjects_dict[sub_id] = {
+            "info": sub,
+            "chapters": chapters_dict,
+            "notes": []
+        }
+
+    # 1. Discover all notes/topics in content/notes/
     all_notes = []
-
     if NOTES_DIR.exists():
         for note_file in sorted(NOTES_DIR.glob("**/*.md")):
             meta, md_content = parse_frontmatter(note_file)
             if not meta.get("title"):
                 continue
 
-            sub_id = meta.get("subject", "").lower().strip()
+            sub_id = str(meta.get("subject", "")).lower().strip()
+            # If not in frontmatter, infer from directory
+            rel_parts = note_file.relative_to(NOTES_DIR).parts
+            if not sub_id and len(rel_parts) >= 2:
+                sub_id = rel_parts[0].lower().strip()
+
+            if sub_id not in subjects_dict:
+                # Dynamically register unknown subject
+                subjects_dict[sub_id] = {
+                    "info": {"id": sub_id, "name": sub_id.capitalize(), "description": "", "icon": "book", "chapters": []},
+                    "chapters": {},
+                    "notes": []
+                }
+
+            # Chapter handling
+            chapter_raw = str(meta.get("chapter", "")).strip()
+            if not chapter_raw and len(rel_parts) >= 3:
+                chapter_raw = rel_parts[1]
+            if not chapter_raw:
+                chapter_raw = "general"
+
+            chapter_id = chapter_raw.lower().replace(" ", "-")
+            # Look up or create chapter
+            ch_info = subjects_dict[sub_id]["chapters"].get(chapter_id)
+            if not ch_info:
+                # Look up by name
+                for c in subjects_dict[sub_id]["chapters"].values():
+                    if c.get("name", "").lower() == chapter_raw.lower():
+                        ch_info = c
+                        chapter_id = c["id"]
+                        break
+            if not ch_info:
+                ch_name = chapter_raw.replace("-", " ").title()
+                ch_info = {"id": chapter_id, "name": ch_name, "description": ""}
+                subjects_dict[sub_id]["chapters"][chapter_id] = ch_info
+
             slug = meta.get("slug") or note_file.stem
-            chapter = meta.get("chapter", "General Concepts")
             excerpt = meta.get("excerpt") or (md_content[:140].replace("\n", " ") + "...")
             date = meta.get("date", today_str)
             last_modified = meta.get("last_modified", date)
-            order = meta.get("order", 100)
-
-            sub_info = subjects_map.get(sub_id, {"name": sub_id.capitalize(), "id": sub_id, "icon": "book"})
+            order = int(meta.get("order", 100))
 
             html_content = markdown_to_html(md_content)
             reading_time = calculate_reading_time(md_content)
 
+            sub_name = subjects_dict[sub_id]["info"].get("name", sub_id.capitalize())
+            chapter_name = ch_info.get("name", chapter_id.title())
+
             note_obj = {
-                "file_path": str(note_file),
+                "file_path": str(note_file.relative_to(NOTES_DIR)),
                 "title": meta.get("title"),
                 "slug": slug,
                 "subject": sub_id,
-                "subject_name": sub_info.get("name", sub_id.capitalize()),
-                "chapter": chapter,
+                "subject_name": sub_name,
+                "chapter": chapter_id,
+                "chapter_name": chapter_name,
                 "excerpt": excerpt,
                 "date": date,
                 "last_modified": last_modified,
@@ -181,55 +294,71 @@ def build_site():
                 "html_content": html_content
             }
 
-            if sub_id not in notes_by_subject:
-                notes_by_subject[sub_id] = []
-            notes_by_subject[sub_id].append(note_obj)
+            subjects_dict[sub_id]["notes"].append(note_obj)
             all_notes.append(note_obj)
 
-    # Sort notes within each subject by order and title
-    for sub_id in notes_by_subject:
-        notes_by_subject[sub_id].sort(key=lambda x: (x["chapter"], x["order"], x["title"]))
-
-    # Sort all notes for homepage (newest first)
+    # Sort all notes for home page feed
     all_notes.sort(key=lambda x: x["last_modified"], reverse=True)
 
     sitemap_entries = []
 
-    # 2. Render Note Pages (Root depth: 1 level down -> root_path is "../")
-    for sub_id, sub_notes in notes_by_subject.items():
-        sub_dir = OUTPUT_DIR / sub_id
-        sub_dir.mkdir(parents=True, exist_ok=True)
+    # 2. Render Topics, Chapters, and Subject Pages with Clean URLs
+    for sub_id, sub_data in subjects_dict.items():
+        sub_info = sub_data["info"]
+        sub_notes = sub_data["notes"]
 
-        # Prepare chapters dictionary for sidebar navigation
-        sidebar_chapters = {}
+        # Group notes by chapter
+        grouped_by_chapter = {}
+        for ch_id, ch_obj in sub_data["chapters"].items():
+            grouped_by_chapter[ch_id] = {
+                "info": ch_obj,
+                "notes": []
+            }
+
         for n in sub_notes:
-            ch = n["chapter"]
-            if ch not in sidebar_chapters:
-                sidebar_chapters[ch] = []
-            sidebar_chapters[ch].append(n)
+            ch_id = n["chapter"]
+            if ch_id not in grouped_by_chapter:
+                grouped_by_chapter[ch_id] = {
+                    "info": {"id": ch_id, "name": n["chapter_name"], "description": ""},
+                    "notes": []
+                }
+            grouped_by_chapter[ch_id]["notes"].append(n)
 
-        for i, note in enumerate(sub_notes):
-            prev_note = sub_notes[i - 1] if i > 0 else None
-            next_note = sub_notes[i + 1] if i < len(sub_notes) - 1 else None
+        # Sort notes within each chapter
+        for ch_id in grouped_by_chapter:
+            grouped_by_chapter[ch_id]["notes"].sort(key=lambda x: (x["order"], x["title"]))
 
-            note_canonical = f"{config.get('site_url', '')}/{sub_id}/{note['slug']}.html"
-            rendered_html = template_note.render(
+        # Sequential list of notes in subject for Prev / Next links
+        flattened_notes = []
+        for ch_id in sorted(grouped_by_chapter.keys()):
+            flattened_notes.extend(grouped_by_chapter[ch_id]["notes"])
+
+        # Render Topic Pages: Clean URL /<subject>/<chapter>/<topic-slug>/
+        for i, note in enumerate(flattened_notes):
+            prev_note = flattened_notes[i - 1] if i > 0 else None
+            next_note = flattened_notes[i + 1] if i < len(flattened_notes) - 1 else None
+
+            # Clean canonical URL ending with slash
+            clean_rel_dir = f"{sub_id}/{note['chapter']}/{note['slug']}"
+            note_canonical = f"{config.get('site_url', '').rstrip('/')}/{clean_rel_dir}/"
+
+            # Root path depth for 3 levels: ../../../
+            rendered_topic = template_note.render(
                 config=config,
                 note=note,
                 content=note["html_content"],
-                sidebar_chapters=sidebar_chapters,
+                grouped_chapters=grouped_by_chapter,
                 prev_note=prev_note,
                 next_note=next_note,
                 page_title=note["title"],
                 page_description=note["excerpt"],
                 current_url=note_canonical,
-                root_path="../",
+                root_path="../../../",
+                ad_slots=ad_slots,
                 current_year=current_year
             )
 
-            out_file = sub_dir / f"{note['slug']}.html"
-            with open(out_file, "w", encoding="utf-8") as f:
-                f.write(rendered_html)
+            write_clean_page(clean_rel_dir, rendered_topic)
 
             sitemap_entries.append({
                 "loc": note_canonical,
@@ -238,21 +367,49 @@ def build_site():
                 "priority": "0.8"
             })
 
-        # 3. Render Subject Overview Page (Root depth: 1 level down -> root_path is "../")
-        sub_info = subjects_map.get(sub_id, {"name": sub_id.capitalize(), "id": sub_id, "description": "", "icon": "book"})
-        sub_canonical = f"{config.get('site_url', '')}/{sub_id}/index.html"
+        # Render Chapter Pages: Clean URL /<subject>/<chapter>/
+        for ch_id, ch_data in grouped_by_chapter.items():
+            clean_ch_dir = f"{sub_id}/{ch_id}"
+            ch_canonical = f"{config.get('site_url', '').rstrip('/')}/{clean_ch_dir}/"
+
+            rendered_ch = template_chapter.render(
+                config=config,
+                subject=sub_info,
+                chapter=ch_data["info"],
+                notes=ch_data["notes"],
+                page_title=f"{ch_data['info']['name']} Notes | {sub_info['name']}",
+                page_description=ch_data["info"].get("description") or f"High yield study notes for {ch_data['info']['name']}.",
+                current_url=ch_canonical,
+                root_path="../../",
+                ad_slots=ad_slots,
+                current_year=current_year
+            )
+
+            write_clean_page(clean_ch_dir, rendered_ch)
+
+            sitemap_entries.append({
+                "loc": ch_canonical,
+                "lastmod": today_str,
+                "changefreq": "daily",
+                "priority": "0.85"
+            })
+
+        # Render Subject Pages: Clean URL /<subject>/
+        sub_canonical = f"{config.get('site_url', '').rstrip('/')}/{sub_id}/"
         rendered_sub = template_subject.render(
             config=config,
             current_subject=sub_info,
-            chapters=sidebar_chapters,
-            page_title=f"{sub_info.get('name')} Notes",
+            grouped_chapters=grouped_by_chapter,
+            total_notes_count=len(sub_notes),
+            page_title=f"{sub_info['name']} Notes",
             page_description=sub_info.get("description", ""),
             current_url=sub_canonical,
             root_path="../",
+            ad_slots=ad_slots,
             current_year=current_year
         )
-        with open(sub_dir / "index.html", "w", encoding="utf-8") as f:
-            f.write(rendered_sub)
+
+        write_clean_page(sub_id, rendered_sub)
 
         sitemap_entries.append({
             "loc": sub_canonical,
@@ -261,19 +418,20 @@ def build_site():
             "priority": "0.9"
         })
 
-    # 4. Render Home Page (Root depth: 0 -> root_path is "")
-    home_canonical = f"{config.get('site_url', '')}/index.html"
+    # 3. Render Home Page: Clean URL /
+    home_canonical = f"{config.get('site_url', '').rstrip('/')}/"
     rendered_index = template_index.render(
         config=config,
         notes=all_notes,
+        subjects_data=subjects_dict,
         page_title="",
         page_description=config.get("description", ""),
         current_url=home_canonical,
         root_path="",
+        ad_slots=ad_slots,
         current_year=current_year
     )
-    with open(OUTPUT_DIR / "index.html", "w", encoding="utf-8") as f:
-        f.write(rendered_index)
+    write_clean_page("", rendered_index)
 
     sitemap_entries.append({
         "loc": home_canonical,
@@ -282,17 +440,16 @@ def build_site():
         "priority": "1.0"
     })
 
-    # 5. Render Standalone Compliance Pages (Root depth: 1 level down -> root_path is "../")
-    pages_out_dir = OUTPUT_DIR / "pages"
-    pages_out_dir.mkdir(parents=True, exist_ok=True)
-
+    # 4. Render Standalone Compliance Pages with Clean URLs (e.g. /about/, /privacy-policy/)
     if PAGES_DIR.exists():
         for page_file in PAGES_DIR.glob("*.md"):
             meta, md_content = parse_frontmatter(page_file)
             slug = meta.get("slug") or page_file.stem
             title = meta.get("title", slug.replace("-", " ").title())
             html_content = markdown_to_html(md_content)
-            page_canonical = f"{config.get('site_url', '')}/pages/{slug}.html"
+
+            clean_page_dir = slug
+            page_canonical = f"{config.get('site_url', '').rstrip('/')}/{clean_page_dir}/"
 
             page_obj = {
                 "title": title,
@@ -309,11 +466,11 @@ def build_site():
                 page_description=f"{title} - {config.get('site_name')}",
                 current_url=page_canonical,
                 root_path="../",
+                ad_slots=ad_slots,
                 current_year=current_year
             )
 
-            with open(pages_out_dir / f"{slug}.html", "w", encoding="utf-8") as f:
-                f.write(rendered_page)
+            write_clean_page(clean_page_dir, rendered_page)
 
             sitemap_entries.append({
                 "loc": page_canonical,
@@ -322,7 +479,7 @@ def build_site():
                 "priority": "0.5"
             })
 
-    # 6. Generate Valid XML Sitemap
+    # 5. Generate Valid XML Sitemap with Clean URLs
     sitemap_xml = ['<?xml version="1.0" encoding="UTF-8"?>']
     sitemap_xml.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
     for entry in sitemap_entries:
@@ -337,16 +494,16 @@ def build_site():
     with open(OUTPUT_DIR / "sitemap.xml", "w", encoding="utf-8") as f:
         f.write("\n".join(sitemap_xml))
 
-    # 7. Generate robots.txt
+    # 6. Generate robots.txt
     robots_txt = [
         "User-agent: *",
         "Allow: /",
-        f"Sitemap: {config.get('site_url', '')}/sitemap.xml"
+        f"Sitemap: {config.get('site_url', '').rstrip('/')}/sitemap.xml"
     ]
     with open(OUTPUT_DIR / "robots.txt", "w", encoding="utf-8") as f:
         f.write("\n".join(robots_txt))
 
-    print(f"✅ Build complete! Generated {len(all_notes)} notes, {len(config.get('subjects', []))} subjects, and {len(sitemap_entries)} URLs in sitemap.xml.")
+    print(f"✅ Build complete! Compiled {len(all_notes)} topics across chapters with 100% Clean URLs (0 .html) and {len(sitemap_entries)} sitemap URLs.")
     return len(all_notes)
 
 

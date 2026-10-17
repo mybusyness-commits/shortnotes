@@ -15,34 +15,95 @@
       "id": "mathematics",
       "name": "Mathematics",
       "description": "Formulas, theorems, and step-by-step calculus, algebra, and geometry notes.",
-      "icon": "calculator"
+      "icon": "calculator",
+      "chapters": [
+        {
+          "id": "calculus",
+          "name": "Calculus",
+          "description": "Differential and integral calculus, limits, and applications."
+        },
+        {
+          "id": "algebra",
+          "name": "Algebra",
+          "description": "Matrices, vector spaces, and linear equations."
+        },
+        {
+          "id": "linear-algebra",
+          "name": "Linear Algebra",
+          "description": "Matrices, eigenvalues, and vectors."
+        }
+      ]
     },
     {
       "id": "physics",
       "name": "Physics",
       "description": "Concepts, laws, derivation summaries, and mechanics to modern physics.",
-      "icon": "atom"
+      "icon": "atom",
+      "chapters": [
+        {
+          "id": "thermodynamics",
+          "name": "Thermodynamics",
+          "description": "Thermal equilibrium, Carnot engines, and entropy."
+        },
+        {
+          "id": "mechanics",
+          "name": "Classical Mechanics",
+          "description": "Kinematics, Newton's laws, work, and momentum."
+        }
+      ]
     },
     {
       "id": "chemistry",
       "name": "Chemistry",
       "description": "Physical, organic, and inorganic chemistry summaries, reactions, and periodic trends.",
-      "icon": "flask-conical"
+      "icon": "flask-conical",
+      "chapters": [
+        {
+          "id": "organic-chemistry",
+          "name": "Organic Chemistry",
+          "description": "Reaction mechanisms, stereochemistry, and synthesis."
+        },
+        {
+          "id": "physical-chemistry",
+          "name": "Physical Chemistry",
+          "description": "Equilibrium, electrochemistry, and kinetics."
+        }
+      ]
     },
     {
       "id": "biology",
       "name": "Biology",
       "description": "Cell biology, genetics, human physiology, ecology, and plant systems.",
-      "icon": "dna"
+      "icon": "dna",
+      "chapters": [
+        {
+          "id": "cell-biology",
+          "name": "Cell Biology",
+          "description": "Cell organelles, respiration, ATP synthesis, and mitosis."
+        },
+        {
+          "id": "genetics",
+          "name": "Genetics & Evolution",
+          "description": "Mendelian genetics, DNA replication, and gene expression."
+        }
+      ]
     }
   ],
   "ads": {
-    "enabled": false,
-    "adsense_client_id": "ca-pub-XXXXXXXXXXXXXXXX",
-    "header_ad_slot": "",
-    "in_article_ad_slot": "",
-    "sidebar_ad_slot": "",
-    "footer_ad_slot": ""
+    "enabled": true,
+    "provider": "custom",
+    "head_code": "<!-- Media.net or AdSense script -->",
+    "header_ad": "<div id=\"banner-ad-test\">Custom Network Banner</div>",
+    "in_article_ad": "<div id=\"in-article-ad-test\">Custom Network In-Article</div>",
+    "sidebar_ad": "",
+    "footer_ad": "",
+    "adsense": {
+      "client_id": "ca-pub-1234567890123456",
+      "header_slot": "9876543210",
+      "in_article_slot": "8765432109",
+      "sidebar_slot": "7654321098",
+      "footer_slot": ""
+    }
   },
   "analytics": {
     "google_analytics_id": ""
@@ -50,6 +111,6 @@
   "github": {
     "remote_name": "origin",
     "branch": "main",
-    "repo_url": "https://github.com/myuser/shrtnotes.git"
+    "repo_url": ""
   }
 }

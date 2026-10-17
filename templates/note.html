@@ -13,19 +13,19 @@
           "@type": "ListItem",
           "position": 1,
           "name": "Home",
-          "item": "{{ config.site_url }}/index.html"
+          "item": "{{ config.site_url }}/"
         },
         {
           "@type": "ListItem",
           "position": 2,
           "name": "{{ note.subject_name }}",
-          "item": "{{ config.site_url }}/{{ note.subject }}/index.html"
+          "item": "{{ config.site_url }}/{{ note.subject }}/"
         },
         {
           "@type": "ListItem",
           "position": 3,
-          "name": "{{ note.chapter }}",
-          "item": "{{ config.site_url }}/{{ note.subject }}/index.html#{{ note.chapter|lower|replace(' ', '-') }}"
+          "name": "{{ note.chapter_name }}",
+          "item": "{{ config.site_url }}/{{ note.subject }}/{{ note.chapter }}/"
         },
         {
           "@type": "ListItem",
@@ -39,7 +39,7 @@
       "@type": "TechArticle",
       "headline": "{{ note.title }}",
       "description": "{{ note.excerpt }}",
-      "articleSection": "{{ note.subject_name }}",
+      "articleSection": "{{ note.chapter_name }}",
       "author": {
         "@type": "Organization",
         "name": "{{ config.site_name }}"
@@ -82,18 +82,18 @@
     <div class="sidebar-section">
       <div class="sidebar-title">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-        <a href="{{ root_path }}{{ note.subject }}/index.html" style="color: inherit;">{{ note.subject_name }} Notes</a>
+        <a href="{{ root_path }}{{ note.subject }}/" style="color: inherit;">{{ note.subject_name }} Chapters</a>
       </div>
       
-      {% for chapter_name, chapter_notes in sidebar_chapters.items() %}
-      <div style="margin-top: 1rem;">
-        <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.35rem; padding-left: 0.5rem;">
-          {{ chapter_name }}
+      {% for ch_id, ch_data in grouped_chapters.items() %}
+      <div style="margin-top: 1.15rem;">
+        <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.4rem; padding-left: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">
+          <a href="{{ root_path }}{{ note.subject }}/{{ ch_id }}/" style="color: inherit;">{{ ch_data.info.name }}</a>
         </div>
         <ul class="sidebar-list">
-          {% for item in chapter_notes %}
-          <li class="sidebar-item {% if item.slug == note.slug %}active{% endif %}">
-            <a href="{{ root_path }}{{ item.subject }}/{{ item.slug }}.html">{{ item.title }}</a>
+          {% for item in ch_data.notes %}
+          <li class="sidebar-item {% if item.slug == note.slug and item.chapter == note.chapter %}active{% endif %}">
+            <a href="{{ root_path }}{{ item.subject }}/{{ item.chapter }}/{{ item.slug }}/">{{ item.title }}</a>
           </li>
           {% endfor %}
         </ul>
@@ -101,19 +101,10 @@
       {% endfor %}
     </div>
 
-    <!-- Sidebar Non-Intrusive Sticky Ad Slot -->
-    {% if config.ads.enabled and config.ads.sidebar_ad_slot %}
-    <div class="ad-slot-wrapper" style="margin-top: 2rem;">
-      <span class="ad-label">Advertisement</span>
-      <div class="ad-container ad-sidebar">
-        <ins class="adsbygoogle"
-             style="display:block"
-             data-ad-client="{{ config.ads.adsense_client_id }}"
-             data-ad-slot="{{ config.ads.sidebar_ad_slot }}"
-             data-ad-format="auto"
-             data-full-width-responsive="true"></ins>
-        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-      </div>
+    <!-- Universal Sticky Sidebar Ad Slot -->
+    {% if ad_slots.sidebar %}
+    <div style="margin-top: 2rem;">
+      {{ ad_slots.sidebar|safe }}
     </div>
     {% endif %}
   </aside>
@@ -121,13 +112,13 @@
   <!-- Note Article Content -->
   <article>
     <header class="article-header">
-      <!-- Breadcrumb Trail -->
+      <!-- Breadcrumb Trail with Clean URLs -->
       <nav class="breadcrumbs" aria-label="Breadcrumb">
-        <a href="{{ root_path }}index.html">Home</a>
+        <a href="{{ root_path }}">Home</a>
         <svg class="breadcrumb-separator" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-        <a href="{{ root_path }}{{ note.subject }}/index.html">{{ note.subject_name }}</a>
+        <a href="{{ root_path }}{{ note.subject }}/">{{ note.subject_name }}</a>
         <svg class="breadcrumb-separator" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-        <span>{{ note.chapter }}</span>
+        <a href="{{ root_path }}{{ note.subject }}/{{ note.chapter }}/">{{ note.chapter_name }}</a>
       </nav>
 
       <h1 class="article-title">{{ note.title }}</h1>
@@ -143,24 +134,15 @@
         </span>
         <span class="meta-item">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/></svg>
-          {{ note.chapter }}
+          {{ note.chapter_name }}
         </span>
       </div>
     </header>
 
-    <!-- In-Article Top Ad Slot (Non-Intrusive, Zero CLS) -->
-    {% if config.ads.enabled and config.ads.in_article_ad_slot %}
-    <div class="ad-slot-wrapper">
-      <span class="ad-label">Advertisement</span>
-      <div class="ad-container ad-in-article">
-        <ins class="adsbygoogle"
-             style="display:block; text-align:center;"
-             data-ad-layout="in-article"
-             data-ad-format="fluid"
-             data-ad-client="{{ config.ads.adsense_client_id }}"
-             data-ad-slot="{{ config.ads.in_article_ad_slot }}"></ins>
-        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-      </div>
+    <!-- Universal In-Article Top Ad Slot -->
+    {% if ad_slots.in_article %}
+    <div style="margin: 1.5rem 0;">
+      {{ ad_slots.in_article|safe }}
     </div>
     {% endif %}
 
@@ -169,13 +151,13 @@
       {{ content|safe }}
     </div>
 
-    <!-- Article Navigation (Previous / Next) -->
+    <!-- Article Navigation (Previous / Next Topic with Clean URLs) -->
     <div class="article-navigation">
       {% if prev_note %}
-      <a href="{{ root_path }}{{ prev_note.subject }}/{{ prev_note.slug }}.html" class="nav-card">
+      <a href="{{ root_path }}{{ prev_note.subject }}/{{ prev_note.chapter }}/{{ prev_note.slug }}/" class="nav-card">
         <span class="nav-card-sub">
           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-          Previous Note
+          Previous Topic ({{ prev_note.chapter_name }})
         </span>
         <span class="nav-card-title">{{ prev_note.title }}</span>
       </a>
@@ -184,9 +166,9 @@
       {% endif %}
 
       {% if next_note %}
-      <a href="{{ root_path }}{{ next_note.subject }}/{{ next_note.slug }}.html" class="nav-card next">
+      <a href="{{ root_path }}{{ next_note.subject }}/{{ next_note.chapter }}/{{ next_note.slug }}/" class="nav-card next">
         <span class="nav-card-sub">
-          Next Note
+          Next Topic ({{ next_note.chapter_name }})
           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
         </span>
         <span class="nav-card-title">{{ next_note.title }}</span>

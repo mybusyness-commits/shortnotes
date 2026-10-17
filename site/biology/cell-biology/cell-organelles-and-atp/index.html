@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Laws of Thermodynamics & Carnot Engine Efficiency | shrtnotes</title>
-  <meta name="description" content="Concise summary of the Zeroth, First, and Second Laws of Thermodynamics, state functions, and Carnot cycle equations.">
+  <title>Cell Organelles, Membrane Transport & Cellular Respiration | shrtnotes</title>
+  <meta name="description" content="Quick summary of eukaryotic cell organelles, passive vs active membrane transport, and net ATP yields in aerobic cellular respiration.">
   
-  <!-- Canonical & OpenGraph -->
-  <link rel="canonical" href="https://shrtnotes.pages.dev/physics/thermodynamics-carnot-engine.html">
-  <meta property="og:title" content="Laws of Thermodynamics & Carnot Engine Efficiency | shrtnotes">
-  <meta property="og:description" content="Concise summary of the Zeroth, First, and Second Laws of Thermodynamics, state functions, and Carnot cycle equations.">
+  <!-- Canonical & OpenGraph (Clean URL ending in /) -->
+  <link rel="canonical" href="https://shrtnotes.pages.dev/biology/cell-biology/cell-organelles-and-atp/">
+  <meta property="og:title" content="Cell Organelles, Membrane Transport & Cellular Respiration | shrtnotes">
+  <meta property="og:description" content="Quick summary of eukaryotic cell organelles, passive vs active membrane transport, and net ATP yields in aerobic cellular respiration.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://shrtnotes.pages.dev/physics/thermodynamics-carnot-engine.html">
+  <meta property="og:url" content="https://shrtnotes.pages.dev/biology/cell-biology/cell-organelles-and-atp/">
   
-  <!-- CSS Stylesheet (Relative path ensures 100% zero 404s on LAN & web) -->
-  <link rel="stylesheet" href="../static/css/style.css">
+  <!-- CSS Stylesheet (Clean Relative Path) -->
+  <link rel="stylesheet" href="../../../static/css/style.css">
   
   <!-- KaTeX for crisp mathematical/scientific formula rendering -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
@@ -22,10 +22,14 @@
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"
           onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
 
-  <!-- Google AdSense Integration (Non-blocking, conditional) -->
+  <!-- Universal Ad Platform Head Code (Google AdSense, Media.net, Ezoic, etc.) -->
+  
+    
+      <!-- Media.net or AdSense script -->
+    
   
 
-  <!-- Google Analytics (Optional) -->
+  <!-- Analytics Tag (Optional) -->
   
 
   
@@ -41,33 +45,33 @@
           "@type": "ListItem",
           "position": 1,
           "name": "Home",
-          "item": "https://shrtnotes.pages.dev/index.html"
+          "item": "https://shrtnotes.pages.dev/"
         },
         {
           "@type": "ListItem",
           "position": 2,
-          "name": "Physics",
-          "item": "https://shrtnotes.pages.dev/physics/index.html"
+          "name": "Biology",
+          "item": "https://shrtnotes.pages.dev/biology/"
         },
         {
           "@type": "ListItem",
           "position": 3,
-          "name": "Thermodynamics",
-          "item": "https://shrtnotes.pages.dev/physics/index.html#thermodynamics"
+          "name": "Cell Biology",
+          "item": "https://shrtnotes.pages.dev/biology/cell-biology/"
         },
         {
           "@type": "ListItem",
           "position": 4,
-          "name": "Laws of Thermodynamics & Carnot Engine Efficiency",
-          "item": "https://shrtnotes.pages.dev/physics/thermodynamics-carnot-engine.html"
+          "name": "Cell Organelles, Membrane Transport & Cellular Respiration",
+          "item": "https://shrtnotes.pages.dev/biology/cell-biology/cell-organelles-and-atp/"
         }
       ]
     },
     {
       "@type": "TechArticle",
-      "headline": "Laws of Thermodynamics & Carnot Engine Efficiency",
-      "description": "Concise summary of the Zeroth, First, and Second Laws of Thermodynamics, state functions, and Carnot cycle equations.",
-      "articleSection": "Physics",
+      "headline": "Cell Organelles, Membrane Transport & Cellular Respiration",
+      "description": "Quick summary of eukaryotic cell organelles, passive vs active membrane transport, and net ATP yields in aerobic cellular respiration.",
+      "articleSection": "Cell Biology",
       "author": {
         "@type": "Organization",
         "name": "shrtnotes"
@@ -89,7 +93,7 @@
   <!-- Top Navigation Header -->
   <header class="navbar">
     <div class="nav-container">
-      <a href="../index.html" class="brand-logo" aria-label="shrtnotes Home">
+      <a href="../../../" class="brand-logo" aria-label="shrtnotes Home">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
           <path d="M6 6h10"/>
@@ -103,21 +107,21 @@
           <circle cx="11" cy="11" r="8"/>
           <path d="m21 21-4.3-4.3"/>
         </svg>
-        <input type="text" id="global-search-input" class="search-input" placeholder="Search notes..." aria-label="Search notes">
+        <input type="text" id="global-search-input" class="search-input" placeholder="Search topics..." aria-label="Search topics">
       </div>
 
       <nav>
         <ul class="nav-links">
           
-          <li><a href="../mathematics/index.html" class="nav-link">Mathematics</a></li>
+          <li><a href="../../../mathematics/" class="nav-link">Mathematics</a></li>
           
-          <li><a href="../physics/index.html" class="nav-link">Physics</a></li>
+          <li><a href="../../../physics/" class="nav-link">Physics</a></li>
           
-          <li><a href="../chemistry/index.html" class="nav-link">Chemistry</a></li>
+          <li><a href="../../../chemistry/" class="nav-link">Chemistry</a></li>
           
-          <li><a href="../biology/index.html" class="nav-link">Biology</a></li>
+          <li><a href="../../../biology/" class="nav-link">Biology</a></li>
           
-          <li><a href="../pages/about.html" class="nav-link">About</a></li>
+          <li><a href="../../../about/" class="nav-link">About</a></li>
         </ul>
       </nav>
 
@@ -162,28 +166,28 @@
       <ul class="mobile-nav-list">
         
         <li>
-          <a href="../mathematics/index.html" class="mobile-nav-item">
+          <a href="../../../mathematics/" class="mobile-nav-item">
             <span class="mobile-nav-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg></span>
             <span>Mathematics</span>
           </a>
         </li>
         
         <li>
-          <a href="../physics/index.html" class="mobile-nav-item">
+          <a href="../../../physics/" class="mobile-nav-item">
             <span class="mobile-nav-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><path d="M20.2 20.2c2.04-2.03.02-7.36-4.5-11.9-4.54-4.52-9.87-6.54-11.9-4.5-2.04 2.03-.02 7.36 4.5 11.9 4.54 4.52 9.87 6.54 11.9 4.5Z"/><path d="M15.7 15.7c4.52-4.54 6.54-9.87 4.5-11.9-2.03-2.04-7.36-.02-11.9 4.5-4.52 4.54-6.54 9.87-4.5 11.9 2.03 2.04 7.36.02 11.9-4.5Z"/></svg></span>
             <span>Physics</span>
           </a>
         </li>
         
         <li>
-          <a href="../chemistry/index.html" class="mobile-nav-item">
+          <a href="../../../chemistry/" class="mobile-nav-item">
             <span class="mobile-nav-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v7.31L4.1 20.3A2 2 0 0 0 5.8 23h12.4a2 2 0 0 0 1.7-2.7L14 9.31V2"/><path d="M8.5 2h7"/><path d="M14 9.3 8.5 19"/></svg></span>
             <span>Chemistry</span>
           </a>
         </li>
         
         <li>
-          <a href="../biology/index.html" class="mobile-nav-item">
+          <a href="../../../biology/" class="mobile-nav-item">
             <span class="mobile-nav-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 15c6.667-6 13.333 0 20-6"/><path d="M9 22c1.798-1.998 2.518-3.995 2.807-5.993"/><path d="M15 2c-1.798 1.998-2.518 3.995-2.807 5.993"/><path d="m17 6-2.5-2.5"/><path d="m14 8-1-1"/><path d="m7 18 2.5 2.5"/><path d="m3.5 14.5.5.5"/><path d="m20 9 .5.5"/><path d="m6.5 12.5 1 1"/><path d="m16.5 10.5 1 1"/><path d="m10 16 1 1"/></svg></span>
             <span>Biology</span>
           </a>
@@ -191,19 +195,30 @@
         
       </ul>
 
-      <div class="mobile-nav-section-title" style="margin-top: 1.5rem;">Information & Legal</div>
+      <div class="mobile-nav-section-title" style="margin-top: 1.5rem;">Information & Trust</div>
       <ul class="mobile-nav-list">
-        <li><a href="../pages/about.html" class="mobile-nav-item">About Us</a></li>
-        <li><a href="../pages/privacy-policy.html" class="mobile-nav-item">Privacy Policy</a></li>
-        <li><a href="../pages/terms-and-conditions.html" class="mobile-nav-item">Terms & Conditions</a></li>
-        <li><a href="../pages/contact.html" class="mobile-nav-item">Contact Us</a></li>
-        <li><a href="../pages/disclaimer.html" class="mobile-nav-item">Disclaimer</a></li>
+        <li><a href="../../../about/" class="mobile-nav-item">About Us</a></li>
+        <li><a href="../../../privacy-policy/" class="mobile-nav-item">Privacy Policy</a></li>
+        <li><a href="../../../terms-and-conditions/" class="mobile-nav-item">Terms & Conditions</a></li>
+        <li><a href="../../../contact/" class="mobile-nav-item">Contact Us</a></li>
+        <li><a href="../../../disclaimer/" class="mobile-nav-item">Disclaimer</a></li>
       </ul>
     </div>
   </div>
   <div id="mobile-backdrop" class="mobile-backdrop"></div>
 
   <!-- Top Non-Intrusive Header Ad Slot -->
+  
+  <div class="main-layout" style="padding-bottom: 0;">
+    
+        <div class="ad-slot-wrapper">
+          <span class="ad-label">Advertisement</span>
+          <div class="ad-container ad-header">
+            <div id="banner-ad-test">Custom Network Banner</div>
+          </div>
+        </div>
+        
+  </div>
   
 
   <!-- Main Content Block -->
@@ -214,7 +229,7 @@
   <button id="mobile-chapter-toggle-btn" class="mobile-chapter-btn">
     <div style="display: flex; align-items: center; gap: 0.5rem;">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/></svg>
-      <span>Browse Physics Topics</span>
+      <span>Browse Biology Topics</span>
     </div>
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
   </button>
@@ -224,7 +239,7 @@
   <!-- Subject & Chapter Navigation Sidebar -->
   <aside class="content-sidebar" id="content-sidebar">
     <div class="sidebar-header-mobile">
-      <span style="font-weight: 700; font-size: 0.95rem;">Physics Chapters</span>
+      <span style="font-weight: 700; font-size: 0.95rem;">Biology Chapters</span>
       <button id="sidebar-close-btn" class="theme-toggle-btn" aria-label="Close sidebar">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
       </button>
@@ -233,42 +248,68 @@
     <div class="sidebar-section">
       <div class="sidebar-title">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-        <a href="../physics/index.html" style="color: inherit;">Physics Notes</a>
+        <a href="../../../biology/" style="color: inherit;">Biology Chapters</a>
       </div>
       
       
-      <div style="margin-top: 1rem;">
-        <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.35rem; padding-left: 0.5rem;">
-          Thermodynamics
+      <div style="margin-top: 1.15rem;">
+        <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.4rem; padding-left: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">
+          <a href="../../../biology/cell-biology/" style="color: inherit;">Cell Biology</a>
         </div>
         <ul class="sidebar-list">
           
           <li class="sidebar-item active">
-            <a href="../physics/thermodynamics-carnot-engine.html">Laws of Thermodynamics & Carnot Engine Efficiency</a>
+            <a href="../../../biology/cell-biology/cell-organelles-and-atp/">Cell Organelles, Membrane Transport & Cellular Respiration</a>
           </li>
+          
+        </ul>
+      </div>
+      
+      <div style="margin-top: 1.15rem;">
+        <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.4rem; padding-left: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">
+          <a href="../../../biology/genetics/" style="color: inherit;">Genetics & Evolution</a>
+        </div>
+        <ul class="sidebar-list">
           
         </ul>
       </div>
       
     </div>
 
-    <!-- Sidebar Non-Intrusive Sticky Ad Slot -->
+    <!-- Universal Sticky Sidebar Ad Slot -->
+    
+    <div style="margin-top: 2rem;">
+      
+        <div class="ad-slot-wrapper">
+          <span class="ad-label">Advertisement</span>
+          <div class="ad-container ad-sidebar">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-1234567890123456"
+                 data-ad-slot="7654321098"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+          </div>
+        </div>
+        
+    </div>
     
   </aside>
 
   <!-- Note Article Content -->
   <article>
     <header class="article-header">
-      <!-- Breadcrumb Trail -->
+      <!-- Breadcrumb Trail with Clean URLs -->
       <nav class="breadcrumbs" aria-label="Breadcrumb">
-        <a href="../index.html">Home</a>
+        <a href="../../../">Home</a>
         <svg class="breadcrumb-separator" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-        <a href="../physics/index.html">Physics</a>
+        <a href="../../../biology/">Biology</a>
         <svg class="breadcrumb-separator" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-        <span>Thermodynamics</span>
+        <a href="../../../biology/cell-biology/">Cell Biology</a>
       </nav>
 
-      <h1 class="article-title">Laws of Thermodynamics & Carnot Engine Efficiency</h1>
+      <h1 class="article-title">Cell Organelles, Membrane Transport & Cellular Respiration</h1>
 
       <div class="article-meta">
         <span class="meta-item">
@@ -281,83 +322,91 @@
         </span>
         <span class="meta-item">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/></svg>
-          Thermodynamics
+          Cell Biology
         </span>
       </div>
     </header>
 
-    <!-- In-Article Top Ad Slot (Non-Intrusive, Zero CLS) -->
+    <!-- Universal In-Article Top Ad Slot -->
+    
+    <div style="margin: 1.5rem 0;">
+      
+        <div class="ad-slot-wrapper">
+          <span class="ad-label">Advertisement</span>
+          <div class="ad-container ad-in_article">
+            <div id="in-article-ad-test">Custom Network In-Article</div>
+          </div>
+        </div>
+        
+    </div>
     
 
     <!-- Prose Article Body -->
     <div class="prose">
-      <h2 id="1-the-four-laws-in-brief">1. The Four Laws in Brief</h2>
+      <h2 id="1-organelle-functions-reference">1. Organelle Functions Reference</h2>
 <ul>
-<li><strong>Zeroth Law (Thermal Equilibrium)</strong>: If system $A$ is in thermal equilibrium with $B$, and $B$ is with $C$, then $A$ is in thermal equilibrium with $C$. This establishes the definition of temperature.</li>
-<li><strong>First Law (Conservation of Energy)</strong>:<br />
-  $$\Delta U = Q - W$$<br />
-  Where $\Delta U$ is the change in internal energy, $Q$ is heat added to the system, and $W$ is work done <strong>by</strong> the system ($W = \int P \, dV$).</li>
-<li><strong>Second Law (Entropy &amp; Spontaneity)</strong>: The entropy of an isolated system never decreases over time:<br />
-  $$\Delta S_{\text{universe}} \ge 0$$<br />
-  No cyclic heat engine can convert 100% of input heat into mechanical work (Kelvin-Planck statement).</li>
-<li><strong>Third Law (Absolute Zero)</strong>: As temperature approaches absolute zero ($T \to 0\text{ K}$), the entropy of a pure crystalline substance approaches a constant minimum value (zero).</li>
+<li><strong>Nucleus</strong>: Houses linear genomic DNA, surrounded by a double membrane with nuclear pores; site of transcription and ribosome subunit assembly (nucleolus).</li>
+<li><strong>Mitochondria</strong>: Double-membrane organelle; inner membrane contains cristae and electron transport chain complexes; produces majority of ATP via oxidative phosphorylation.</li>
+<li><strong>Rough Endoplasmic Reticulum (RER)</strong>: Studded with ribosomes; synthesizes and post-translationally modifies proteins destined for secretion or membranes.</li>
+<li><strong>Smooth Endoplasmic Reticulum (SER)</strong>: Lipid synthesis, steroid hormone production, calcium storage in muscle (sarcoplasmic reticulum), and drug detoxification.</li>
+<li><strong>Golgi Apparatus</strong>: Modifies, packages, and sorts proteins and lipids received from the ER into vesicles for lysosomal delivery or exocytosis.</li>
+<li><strong>Lysosomes</strong>: Acidic interior (pH $\approx$ 4.5–5.0) containing hydrolytic enzymes for intracellular digestion and autophagy.</li>
 </ul>
 <hr />
-<h2 id="2-work-done-in-thermodynamic-processes-ideal-gas">2. Work Done in Thermodynamic Processes (Ideal Gas)</h2>
+<h2 id="2-cellular-respiration-summary-glucose-to-atp">2. Cellular Respiration Summary: Glucose to ATP</h2>
+<p>$$\text{C}<em 12="12">6\text{H}</em>$$}\text{O}_6 + 6\text{O}_2 \longrightarrow 6\text{CO}_2 + 6\text{H}_2\text{O} + \sim 30\text{--}32\text{ ATP</p>
 <table>
 <thead>
 <tr>
-<th style="text-align: left;">Process Type</th>
-<th style="text-align: left;">Defining Condition</th>
-<th style="text-align: left;">Work Done ($W$)</th>
-<th style="text-align: left;">Internal Energy Change ($\Delta U$)</th>
+<th style="text-align: left;">Pathway Stage</th>
+<th style="text-align: left;">Cellular Location</th>
+<th style="text-align: left;">Key Inputs</th>
+<th style="text-align: left;">Net Direct Yield</th>
+<th style="text-align: left;">Reduced Coenzymes</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><strong>Isochoric</strong></td>
-<td style="text-align: left;">Volume constant ($dV = 0$)</td>
-<td style="text-align: left;">$W = 0$</td>
-<td style="text-align: left;">$\Delta U = Q = n C_v \Delta T$</td>
+<td style="text-align: left;"><strong>Glycolysis</strong></td>
+<td style="text-align: left;">Cytosol</td>
+<td style="text-align: left;">1 Glucose, $2\text{ NAD}^+$</td>
+<td style="text-align: left;">2 Pyruvate, $2\text{ ATP}$</td>
+<td style="text-align: left;">$2\text{ NADH}$</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Isobaric</strong></td>
-<td style="text-align: left;">Pressure constant ($dP = 0$)</td>
-<td style="text-align: left;">$W = P(V_2 - V_1) = n R \Delta T$</td>
-<td style="text-align: left;">$\Delta U = n C_v \Delta T$</td>
+<td style="text-align: left;"><strong>Pyruvate Decarboxylation</strong></td>
+<td style="text-align: left;">Mitochondrial Matrix</td>
+<td style="text-align: left;">2 Pyruvate</td>
+<td style="text-align: left;">$2\text{ Acetyl-CoA}, 2\text{ CO}_2$</td>
+<td style="text-align: left;">$2\text{ NADH}$</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Isothermal</strong></td>
-<td style="text-align: left;">Temperature constant ($dT = 0$)</td>
-<td style="text-align: left;">$W = nRT \ln\left(\frac{V_2}{V_1}\right)$</td>
-<td style="text-align: left;">$\Delta U = 0 \implies Q = W$</td>
+<td style="text-align: left;"><strong>Citric Acid (Krebs) Cycle</strong></td>
+<td style="text-align: left;">Mitochondrial Matrix</td>
+<td style="text-align: left;">2 Acetyl-CoA</td>
+<td style="text-align: left;">$4\text{ CO}_2, 2\text{ ATP/GTP}$</td>
+<td style="text-align: left;">$6\text{ NADH}, 2\text{ FADH}_2$</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>Adiabatic</strong></td>
-<td style="text-align: left;">No heat exchange ($Q = 0$)</td>
-<td style="text-align: left;">$W = \frac{P_1 V_1 - P_2 V_2}{\gamma - 1}$</td>
-<td style="text-align: left;">$\Delta U = -W$</td>
+<td style="text-align: left;"><strong>Oxidative Phosphorylation</strong></td>
+<td style="text-align: left;">Inner Mitochondrial Membrane</td>
+<td style="text-align: left;">Electrons from NADH &amp; $\text{FADH}_2$, $\text{O}_2$</td>
+<td style="text-align: left;">$\sim 26\text{--}28\text{ ATP}, 6\text{ H}_2\text{O}$</td>
+<td style="text-align: left;">Oxidizes coenzymes</td>
 </tr>
 </tbody>
 </table>
-<p>Where $\gamma = \frac{C_p}{C_v}$ is the heat capacity ratio.</p>
 <hr />
-<h2 id="3-the-carnot-cycle-efficiency">3. The Carnot Cycle &amp; Efficiency</h2>
-<p>The Carnot cycle is the theoretical upper limit on the efficiency of any heat engine operating between two temperatures $T_H$ (hot reservoir) and $T_C$ (cold reservoir):</p>
-<p>$$\eta_{\text{Carnot}} = 1 - \frac{T_C}{T_H} = \frac{T_H - T_C}{T_H}$$</p>
-<blockquote>
-<p><strong>Critical Rule</strong>: All temperatures in thermodynamic efficiency calculations must be converted to <strong>Kelvin</strong> ($T_{\text{Kelvin}} = T_{\text{Celsius}} + 273.15$).</p>
-</blockquote>
-<h3 id="the-4-stages-of-the-carnot-cycle">The 4 Stages of the Carnot Cycle:</h3>
-<ol>
-<li><strong>Reversible Isothermal Expansion</strong> at $T_H$ (Heat absorbed $Q_H$)</li>
-<li><strong>Reversible Adiabatic Expansion</strong> ($T_H \to T_C$)</li>
-<li><strong>Reversible Isothermal Compression</strong> at $T_C$ (Heat rejected $Q_C$)</li>
-<li><strong>Reversible Adiabatic Compression</strong> ($T_C \to T_H$)</li>
-</ol>
+<h2 id="3-membrane-transport-mechanisms">3. Membrane Transport Mechanisms</h2>
+<ul>
+<li><strong>Simple Diffusion</strong>: Down concentration gradient; small, nonpolar molecules (e.g., $\text{O}_2, \text{CO}_2$, steroid hormones). No ATP required.</li>
+<li><strong>Facilitated Diffusion</strong>: Down electrochemical gradient via protein channels or carrier proteins (e.g., GLUT glucose transporters, aquaporins). No ATP required.</li>
+<li><strong>Primary Active Transport</strong>: Moves solutes <strong>against</strong> their concentration gradient using direct ATP hydrolysis (e.g., $\text{Na}^+/\text{K}^+\text{-ATPase}$ pumping $3\text{ Na}^+$ out and $2\text{ K}^+$ in per ATP).</li>
+<li><strong>Secondary Active Transport (Cotransport)</strong>: Couples the downhill movement of one ion to the uphill movement of another substance (e.g., $\text{Na}^+/\text{glucose}$ symporter SGLT1).</li>
+</ul>
     </div>
 
-    <!-- Article Navigation (Previous / Next) -->
+    <!-- Article Navigation (Previous / Next Topic with Clean URLs) -->
     <div class="article-navigation">
       
       <div></div>
@@ -393,13 +442,13 @@
           <h4 class="footer-col-title">Subjects</h4>
           <ul class="footer-links">
             
-            <li><a href="../mathematics/index.html">Mathematics</a></li>
+            <li><a href="../../../mathematics/">Mathematics</a></li>
             
-            <li><a href="../physics/index.html">Physics</a></li>
+            <li><a href="../../../physics/">Physics</a></li>
             
-            <li><a href="../chemistry/index.html">Chemistry</a></li>
+            <li><a href="../../../chemistry/">Chemistry</a></li>
             
-            <li><a href="../biology/index.html">Biology</a></li>
+            <li><a href="../../../biology/">Biology</a></li>
             
           </ul>
         </div>
@@ -407,11 +456,11 @@
         <div>
           <h4 class="footer-col-title">Legal & Trust</h4>
           <ul class="footer-links">
-            <li><a href="../pages/about.html">About Us</a></li>
-            <li><a href="../pages/privacy-policy.html">Privacy Policy</a></li>
-            <li><a href="../pages/terms-and-conditions.html">Terms & Conditions</a></li>
-            <li><a href="../pages/contact.html">Contact Us</a></li>
-            <li><a href="../pages/disclaimer.html">Disclaimer</a></li>
+            <li><a href="../../../about/">About Us</a></li>
+            <li><a href="../../../privacy-policy/">Privacy Policy</a></li>
+            <li><a href="../../../terms-and-conditions/">Terms & Conditions</a></li>
+            <li><a href="../../../contact/">Contact Us</a></li>
+            <li><a href="../../../disclaimer/">Disclaimer</a></li>
           </ul>
         </div>
       </div>
@@ -419,14 +468,14 @@
       <div class="footer-bottom">
         <div>&copy; 2026 shrtnotes. All rights reserved. Designed for distraction-free learning.</div>
         <div>
-          <a href="../sitemap.xml" style="color: var(--text-muted); font-size: 0.8rem;">Sitemap</a>
+          <a href="../../../sitemap.xml" style="color: var(--text-muted); font-size: 0.8rem;">Sitemap</a>
         </div>
       </div>
     </div>
   </footer>
 
   <!-- Main JavaScript File -->
-  <script src="../static/js/main.js"></script>
+  <script src="../../../static/js/main.js"></script>
   
 </body>
 </html>

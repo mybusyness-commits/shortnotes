@@ -1,85 +1,163 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://shrtnotes.pages.dev/mathematics/calculus-fundamental-theorem.html</loc>
+    <loc>https://shrtnotes.pages.dev/mathematics/calculus/calculus-fundamental-theorem/</loc>
     <lastmod>2026-10-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://shrtnotes.pages.dev/mathematics/index.html</loc>
-    <lastmod>2026-10-17</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://shrtnotes.pages.dev/physics/thermodynamics-carnot-engine.html</loc>
+    <loc>https://shrtnotes.pages.dev/mathematics/differential-caculus/topic-2/</loc>
     <lastmod>2026-10-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://shrtnotes.pages.dev/physics/index.html</loc>
-    <lastmod>2026-10-17</lastmod>
+    <loc>https://shrtnotes.pages.dev/mathematics/linear-algebra/matrix-multiplication-inverses/</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://shrtnotes.pages.dev/mathematics/calculus/</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://shrtnotes.pages.dev/mathematics/algebra/</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://shrtnotes.pages.dev/mathematics/linear-algebra/</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://shrtnotes.pages.dev/mathematics/differential-caculus/</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://shrtnotes.pages.dev/mathematics/</loc>
+    <lastmod>2026-10-18</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://shrtnotes.pages.dev/chemistry/organic-reaction-mechanisms.html</loc>
+    <loc>https://shrtnotes.pages.dev/physics/thermodynamics/thermodynamics-carnot-engine/</loc>
     <lastmod>2026-10-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://shrtnotes.pages.dev/chemistry/index.html</loc>
-    <lastmod>2026-10-17</lastmod>
+    <loc>https://shrtnotes.pages.dev/physics/thermodynamics/</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://shrtnotes.pages.dev/physics/mechanics/</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://shrtnotes.pages.dev/physics/</loc>
+    <lastmod>2026-10-18</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://shrtnotes.pages.dev/biology/cell-organelles-and-atp.html</loc>
+    <loc>https://shrtnotes.pages.dev/chemistry/organic-mechanisms/organic-reaction-mechanisms/</loc>
     <lastmod>2026-10-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://shrtnotes.pages.dev/biology/index.html</loc>
-    <lastmod>2026-10-17</lastmod>
+    <loc>https://shrtnotes.pages.dev/chemistry/organic-chemistry/</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://shrtnotes.pages.dev/chemistry/physical-chemistry/</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://shrtnotes.pages.dev/chemistry/organic-mechanisms/</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://shrtnotes.pages.dev/chemistry/</loc>
+    <lastmod>2026-10-18</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://shrtnotes.pages.dev/index.html</loc>
+    <loc>https://shrtnotes.pages.dev/biology/cell-biology/cell-organelles-and-atp/</loc>
     <lastmod>2026-10-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://shrtnotes.pages.dev/biology/cell-biology/</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://shrtnotes.pages.dev/biology/genetics/</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://shrtnotes.pages.dev/biology/</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://shrtnotes.pages.dev/</loc>
+    <lastmod>2026-10-18</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://shrtnotes.pages.dev/pages/terms-and-conditions.html</loc>
+    <loc>https://shrtnotes.pages.dev/terms-and-conditions/</loc>
     <lastmod>2026-10-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://shrtnotes.pages.dev/pages/disclaimer.html</loc>
+    <loc>https://shrtnotes.pages.dev/disclaimer/</loc>
     <lastmod>2026-10-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://shrtnotes.pages.dev/pages/privacy-policy.html</loc>
+    <loc>https://shrtnotes.pages.dev/privacy-policy/</loc>
     <lastmod>2026-10-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://shrtnotes.pages.dev/pages/about.html</loc>
+    <loc>https://shrtnotes.pages.dev/about/</loc>
     <lastmod>2026-10-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://shrtnotes.pages.dev/pages/contact.html</loc>
+    <loc>https://shrtnotes.pages.dev/contact/</loc>
     <lastmod>2026-10-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
