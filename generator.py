@@ -479,6 +479,21 @@ def build_site():
                 "priority": "0.5"
             })
 
+    # 4b. Generate Custom 404 Page for Cloudflare Pages
+    rendered_404 = template_page.render(
+        config=config,
+        page={"title": "Page Not Found", "slug": "404", "last_modified": today_str},
+        content="<p style='font-size: 1.1rem; color: var(--text-muted); margin-bottom: 1.5rem;'>The study topic or page you are looking for could not be found or may have been updated.</p><a href='/' style='display: inline-flex; align-items: center; gap: 0.5rem; background: var(--accent); color: #ffffff; padding: 0.65rem 1.25rem; border-radius: 8px; text-decoration: none; font-weight: 500;'>&larr; Return to All Notes</a>",
+        page_title="404 - Page Not Found",
+        page_description=f"Page not found - {config.get('site_name')}",
+        current_url=f"{config.get('site_url', '').rstrip('/')}/404.html",
+        root_path="/",
+        ad_slots=ad_slots,
+        current_year=current_year
+    )
+    with open(OUTPUT_DIR / "404.html", "w", encoding="utf-8") as f:
+        f.write(rendered_404)
+
     # 5. Generate Valid XML Sitemap with Clean URLs
     sitemap_xml = ['<?xml version="1.0" encoding="UTF-8"?>']
     sitemap_xml.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
