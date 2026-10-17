@@ -100,6 +100,18 @@ def get_git_remote():
     return config.get("github", {}).get("repo_url", "")
 
 
+def get_ssh_public_key():
+    """Retrieve the generated SSH public key if present."""
+    for key_file in ["id_ed25519.pub", "id_rsa.pub"]:
+        p = Path.home() / ".ssh" / key_file
+        if p.exists():
+            try:
+                return p.read_text(encoding="utf-8").strip()
+            except Exception:
+                pass
+    return ""
+
+
 # ==============================================================================
 # Base Studio Layout
 # ==============================================================================
@@ -1264,12 +1276,141 @@ def route_rebuild():
 
 
 # Deploy to GitHub
+DEPLOY_HTML = """
+<div class="card">
+  <h3 class="card-title">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="m12 12 4 4m0 0-4 4m4-4H4"/></svg>
+    <span>Deploy Website to GitHub & Cloudflare Pages</span>
+  </h3>
+  <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+    Pushing your site to GitHub triggers Cloudflare Pages to build and distribute your clean-URL static website globally.
+  </p>
+
+  <!-- Section 1: GitHub Authentication -->
+  <div style="background: #0f172a; border: 1px solid var(--card-border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+      <h4 style="font-size: 0.95rem; color: #93c5fd; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span>1. GitHub Authentication Setup</span>
+      </h4>
+      <form method="POST" action="{{ url_for('route_test_ssh') }}" style="margin: 0;">
+        <button type="submit" class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.35rem 0.75rem;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+          <span>Test SSH Connection</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- Option A: SSH Key (Recommended) -->
+    <div style="background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 1rem; margin-bottom: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <strong style="color: #f8fafc; font-size: 0.875rem;">Option A: Authorize SSH Key (Recommended & 1-Time Only)</strong>
+        <a href="https://github.com/settings/ssh/new" target="_blank" rel="noopener" class="btn btn-primary" style="font-size: 0.75rem; padding: 0.3rem 0.75rem; text-decoration: none;">
+          Add Key to GitHub &rarr;
+        </a>
+      </div>
+      <p style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 0.75rem;">
+        GitHub needs your public key to authenticate pushes without passwords. Copy this key and paste it into your GitHub account:
+      </p>
+
+      <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.75rem;">
+        <input type="text" id="ssh-key-box" class="form-control" value="{{ ssh_pub_key }}" readonly style="font-family: monospace; font-size: 0.8rem; background: #0b1120; color: #38bdf8;">
+        <button type="button" class="btn btn-secondary" onclick="copySSHKey()" style="white-space: nowrap; font-size: 0.8rem; padding: 0.55rem 0.9rem;" id="copy-btn">
+          Copy Public Key
+        </button>
+      </div>
+
+      <div style="background: rgba(0,0,0,0.25); border-radius: 4px; padding: 0.65rem 0.85rem; font-size: 0.775rem; color: #cbd5e1; line-height: 1.5;">
+        <strong>Quick 3-Step Setup:</strong><br>
+        1. Click <strong>"Copy Public Key"</strong> above.<br>
+        2. Click <a href="https://github.com/settings/ssh/new" target="_blank" rel="noopener" style="color: #60a5fa; text-decoration: underline;">Add Key to GitHub</a>.<br>
+        3. Give it a Title (e.g. <code>shrtnotes-studio</code>), paste the key into the <strong>Key</strong> box, and click <strong>Add SSH key</strong>.
+      </div>
+    </div>
+
+    <!-- Option B: Personal Access Token (HTTPS) -->
+    <div style="background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 1rem;">
+      <strong style="color: #f8fafc; font-size: 0.875rem; display: block; margin-bottom: 0.35rem;">Option B: Or Use a GitHub Personal Access Token (HTTPS)</strong>
+      <p style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 0.65rem;">
+        If you prefer not to use SSH, generate a token at <a href="https://github.com/settings/tokens/new" target="_blank" rel="noopener" style="color: #60a5fa; text-decoration: underline;">GitHub Tokens</a> (select <code>repo</code> access) and paste it below:
+      </p>
+      <form method="POST" action="{{ url_for('route_setup_token') }}" style="display: flex; gap: 0.5rem;">
+        <input type="password" name="token" class="form-control" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" style="font-size: 0.85rem;" required>
+        <button type="submit" class="btn btn-secondary" style="white-space: nowrap; font-size: 0.8rem; padding: 0.55rem 0.9rem;">
+          Connect Token & Switch to HTTPS
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Section 2: Repository Settings -->
+  <form method="POST" action="{{ url_for('route_save_repo') }}" style="margin-bottom: 1.5rem; background: #0f172a; padding: 1.25rem; border-radius: 8px; border: 1px solid var(--card-border);">
+    <h4 style="font-size: 0.95rem; margin-bottom: 0.75rem; color: #93c5fd; display: flex; align-items: center; justify-content: space-between;">
+      <span>2. GitHub Repository Link</span>
+      {% if git_remote %}
+      <span style="font-size: 0.75rem; background: #064e3b; color: #a7f3d0; padding: 2px 8px; border-radius: 4px;">Connected</span>
+      {% else %}
+      <span style="font-size: 0.75rem; background: #78350f; color: #fde68a; padding: 2px 8px; border-radius: 4px;">Not Linked Yet</span>
+      {% endif %}
+    </h4>
+    <div class="form-grid">
+      <div class="form-group" style="margin-bottom: 0.75rem;">
+        <label class="form-label">Repository Remote URL *</label>
+        <input type="text" name="repo_url" class="form-control" value="{{ git_remote }}" placeholder="git@github.com:mybusyness-commits/shortnotes.git" required>
+      </div>
+      <div class="form-group" style="margin-bottom: 0.75rem;">
+        <label class="form-label">Branch *</label>
+        <input type="text" name="branch" class="form-control" value="{{ branch }}" placeholder="main" required>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem; font-size: 0.85rem;">Save Repository Link</button>
+  </form>
+
+  <!-- Section 3: Status & Deploy -->
+  <div style="background: #0f172a; border: 1px solid var(--card-border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
+    <h4 style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.6rem; letter-spacing: 0.05em;">Current Git Status:</h4>
+    <pre style="color: #93c5fd; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; overflow-x: auto; white-space: pre-wrap; margin: 0;">{{ git_status }}</pre>
+  </div>
+
+  <form method="POST" action="{{ url_for('route_execute_deploy') }}">
+    <div class="form-group">
+      <label class="form-label">Deployment Commit Message</label>
+      <input type="text" name="commit_message" class="form-control" value="Update chapter topics ({{ today_str }})" required>
+    </div>
+    <button type="submit" class="btn btn-success" style="font-size: 1.05rem; padding: 0.85rem 1.75rem;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
+      <span>Deploy Now to GitHub & Cloudflare</span>
+    </button>
+  </form>
+</div>
+
+<script>
+function copySSHKey() {
+  const copyText = document.getElementById("ssh-key-box");
+  copyText.select();
+  copyText.setSelectionRange(0, 99999);
+  navigator.clipboard.writeText(copyText.value).then(() => {
+    const btn = document.getElementById("copy-btn");
+    btn.textContent = "Copied to Clipboard!";
+    btn.style.background = "#10b981";
+    btn.style.color = "#ffffff";
+    setTimeout(() => {
+      btn.textContent = "Copy Public Key";
+      btn.style.background = "";
+      btn.style.color = "";
+    }, 2500);
+  });
+}
+</script>
+"""
+
 @app.route("/deploy")
 def route_deploy():
     today_str = datetime.now().strftime("%Y-%m-%d %H:%M")
     git_remote = get_git_remote()
     config = load_config()
     branch = config.get("github", {}).get("branch", "main")
+    ssh_pub_key = get_ssh_public_key()
 
     try:
         status_res = subprocess.run(["git", "status", "--short"], cwd=str(BASE_DIR), capture_output=True, text=True)
@@ -1278,52 +1419,70 @@ def route_deploy():
         git_status = f"Git status check: {e}"
 
     return render_studio_view(
-        """
-        <div class="card">
-          <h3 class="card-title">GitHub Repository & Cloudflare Deploy Setup</h3>
-          <form method="POST" action="{{ url_for('route_save_repo') }}" style="margin-bottom: 2rem; background: #0f172a; padding: 1.25rem; border-radius: 8px; border: 1px solid var(--card-border);">
-            <h4 style="font-size: 0.95rem; margin-bottom: 0.75rem; color: #93c5fd; display: flex; align-items: center; justify-content: space-between;">
-              <span>GitHub Repository Link</span>
-              {% if git_remote %}
-              <span style="font-size: 0.75rem; background: #064e3b; color: #a7f3d0; padding: 2px 8px; border-radius: 4px;">Connected</span>
-              {% else %}
-              <span style="font-size: 0.75rem; background: #78350f; color: #fde68a; padding: 2px 8px; border-radius: 4px;">Not Linked Yet</span>
-              {% endif %}
-            </h4>
-            <div class="form-grid">
-              <div class="form-group" style="margin-bottom: 0.75rem;">
-                <label class="form-label">Repository URL (HTTPS or SSH) *</label>
-                <input type="text" name="repo_url" class="form-control" value="{{ git_remote }}" placeholder="https://github.com/username/shrtnotes.git" required>
-              </div>
-              <div class="form-group" style="margin-bottom: 0.75rem;">
-                <label class="form-label">Branch *</label>
-                <input type="text" name="branch" class="form-control" value="{{ branch }}" placeholder="main" required>
-              </div>
-            </div>
-            <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem;">Save Repository Link</button>
-          </form>
-
-          <div style="background: #0f172a; border: 1px solid var(--card-border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
-            <h4 style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.6rem; letter-spacing: 0.05em;">Current Git Status:</h4>
-            <pre style="color: #93c5fd; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; overflow-x: auto; white-space: pre-wrap;">{{ git_status }}</pre>
-          </div>
-
-          <form method="POST" action="{{ url_for('route_execute_deploy') }}">
-            <div class="form-group">
-              <label class="form-label">Deployment Commit Message</label>
-              <input type="text" name="commit_message" class="form-control" value="Update chapter topics ({{ today_str }})" required>
-            </div>
-            <button type="submit" class="btn btn-success" style="font-size: 1rem; padding: 0.75rem 1.5rem;">Deploy Now to GitHub</button>
-          </form>
-        </div>
-        """,
+        DEPLOY_HTML,
         active_tab="deploy",
         page_heading="Deploy Website to GitHub & Cloudflare",
         git_remote=git_remote,
         branch=branch,
         git_status=git_status,
-        today_str=today_str
+        today_str=today_str,
+        ssh_pub_key=ssh_pub_key
     )
+
+
+@app.route("/deploy/test_ssh", methods=["POST"])
+def route_test_ssh():
+    try:
+        res = subprocess.run(
+            ["ssh", "-o", "StrictHostKeyChecking=accept-new", "-T", "git@github.com"],
+            capture_output=True,
+            text=True,
+            timeout=8
+        )
+        combined = (res.stdout + " " + res.stderr).strip()
+        if "successfully authenticated" in combined:
+            flash(f"GitHub SSH Connected! Authentication verified: {combined}", "success")
+        else:
+            flash(
+                "GitHub rejected the connection: 'Permission denied (publickey)'. "
+                "Your key has not been added to GitHub yet. Please copy the public key shown below and add it at https://github.com/settings/ssh/new",
+                "warning"
+            )
+    except Exception as e:
+        flash(f"Error testing SSH connection: {e}", "danger")
+
+    return redirect(url_for("route_deploy"))
+
+
+@app.route("/deploy/setup_token", methods=["POST"])
+def route_setup_token():
+    token = request.form.get("token", "").strip()
+    if not token:
+        flash("Token cannot be empty.", "danger")
+        return redirect(url_for("route_deploy"))
+
+    remote = get_git_remote()
+    repo_path = "mybusyness-commits/shortnotes.git"
+    if "github.com:" in remote:
+        repo_path = remote.split("github.com:")[-1]
+    elif "github.com/" in remote:
+        repo_path = remote.split("github.com/")[-1]
+
+    repo_path = repo_path.lstrip("/").replace(".git", "") + ".git"
+    new_remote = f"https://{token}@github.com/{repo_path}"
+
+    try:
+        subprocess.run(["git", "remote", "set-url", "origin", new_remote], cwd=str(BASE_DIR), check=True)
+        config = load_config()
+        if "github" not in config:
+            config["github"] = {}
+        config["github"]["repo_url"] = new_remote
+        save_config(config)
+        flash("Personal Access Token saved! Switched remote to authenticated HTTPS.", "success")
+    except Exception as e:
+        flash(f"Error configuring token remote: {e}", "danger")
+
+    return redirect(url_for("route_deploy"))
 
 
 @app.route("/deploy/save_repo", methods=["POST"])
@@ -1375,9 +1534,20 @@ def route_execute_deploy():
         push_res = subprocess.run(["git", "push", "origin", branch], cwd=str(BASE_DIR), capture_output=True, text=True)
 
         if push_res.returncode == 0:
-            flash("Deployment triggered successfully! Cloudflare Pages is now updating your live site.", "success")
+            flash("Deployment triggered successfully! Pushed to GitHub. Cloudflare Pages is now updating your live site.", "success")
         else:
-            flash(f"Git push notice: {push_res.stderr or push_res.stdout}", "danger")
+            err = (push_res.stderr or push_res.stdout or "").strip()
+            if "Permission denied (publickey)" in err:
+                flash(
+                    "GitHub rejected the connection: Permission denied (publickey). "
+                    "Your SSH key has not been added to your GitHub account yet. "
+                    "Please copy the SSH public key displayed under Step 1, add it at https://github.com/settings/ssh/new, and then click Deploy again!",
+                    "danger"
+                )
+            elif "Authentication failed" in err or "fatal: could not read Username" in err:
+                flash(f"GitHub authentication failed: {err}. Please verify your Personal Access Token or repository permissions.", "danger")
+            else:
+                flash(f"Git push notice: {err}", "danger")
     except Exception as e:
         flash(f"Deployment error: {e}", "danger")
 
