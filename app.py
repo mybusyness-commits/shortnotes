@@ -12,6 +12,7 @@ import sys
 import json
 import socket
 import subprocess
+import yaml
 from datetime import datetime
 from pathlib import Path
 from flask import Flask, render_template_string, request, redirect, url_for, flash, jsonify, send_from_directory
@@ -240,7 +241,7 @@ STUDIO_HTML = """
       {% endwith %}
 
       <!-- Dynamic Tab Content -->
-      {% block studio_content %}{% endblock %}
+      <!-- CONTENT_PLACEHOLDER -->
     </div>
   </main>
 
@@ -722,11 +723,8 @@ def render_studio_view(child_template_string, active_tab, page_heading, **kwargs
     notes = get_all_notes_list()
     lan_ip = get_local_ip()
 
-    # Prepend the base template definition
-    full_template = child_template_string.replace(
-        '{% extends "studio_base" %}',
-        STUDIO_HTML
-    )
+    cleaned_child = child_template_string.replace('{% extends "studio_base" %}', '').replace('{% block studio_content %}', '').replace('{% endblock %}', '')
+    full_template = STUDIO_HTML.replace('<!-- CONTENT_PLACEHOLDER -->', cleaned_child)
 
     return render_template_string(
         full_template,
