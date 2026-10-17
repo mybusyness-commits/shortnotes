@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% if page_title %}{{ page_title }} | {{ config.site_name }}{% else %}{{ config.site_name }} - {{ config.tagline }}{% endif %}</title>
+  <meta name="description" content="{% if page_description %}{{ page_description }}{% else %}{{ config.description }}{% endif %}">
+  
+  <!-- Canonical & OpenGraph -->
+  <link rel="canonical" href="{{ current_url }}">
+  <meta property="og:title" content="{% if page_title %}{{ page_title }} | {{ config.site_name }}{% else %}{{ config.site_name }}{% endif %}">
+  <meta property="og:description" content="{% if page_description %}{{ page_description }}{% else %}{{ config.description }}{% endif %}">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="{{ current_url }}">
+  
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="{{ base_url }}/static/css/style.css">
+  
+  <!-- KaTeX for crisp mathematical/scientific formula rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+
+  <!-- Google AdSense Integration (Non-blocking, conditional) -->
+  {% if config.ads.enabled and config.ads.adsense_client_id and config.ads.adsense_client_id != 'ca-pub-XXXXXXXXXXXXXXXX' %}
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ config.ads.adsense_client_id }}"
+          crossorigin="anonymous"></script>
+  {% endif %}
+
+  <!-- Google Analytics (Optional) -->
+  {% if config.analytics.google_analytics_id %}
+  <script async src="https://www.googletagmanager.com/gtag/js?id={{ config.analytics.google_analytics_id }}"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '{{ config.analytics.google_analytics_id }}');
+  </script>
+  {% endif %}
+
+  {% block head_extra %}{% endblock %}
+</head>
+<body>
+  <!-- Top Navigation Header -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="{{ base_url }}/" class="brand-logo" aria-label="{{ config.site_name }} Home">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
+          <path d="M6 6h10"/>
+          <path d="M6 10h10"/>
+        </svg>
+        <span>{{ config.site_name }}<span class="brand-dot">.</span></span>
+      </a>
+
+      <div class="search-wrapper">
+        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/>
+          <path d="m21 21-4.3-4.3"/>
+        </svg>
+        <input type="text" id="global-search-input" class="search-input" placeholder="Search notes..." aria-label="Search notes">
+      </div>
+
+      <nav>
+        <ul class="nav-links">
+          {% for sub in config.subjects %}
+          <li><a href="{{ base_url }}/{{ sub.id }}/" class="nav-link">{{ sub.name }}</a></li>
+          {% endfor %}
+          <li><a href="{{ base_url }}/pages/about.html" class="nav-link">About</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-actions">
+        <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Toggle dark/light mode">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+          </svg>
+        </button>
+        <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Open mobile menu">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" x2="20" y1="12" y2="12"/>
+            <line x1="4" x2="20" y1="6" y2="6"/>
+            <line x1="4" x2="20" y1="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Top Non-Intrusive Header Ad Slot -->
+  {% if config.ads.enabled and config.ads.header_ad_slot %}
+  <div class="main-layout" style="padding-bottom: 0;">
+    <div class="ad-slot-wrapper">
+      <span class="ad-label">Advertisement</span>
+      <div class="ad-container ad-banner">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="{{ config.ads.adsense_client_id }}"
+             data-ad-slot="{{ config.ads.header_ad_slot }}"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Main Content Block -->
+  <main class="main-layout">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Bottom Non-Intrusive Ad Slot -->
+  {% if config.ads.enabled and config.ads.footer_ad_slot %}
+  <div class="main-layout" style="padding-top: 0; padding-bottom: 0;">
+    <div class="ad-slot-wrapper">
+      <span class="ad-label">Advertisement</span>
+      <div class="ad-container ad-banner">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="{{ config.ads.adsense_client_id }}"
+             data-ad-slot="{{ config.ads.footer_ad_slot }}"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Comprehensive AdSense-Compliant Footer -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="brand-logo">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
+              <path d="M6 6h10"/>
+              <path d="M6 10h10"/>
+            </svg>
+            <span>{{ config.site_name }}<span class="brand-dot">.</span></span>
+          </div>
+          <p class="footer-desc">{{ config.description }}</p>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title">Subjects</h4>
+          <ul class="footer-links">
+            {% for sub in config.subjects %}
+            <li><a href="{{ base_url }}/{{ sub.id }}/">{{ sub.name }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title">Legal & Trust</h4>
+          <ul class="footer-links">
+            <li><a href="{{ base_url }}/pages/about.html">About Us</a></li>
+            <li><a href="{{ base_url }}/pages/privacy-policy.html">Privacy Policy</a></li>
+            <li><a href="{{ base_url }}/pages/terms-and-conditions.html">Terms & Conditions</a></li>
+            <li><a href="{{ base_url }}/pages/contact.html">Contact Us</a></li>
+            <li><a href="{{ base_url }}/pages/disclaimer.html">Disclaimer</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>&copy; {{ current_year }} {{ config.site_name }}. All rights reserved. Designed for distraction-free learning.</div>
+        <div>
+          <a href="{{ base_url }}/sitemap.xml" style="color: var(--text-muted); font-size: 0.8rem;">Sitemap</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Main JavaScript File -->
+  <script src="{{ base_url }}/static/js/main.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

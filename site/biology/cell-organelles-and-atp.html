@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cell Organelles, Membrane Transport & Cellular Respiration | shrtnotes</title>
+  <meta name="description" content="Quick summary of eukaryotic cell organelles, passive vs active membrane transport, and net ATP yields in aerobic cellular respiration.">
+  
+  <!-- Canonical & OpenGraph -->
+  <link rel="canonical" href="https://shrtnotes.pages.dev/biology/cell-organelles-and-atp.html">
+  <meta property="og:title" content="Cell Organelles, Membrane Transport & Cellular Respiration | shrtnotes">
+  <meta property="og:description" content="Quick summary of eukaryotic cell organelles, passive vs active membrane transport, and net ATP yields in aerobic cellular respiration.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://shrtnotes.pages.dev/biology/cell-organelles-and-atp.html">
+  
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="/static/css/style.css">
+  
+  <!-- KaTeX for crisp mathematical/scientific formula rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"
+          onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+
+  <!-- Google AdSense Integration (Non-blocking, conditional) -->
+  
+
+  <!-- Google Analytics (Optional) -->
+  
+
+  
+<!-- Structured Data (Schema.org JSON-LD for Google Search Console Rich Results) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://shrtnotes.pages.dev"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Biology",
+          "item": "https://shrtnotes.pages.dev/biology/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Cell Biology",
+          "item": "https://shrtnotes.pages.dev/biology/#cell-biology"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "Cell Organelles, Membrane Transport & Cellular Respiration",
+          "item": "https://shrtnotes.pages.dev/biology/cell-organelles-and-atp.html"
+        }
+      ]
+    },
+    {
+      "@type": "TechArticle",
+      "headline": "Cell Organelles, Membrane Transport & Cellular Respiration",
+      "description": "Quick summary of eukaryotic cell organelles, passive vs active membrane transport, and net ATP yields in aerobic cellular respiration.",
+      "articleSection": "Biology",
+      "author": {
+        "@type": "Organization",
+        "name": "shrtnotes"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "shrtnotes",
+        "url": "https://shrtnotes.pages.dev"
+      },
+      "datePublished": "2026-10-17",
+      "dateModified": "2026-10-17"
+    }
+  ]
+}
+</script>
+
+</head>
+<body>
+  <!-- Top Navigation Header -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="/" class="brand-logo" aria-label="shrtnotes Home">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
+          <path d="M6 6h10"/>
+          <path d="M6 10h10"/>
+        </svg>
+        <span>shrtnotes<span class="brand-dot">.</span></span>
+      </a>
+
+      <div class="search-wrapper">
+        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/>
+          <path d="m21 21-4.3-4.3"/>
+        </svg>
+        <input type="text" id="global-search-input" class="search-input" placeholder="Search notes..." aria-label="Search notes">
+      </div>
+
+      <nav>
+        <ul class="nav-links">
+          
+          <li><a href="/mathematics/" class="nav-link">Mathematics</a></li>
+          
+          <li><a href="/physics/" class="nav-link">Physics</a></li>
+          
+          <li><a href="/chemistry/" class="nav-link">Chemistry</a></li>
+          
+          <li><a href="/biology/" class="nav-link">Biology</a></li>
+          
+          <li><a href="/pages/about.html" class="nav-link">About</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-actions">
+        <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Toggle dark/light mode">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+          </svg>
+        </button>
+        <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Open mobile menu">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" x2="20" y1="12" y2="12"/>
+            <line x1="4" x2="20" y1="6" y2="6"/>
+            <line x1="4" x2="20" y1="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Top Non-Intrusive Header Ad Slot -->
+  
+
+  <!-- Main Content Block -->
+  <main class="main-layout">
+    
+<div class="docs-grid">
+  <!-- Subject & Chapter Navigation Sidebar -->
+  <aside class="content-sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        <a href="/biology/" style="color: inherit;">Biology Notes</a>
+      </div>
+      
+      
+      <div style="margin-top: 1rem;">
+        <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.35rem; padding-left: 0.5rem;">
+          Cell Biology
+        </div>
+        <ul class="sidebar-list">
+          
+          <li class="sidebar-item active">
+            <a href="/biology/cell-organelles-and-atp.html">Cell Organelles, Membrane Transport & Cellular Respiration</a>
+          </li>
+          
+        </ul>
+      </div>
+      
+    </div>
+
+    <!-- Sidebar Non-Intrusive Sticky Ad Slot -->
+    
+  </aside>
+
+  <!-- Note Article Content -->
+  <article>
+    <header class="article-header">
+      <!-- Breadcrumb Trail -->
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <svg class="breadcrumb-separator" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        <a href="/biology/">Biology</a>
+        <svg class="breadcrumb-separator" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        <span>Cell Biology</span>
+      </nav>
+
+      <h1 class="article-title">Cell Organelles, Membrane Transport & Cellular Respiration</h1>
+
+      <div class="article-meta">
+        <span class="meta-item">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+          Updated 2026-10-17
+        </span>
+        <span class="meta-item">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          2 min read
+        </span>
+        <span class="meta-item">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/></svg>
+          Cell Biology
+        </span>
+      </div>
+    </header>
+
+    <!-- In-Article Top Ad Slot (Non-Intrusive, Zero CLS) -->
+    
+
+    <!-- Prose Article Body -->
+    <div class="prose">
+      <h2 id="1-organelle-functions-reference">1. Organelle Functions Reference</h2>
+<ul>
+<li><strong>Nucleus</strong>: Houses linear genomic DNA, surrounded by a double membrane with nuclear pores; site of transcription and ribosome subunit assembly (nucleolus).</li>
+<li><strong>Mitochondria</strong>: Double-membrane organelle; inner membrane contains cristae and electron transport chain complexes; produces majority of ATP via oxidative phosphorylation.</li>
+<li><strong>Rough Endoplasmic Reticulum (RER)</strong>: Studded with ribosomes; synthesizes and post-translationally modifies proteins destined for secretion or membranes.</li>
+<li><strong>Smooth Endoplasmic Reticulum (SER)</strong>: Lipid synthesis, steroid hormone production, calcium storage in muscle (sarcoplasmic reticulum), and drug detoxification.</li>
+<li><strong>Golgi Apparatus</strong>: Modifies, packages, and sorts proteins and lipids received from the ER into vesicles for lysosomal delivery or exocytosis.</li>
+<li><strong>Lysosomes</strong>: Acidic interior (pH $\approx$ 4.5–5.0) containing hydrolytic enzymes for intracellular digestion and autophagy.</li>
+</ul>
+<hr />
+<h2 id="2-cellular-respiration-summary-glucose-to-atp">2. Cellular Respiration Summary: Glucose to ATP</h2>
+<p>$$\text{C}<em 12="12">6\text{H}</em>$$}\text{O}_6 + 6\text{O}_2 \longrightarrow 6\text{CO}_2 + 6\text{H}_2\text{O} + \sim 30\text{--}32\text{ ATP</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Pathway Stage</th>
+<th style="text-align: left;">Cellular Location</th>
+<th style="text-align: left;">Key Inputs</th>
+<th style="text-align: left;">Net Direct Yield</th>
+<th style="text-align: left;">Reduced Coenzymes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Glycolysis</strong></td>
+<td style="text-align: left;">Cytosol</td>
+<td style="text-align: left;">1 Glucose, $2\text{ NAD}^+$</td>
+<td style="text-align: left;">2 Pyruvate, $2\text{ ATP}$</td>
+<td style="text-align: left;">$2\text{ NADH}$</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Pyruvate Decarboxylation</strong></td>
+<td style="text-align: left;">Mitochondrial Matrix</td>
+<td style="text-align: left;">2 Pyruvate</td>
+<td style="text-align: left;">$2\text{ Acetyl-CoA}, 2\text{ CO}_2$</td>
+<td style="text-align: left;">$2\text{ NADH}$</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Citric Acid (Krebs) Cycle</strong></td>
+<td style="text-align: left;">Mitochondrial Matrix</td>
+<td style="text-align: left;">2 Acetyl-CoA</td>
+<td style="text-align: left;">$4\text{ CO}_2, 2\text{ ATP/GTP}$</td>
+<td style="text-align: left;">$6\text{ NADH}, 2\text{ FADH}_2$</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Oxidative Phosphorylation</strong></td>
+<td style="text-align: left;">Inner Mitochondrial Membrane</td>
+<td style="text-align: left;">Electrons from NADH &amp; $\text{FADH}_2$, $\text{O}_2$</td>
+<td style="text-align: left;">$\sim 26\text{--}28\text{ ATP}, 6\text{ H}_2\text{O}$</td>
+<td style="text-align: left;">Oxidizes coenzymes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-membrane-transport-mechanisms">3. Membrane Transport Mechanisms</h2>
+<ul>
+<li><strong>Simple Diffusion</strong>: Down concentration gradient; small, nonpolar molecules (e.g., $\text{O}_2, \text{CO}_2$, steroid hormones). No ATP required.</li>
+<li><strong>Facilitated Diffusion</strong>: Down electrochemical gradient via protein channels or carrier proteins (e.g., GLUT glucose transporters, aquaporins). No ATP required.</li>
+<li><strong>Primary Active Transport</strong>: Moves solutes <strong>against</strong> their concentration gradient using direct ATP hydrolysis (e.g., $\text{Na}^+/\text{K}^+\text{-ATPase}$ pumping $3\text{ Na}^+$ out and $2\text{ K}^+$ in per ATP).</li>
+<li><strong>Secondary Active Transport (Cotransport)</strong>: Couples the downhill movement of one ion to the uphill movement of another substance (e.g., $\text{Na}^+/\text{glucose}$ symporter SGLT1).</li>
+</ul>
+    </div>
+
+    <!-- Article Navigation (Previous / Next) -->
+    <div class="article-navigation">
+      
+      <div></div>
+      
+
+      
+    </div>
+  </article>
+</div>
+
+  </main>
+
+  <!-- Bottom Non-Intrusive Ad Slot -->
+  
+
+  <!-- Comprehensive AdSense-Compliant Footer -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="brand-logo">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
+              <path d="M6 6h10"/>
+              <path d="M6 10h10"/>
+            </svg>
+            <span>shrtnotes<span class="brand-dot">.</span></span>
+          </div>
+          <p class="footer-desc">High-yield, distraction-free study notes for Mathematics, Physics, Chemistry, Biology and more. Prepared for students with clear explanations and formulas.</p>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title">Subjects</h4>
+          <ul class="footer-links">
+            
+            <li><a href="/mathematics/">Mathematics</a></li>
+            
+            <li><a href="/physics/">Physics</a></li>
+            
+            <li><a href="/chemistry/">Chemistry</a></li>
+            
+            <li><a href="/biology/">Biology</a></li>
+            
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title">Legal & Trust</h4>
+          <ul class="footer-links">
+            <li><a href="/pages/about.html">About Us</a></li>
+            <li><a href="/pages/privacy-policy.html">Privacy Policy</a></li>
+            <li><a href="/pages/terms-and-conditions.html">Terms & Conditions</a></li>
+            <li><a href="/pages/contact.html">Contact Us</a></li>
+            <li><a href="/pages/disclaimer.html">Disclaimer</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>&copy; 2026 shrtnotes. All rights reserved. Designed for distraction-free learning.</div>
+        <div>
+          <a href="/sitemap.xml" style="color: var(--text-muted); font-size: 0.8rem;">Sitemap</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Main JavaScript File -->
+  <script src="/static/js/main.js"></script>
+  
+</body>
+</html>

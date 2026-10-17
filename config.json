@@ -1,0 +1,54 @@
+{
+  "site_name": "shrtnotes",
+  "tagline": "Concise, Clear & High-Yield Study Notes",
+  "description": "High-yield, distraction-free study notes for Mathematics, Physics, Chemistry, Biology and more. Prepared for students with clear explanations and formulas.",
+  "site_url": "https://shrtnotes.pages.dev",
+  "author": "shrtnotes Editorial Team",
+  "theme": {
+    "default_mode": "system",
+    "primary_color": "#2563eb",
+    "accent_color": "#3b82f6",
+    "font_family": "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+  },
+  "subjects": [
+    {
+      "id": "mathematics",
+      "name": "Mathematics",
+      "description": "Formulas, theorems, and step-by-step calculus, algebra, and geometry notes.",
+      "icon": "calculator"
+    },
+    {
+      "id": "physics",
+      "name": "Physics",
+      "description": "Concepts, laws, derivation summaries, and mechanics to modern physics.",
+      "icon": "atom"
+    },
+    {
+      "id": "chemistry",
+      "name": "Chemistry",
+      "description": "Physical, organic, and inorganic chemistry summaries, reactions, and periodic trends.",
+      "icon": "flask-conical"
+    },
+    {
+      "id": "biology",
+      "name": "Biology",
+      "description": "Cell biology, genetics, human physiology, ecology, and plant systems.",
+      "icon": "dna"
+    }
+  ],
+  "ads": {
+    "enabled": false,
+    "adsense_client_id": "ca-pub-XXXXXXXXXXXXXXXX",
+    "header_ad_slot": "",
+    "in_article_ad_slot": "",
+    "sidebar_ad_slot": "",
+    "footer_ad_slot": ""
+  },
+  "analytics": {
+    "google_analytics_id": ""
+  },
+  "github": {
+    "remote_name": "origin",
+    "branch": "main"
+  }
+}
