@@ -49,6 +49,7 @@
   },
   "github": {
     "remote_name": "origin",
-    "branch": "main"
+    "branch": "main",
+    "repo_url": "https://github.com/myuser/shrtnotes.git"
   }
 }

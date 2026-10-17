@@ -865,27 +865,173 @@ img {
   gap: 1rem;
 }
 
+/* ==========================================================================
+   Mobile Navigation Drawer & Responsive Controls
+   ========================================================================== */
+.mobile-nav-drawer {
+  position: fixed;
+  top: 0;
+  right: -320px;
+  width: min(320px, 85vw);
+  height: 100vh;
+  background-color: var(--bg-primary);
+  border-left: 1px solid var(--border-color);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  transition: right 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-lg);
+  overflow-y: auto;
+}
+
+.mobile-nav-drawer.open {
+  right: 0;
+}
+
+.mobile-nav-header {
+  padding: 1.15rem 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mobile-nav-body {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-nav-section-title {
+  font-size: 0.725rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  margin-bottom: 0.6rem;
+}
+
+.mobile-nav-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.mobile-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 0.925rem;
+  font-weight: 500;
+  transition: background 0.15s ease;
+}
+
+.mobile-nav-item:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--accent);
+}
+
+.mobile-nav-icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+}
+
+.mobile-nav-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.mobile-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(3px);
+  z-index: 90;
+  display: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.mobile-backdrop.open {
+  display: block;
+  opacity: 1;
+}
+
+/* Mobile Chapter Toggle Pill for Note reading */
+.mobile-chapter-pill-wrapper {
+  display: none;
+  margin-bottom: 1.25rem;
+}
+
+.mobile-chapter-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mobile-chapter-btn:hover {
+  border-color: var(--accent);
+  background-color: var(--bg-tertiary);
+}
+
+.sidebar-header-mobile {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 0.85rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
 /* Mobile Responsive Adjustments */
 @media (max-width: 900px) {
   .docs-grid {
     grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .mobile-chapter-pill-wrapper {
+    display: block;
   }
   
   .content-sidebar {
-    display: none; /* toggleable on mobile */
+    display: none;
     position: fixed;
-    top: 60px;
+    top: 0;
     left: 0;
     right: 0;
     bottom: 0;
     background: var(--bg-primary);
-    z-index: 40;
-    padding: 1.5rem;
+    z-index: 95;
+    padding: 1.25rem;
     max-height: 100vh;
+    overflow-y: auto;
   }
   
   .content-sidebar.mobile-open {
     display: block;
+  }
+
+  .sidebar-header-mobile {
+    display: flex;
   }
 
   .nav-links {
@@ -898,26 +1044,23 @@ img {
 
   .footer-top {
     grid-template-columns: 1fr;
-    gap: 1.75rem;
+    gap: 2rem;
   }
 
   .hero-title {
-    font-size: 2.25rem;
+    font-size: 2.15rem;
   }
 
   .article-title {
-    font-size: 1.75rem;
+    font-size: 1.7rem;
   }
   
   .article-navigation {
     grid-template-columns: 1fr;
   }
   
-  .search-input {
-    width: 140px;
-  }
-  
-  .search-input:focus {
-    width: 180px;
+  .search-wrapper {
+    display: none; /* Mobile search available in full drawer or header */
   }
 }
+

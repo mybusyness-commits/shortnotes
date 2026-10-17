@@ -2,9 +2,10 @@
  * shrtnotes - Client-Side Interactive Engine
  * Handles:
  * - Theme switcher (Light/Dark) with persistence
- * - Mobile sidebar navigation drawer
- * - Interactive search filtering
- * - Copy formula / code block helpers
+ * - Mobile full navigation drawer with backdrop
+ * - Mobile note chapter navigation drawer
+ * - Interactive instant search filtering
+ * - Code block copy buttons
  */
 
 (function () {
@@ -46,16 +47,70 @@
     });
   }
 
-  // 2. Mobile Menu / Sidebar Drawer
+  // 2. Mobile Full Navigation Drawer
   const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-  const sidebar = document.querySelector('.content-sidebar');
-  if (mobileMenuBtn && sidebar) {
-    mobileMenuBtn.addEventListener('click', () => {
-      sidebar.classList.toggle('mobile-open');
+  const mobileNavDrawer = document.getElementById('mobile-nav-drawer');
+  const mobileNavClose = document.getElementById('mobile-nav-close');
+  const mobileBackdrop = document.getElementById('mobile-backdrop');
+
+  function openMobileNav() {
+    if (mobileNavDrawer && mobileBackdrop) {
+      mobileNavDrawer.classList.add('open');
+      mobileBackdrop.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  function closeMobileNav() {
+    if (mobileNavDrawer && mobileBackdrop) {
+      mobileNavDrawer.classList.remove('open');
+      mobileBackdrop.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    const contentSidebar = document.getElementById('content-sidebar');
+    if (contentSidebar) {
+      contentSidebar.classList.remove('mobile-open');
+    }
+  }
+
+  if (mobileMenuBtn) {
+    mobileMenuBtn.addEventListener('click', openMobileNav);
+  }
+
+  if (mobileNavClose) {
+    mobileNavClose.addEventListener('click', closeMobileNav);
+  }
+
+  if (mobileBackdrop) {
+    mobileBackdrop.addEventListener('click', closeMobileNav);
+  }
+
+  // 3. Mobile Chapter Navigation Toggle for Notes
+  const mobileChapterBtn = document.getElementById('mobile-chapter-toggle-btn');
+  const contentSidebar = document.getElementById('content-sidebar');
+  const sidebarCloseBtn = document.getElementById('sidebar-close-btn');
+
+  if (mobileChapterBtn && contentSidebar) {
+    mobileChapterBtn.addEventListener('click', () => {
+      contentSidebar.classList.add('mobile-open');
+      if (mobileBackdrop) {
+        mobileBackdrop.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
     });
   }
 
-  // 3. Client-Side Instant Search Filter
+  if (sidebarCloseBtn && contentSidebar) {
+    sidebarCloseBtn.addEventListener('click', () => {
+      contentSidebar.classList.remove('mobile-open');
+      if (mobileBackdrop) {
+        mobileBackdrop.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    });
+  }
+
+  // 4. Client-Side Instant Search Filter
   const searchInput = document.getElementById('global-search-input');
   if (searchInput) {
     searchInput.addEventListener('input', function (e) {
@@ -72,7 +127,7 @@
     });
   }
 
-  // 4. Code Block Copy Buttons
+  // 5. Code Block Copy Buttons
   document.querySelectorAll('.prose pre').forEach(pre => {
     const copyBtn = document.createElement('button');
     copyBtn.className = 'code-copy-btn';

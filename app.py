@@ -3,8 +3,8 @@
 shrtnotes Studio - Local Website Management Application
 ======================================================
 Visual dashboard to write, edit, and organize study notes,
-customize site design, manage Google AdSense slots, test over LAN,
-and deploy to GitHub & Cloudflare Pages with 1 click.
+customize site tree hierarchy & icons, manage Google AdSense slots,
+test over LAN without 404s, and deploy to GitHub & Cloudflare Pages with 1 click.
 """
 
 import os
@@ -19,6 +19,7 @@ from flask import Flask, render_template_string, request, redirect, url_for, fla
 
 from generator import (
     BASE_DIR, NOTES_DIR, PAGES_DIR, OUTPUT_DIR, CONFIG_FILE,
+    DEFAULT_ICONS, get_icon,
     load_config, save_config, parse_frontmatter, build_site
 )
 
@@ -60,8 +61,20 @@ def get_all_notes_list():
     return notes
 
 
+def get_git_remote():
+    """Get current git remote origin URL."""
+    try:
+        res = subprocess.run(["git", "remote", "get-url", "origin"], cwd=str(BASE_DIR), capture_output=True, text=True)
+        if res.returncode == 0:
+            return res.stdout.strip()
+    except Exception:
+        pass
+    config = load_config()
+    return config.get("github", {}).get("repo_url", "")
+
+
 # ==============================================================================
-# HTML Template for the Studio Dashboard (Modern, Clean, Zero Emojis)
+# Base Studio Layout (Clean, Zero Emojis)
 # ==============================================================================
 STUDIO_HTML = """
 <!DOCTYPE html>
@@ -141,6 +154,8 @@ STUDIO_HTML = """
     .data-table th { color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
     .data-table tr:hover { background: #1e293b; }
     
+    .subject-icon-preview svg { width: 22px; height: 22px; stroke: var(--accent); }
+    
     /* Ad Box info */
     .ad-preview-box { border: 1px dashed #3b82f6; background: rgba(59, 130, 246, 0.05); padding: 1.25rem; border-radius: 8px; margin-top: 1rem; }
   </style>
@@ -207,7 +222,7 @@ STUDIO_HTML = """
     <div class="lan-pill">
       <strong>LAN Mobile Testing:</strong>
       <p style="margin-bottom: 0.35rem; color: #cbd5e1;">Test on your phone via Wi-Fi:</p>
-      <a href="http://{{ lan_ip }}:5050/preview/" target="_blank">http://{{ lan_ip }}:5050/preview/</a>
+      <a href="http://{{ lan_ip }}:5050/preview/index.html" target="_blank">http://{{ lan_ip }}:5050/preview/index.html</a>
     </div>
   </aside>
 
@@ -218,7 +233,7 @@ STUDIO_HTML = """
         <h2 style="font-size: 1.15rem; font-weight: 600;">{{ page_heading }}</h2>
       </div>
       <div class="topbar-actions">
-        <a href="/preview/" target="_blank" class="btn btn-secondary" title="Preview your live site in browser">
+        <a href="/preview/index.html" target="_blank" class="btn btn-secondary" title="Preview your live site in browser">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
           <span>View Site Preview</span>
         </a>
@@ -253,8 +268,6 @@ STUDIO_HTML = """
 # Route: List All Notes
 # ==============================================================================
 NOTES_LIST_HTML = """
-{% extends "studio_base" %}
-{% block studio_content %}
 <div class="card">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
     <h3 class="card-title" style="margin-bottom: 0;">
@@ -305,15 +318,12 @@ NOTES_LIST_HTML = """
     </tbody>
   </table>
 </div>
-{% endblock %}
 """
 
 # ==============================================================================
 # Route: Note Editor (New / Edit)
 # ==============================================================================
 NOTE_FORM_HTML = """
-{% extends "studio_base" %}
-{% block studio_content %}
 <div class="card">
   <h3 class="card-title">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
@@ -373,15 +383,12 @@ NOTE_FORM_HTML = """
     </div>
   </form>
 </div>
-{% endblock %}
 """
 
 # ==============================================================================
 # Route: Design & Template Customizer
 # ==============================================================================
 DESIGN_HTML = """
-{% extends "studio_base" %}
-{% block studio_content %}
 <div class="card">
   <h3 class="card-title">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19 7-7 3 3-7 7-3-3z"/><path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>
@@ -442,15 +449,12 @@ DESIGN_HTML = """
     </button>
   </form>
 </div>
-{% endblock %}
 """
 
 # ==============================================================================
 # Route: Google AdSense Management
 # ==============================================================================
 ADS_HTML = """
-{% extends "studio_base" %}
-{% block studio_content %}
 <div class="card">
   <h3 class="card-title">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
@@ -510,46 +514,56 @@ ADS_HTML = """
     </button>
   </form>
 </div>
-{% endblock %}
 """
 
 # ==============================================================================
-# Route: Subject Hierarchy Manager
+# Route: Subject Hierarchy & Custom Icon Manager
 # ==============================================================================
 SUBJECTS_HTML = """
-{% extends "studio_base" %}
-{% block studio_content %}
 <div class="card">
   <h3 class="card-title">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></svg>
-    <span>Subjects & Site Tree Hierarchy</span>
+    <span>Subject Hierarchy & Custom Icon Manager</span>
   </h3>
   <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">
-    Extend your website with any subject (e.g. Economics, Computer Science, Literature). Adding a subject automatically generates its category index page, navigation link, and sitemap entries.
+    Manage your site tree. You can edit existing subjects (name, description, icon), choose from preset icons, or paste your own custom SVG code.
   </p>
 
   <table class="data-table" style="margin-bottom: 2rem;">
     <thead>
       <tr>
+        <th style="width: 50px;">Icon</th>
         <th>Subject ID</th>
         <th>Display Name</th>
         <th>Description</th>
-        <th>Icon</th>
+        <th style="text-align: right;">Actions</th>
       </tr>
     </thead>
     <tbody>
       {% for sub in config.subjects %}
       <tr>
+        <td>
+          <div style="width: 32px; height: 32px; border-radius: 6px; background: #1e293b; display: flex; align-items: center; justify-content: center; color: var(--accent);">
+            {{ get_icon(sub.icon)|safe }}
+          </div>
+        </td>
         <td><code>{{ sub.id }}</code></td>
         <td><strong>{{ sub.name }}</strong></td>
         <td style="color: var(--text-muted); font-size: 0.85rem;">{{ sub.description }}</td>
-        <td><code>{{ sub.icon }}</code></td>
+        <td style="text-align: right; white-space: nowrap;">
+          <a href="{{ url_for('route_edit_subject', sub_id=sub.id) }}" class="btn btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;">
+            Edit
+          </a>
+          <form method="POST" action="{{ url_for('route_delete_subject', sub_id=sub.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete subject {{ sub.name }}?');">
+            <button type="submit" class="btn btn-danger" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;">Delete</button>
+          </form>
+        </td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
 
-  <h4 style="font-size: 1rem; margin-bottom: 1rem;">Add New Subject</h4>
+  <h4 style="font-size: 1.05rem; margin-bottom: 1rem; color: #93c5fd;">Add New Subject</h4>
   <form method="POST" action="{{ url_for('route_add_subject') }}">
     <div class="form-grid">
       <div class="form-group">
@@ -561,37 +575,110 @@ SUBJECTS_HTML = """
         <input type="text" name="sub_name" class="form-control" placeholder="e.g. Economics" required>
       </div>
     </div>
+
+    <div class="form-group">
+      <label class="form-label">Short Description *</label>
+      <input type="text" name="sub_desc" class="form-control" placeholder="e.g. Microeconomics, macroeconomics, and market principles." required>
+    </div>
+
     <div class="form-grid">
       <div class="form-group">
-        <label class="form-label">Short Description *</label>
-        <input type="text" name="sub_desc" class="form-control" placeholder="e.g. Microeconomics, macroeconomics, and market principles." required>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Icon Identifier</label>
-        <select name="sub_icon" class="form-control">
+        <label class="form-label">Choose Preset Icon</label>
+        <select name="sub_icon_preset" class="form-control">
           <option value="calculator">Calculator (Maths / Finance)</option>
           <option value="atom">Atom (Physics / Science)</option>
           <option value="flask-conical">Flask (Chemistry / Lab)</option>
           <option value="dna">DNA (Biology / Medicine)</option>
-          <option value="book">Book (General / Humanities)</option>
+          <option value="book" selected>Book (General / Humanities)</option>
+          <option value="code">Code (Programming)</option>
+          <option value="cpu">CPU (Computer Science)</option>
+          <option value="globe">Globe (Geography / Languages)</option>
+          <option value="compass">Compass (Engineering)</option>
+          <option value="heart">Heart (Health / Anatomy)</option>
+          <option value="scale">Scale (Law / Ethics)</option>
+          <option value="brain">Brain (Psychology / Neuroscience)</option>
+          <option value="sparkles">Sparkles (Highlights)</option>
+          <option value="terminal">Terminal (Command Line)</option>
+          <option value="database">Database (Data Systems)</option>
+          <option value="palette">Palette (Arts / Design)</option>
         </select>
       </div>
+      <div class="form-group">
+        <label class="form-label">OR Paste Custom SVG Code (Optional)</label>
+        <input type="text" name="sub_icon_custom" class="form-control" placeholder="Paste &lt;svg ...&gt;...&lt;/svg&gt; code here to use your own icon">
+      </div>
     </div>
-    <button type="submit" class="btn btn-primary">
+
+    <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem;">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="5" y2="19"/><line x1="5" x2="19" y1="12" y2="12"/></svg>
-      <span>Add Subject</span>
+      <span>Add Subject & Rebuild Tree</span>
     </button>
   </form>
 </div>
-{% endblock %}
+"""
+
+SUBJECT_EDIT_HTML = """
+<div class="card">
+  <h3 class="card-title">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+    <span>Edit Subject: {{ target_sub.name }} ({{ target_sub.id }})</span>
+  </h3>
+
+  <form method="POST" action="{{ url_for('route_save_subject', sub_id=target_sub.id) }}">
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Subject ID</label>
+        <input type="text" class="form-control" value="{{ target_sub.id }}" readonly style="opacity: 0.6; cursor: not-allowed;">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Display Name *</label>
+        <input type="text" name="sub_name" class="form-control" value="{{ target_sub.name }}" required>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Description *</label>
+      <input type="text" name="sub_desc" class="form-control" value="{{ target_sub.description }}" required>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Preset Icon</label>
+        <select name="sub_icon_preset" class="form-control">
+          {% for icon_key in preset_keys %}
+          <option value="{{ icon_key }}" {% if target_sub.icon == icon_key %}selected{% endif %}>{{ icon_key|title }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Current Icon Preview</label>
+        <div style="width: 44px; height: 44px; border-radius: 8px; background: #1e293b; display: flex; align-items: center; justify-content: center; color: var(--accent);">
+          {{ get_icon(target_sub.icon)|safe }}
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">OR Paste Custom SVG Code (Overrides Preset Icon)</label>
+      <textarea name="sub_icon_custom" class="form-control" style="min-height: 120px;" placeholder="Paste &lt;svg ...&gt;...&lt;/svg&gt; markup here">{% if target_sub.icon.startswith('<svg') %}{{ target_sub.icon }}{% endif %}</textarea>
+      <span style="font-size: 0.75rem; color: var(--text-muted);">Paste standard SVG markup with viewBox="0 0 24 24" from Lucide, Feather, or Heroicons.</span>
+    </div>
+
+    <div style="display: flex; gap: 1rem; align-items: center; margin-top: 1.5rem;">
+      <button type="submit" class="btn btn-success">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/></svg>
+        <span>Save Changes & Rebuild Site</span>
+      </button>
+      <a href="{{ url_for('route_subjects') }}" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
 """
 
 # ==============================================================================
 # Route: Legal Compliance Pages Editor
 # ==============================================================================
 LEGAL_PAGES_HTML = """
-{% extends "studio_base" %}
-{% block studio_content %}
 <div class="card">
   <h3 class="card-title">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
@@ -644,12 +731,9 @@ LEGAL_PAGES_HTML = """
     </tbody>
   </table>
 </div>
-{% endblock %}
 """
 
 PAGE_EDITOR_HTML = """
-{% extends "studio_base" %}
-{% block studio_content %}
 <div class="card">
   <h3 class="card-title">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
@@ -676,23 +760,44 @@ PAGE_EDITOR_HTML = """
     </div>
   </form>
 </div>
-{% endblock %}
 """
 
 # ==============================================================================
 # Route: 1-Click Deploy to GitHub & Cloudflare Pages
 # ==============================================================================
 DEPLOY_HTML = """
-{% extends "studio_base" %}
-{% block studio_content %}
 <div class="card">
   <h3 class="card-title">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4"/><path d="M12 16V8"/></svg>
-    <span>1-Click Deploy to GitHub & Cloudflare Pages</span>
+    <span>GitHub Repository & Cloudflare Deploy Setup</span>
   </h3>
-  <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">
-    When you click <strong>Deploy to GitHub</strong>, the Studio stages all updated notes, creates a timestamped git commit, and pushes to your repository. Cloudflare Pages detects the update and deploys it live across global edge servers in seconds.
-  </p>
+
+  <!-- Repository Link Form -->
+  <form method="POST" action="{{ url_for('route_save_repo') }}" style="margin-bottom: 2rem; background: #0f172a; padding: 1.25rem; border-radius: 8px; border: 1px solid var(--card-border);">
+    <h4 style="font-size: 0.95rem; margin-bottom: 0.75rem; color: #93c5fd; display: flex; align-items: center; justify-content: space-between;">
+      <span>GitHub Repository Link</span>
+      {% if git_remote %}
+      <span style="font-size: 0.75rem; background: #064e3b; color: #a7f3d0; padding: 2px 8px; border-radius: 4px;">Connected</span>
+      {% else %}
+      <span style="font-size: 0.75rem; background: #78350f; color: #fde68a; padding: 2px 8px; border-radius: 4px;">Not Linked Yet</span>
+      {% endif %}
+    </h4>
+
+    <div class="form-grid">
+      <div class="form-group" style="margin-bottom: 0.75rem;">
+        <label class="form-label">Repository URL (HTTPS or SSH) *</label>
+        <input type="text" name="repo_url" class="form-control" value="{{ git_remote }}" placeholder="https://github.com/username/shrtnotes.git" required>
+      </div>
+      <div class="form-group" style="margin-bottom: 0.75rem;">
+        <label class="form-label">Branch *</label>
+        <input type="text" name="branch" class="form-control" value="{{ branch }}" placeholder="main" required>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/></svg>
+      <span>Save Repository Link</span>
+    </button>
+  </form>
 
   <div style="background: #0f172a; border: 1px solid var(--card-border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
     <h4 style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.6rem; letter-spacing: 0.05em;">Current Git Status:</h4>
@@ -711,20 +816,19 @@ DEPLOY_HTML = """
     </button>
   </form>
 </div>
-{% endblock %}
 """
 
 
 # ==============================================================================
 # Helper for Rendering Views with Base Template
 # ==============================================================================
-def render_studio_view(child_template_string, active_tab, page_heading, **kwargs):
+def render_studio_view(child_content, active_tab, page_heading, **kwargs):
     config = load_config()
     notes = get_all_notes_list()
     lan_ip = get_local_ip()
 
-    cleaned_child = child_template_string.replace('{% extends "studio_base" %}', '').replace('{% block studio_content %}', '').replace('{% endblock %}', '')
-    full_template = STUDIO_HTML.replace('<!-- CONTENT_PLACEHOLDER -->', cleaned_child)
+    cleaned = child_content.replace('{% extends "studio_base" %}', '').replace('{% block studio_content %}', '').replace('{% endblock %}', '')
+    full_template = STUDIO_HTML.replace('<!-- CONTENT_PLACEHOLDER -->', cleaned)
 
     return render_template_string(
         full_template,
@@ -733,6 +837,7 @@ def render_studio_view(child_template_string, active_tab, page_heading, **kwargs
         config=config,
         notes_count=len(notes),
         lan_ip=lan_ip,
+        get_icon=get_icon,
         **kwargs
     )
 
@@ -758,7 +863,6 @@ def route_notes():
 
 @app.route("/notes/new")
 def route_new_note():
-    config = load_config()
     return render_studio_view(
         NOTE_FORM_HTML,
         active_tab="new_note",
@@ -814,7 +918,6 @@ def route_save_note():
 
     today_str = datetime.now().strftime("%Y-%m-%d")
 
-    # If editing, preserve original date if present
     date_val = today_str
     if is_edit and original_path:
         old_file = NOTES_DIR / original_path
@@ -834,7 +937,6 @@ def route_save_note():
         "last_modified": today_str
     }
 
-    # Write file
     target_dir = NOTES_DIR / subject
     target_dir.mkdir(parents=True, exist_ok=True)
     target_file = target_dir / f"{slug}.md"
@@ -843,7 +945,6 @@ def route_save_note():
     with open(target_file, "w", encoding="utf-8") as f:
         f.write(file_content)
 
-    # Rebuild static site
     count = build_site()
     flash(f"Note '{title}' saved successfully! Rebuilt {count} notes and updated sitemap.xml.", "success")
     return redirect(url_for("route_notes"))
@@ -913,6 +1014,9 @@ def route_save_ads():
     return redirect(url_for("route_ads"))
 
 
+# ==============================================================================
+# Subject Management (Add, Edit, Delete, Custom SVG Icons)
+# ==============================================================================
 @app.route("/subjects")
 def route_subjects():
     return render_studio_view(
@@ -927,7 +1031,10 @@ def route_add_subject():
     sub_id = request.form.get("sub_id", "").strip().lower()
     sub_name = request.form.get("sub_name", "").strip()
     sub_desc = request.form.get("sub_desc", "").strip()
-    sub_icon = request.form.get("sub_icon", "book").strip()
+    sub_icon_custom = request.form.get("sub_icon_custom", "").strip()
+    sub_icon_preset = request.form.get("sub_icon_preset", "book").strip()
+
+    icon_val = sub_icon_custom if sub_icon_custom.startswith("<svg") else sub_icon_preset
 
     if not sub_id or not sub_name:
         flash("Subject ID and Name are required.", "danger")
@@ -943,7 +1050,7 @@ def route_add_subject():
         "id": sub_id,
         "name": sub_name,
         "description": sub_desc,
-        "icon": sub_icon
+        "icon": icon_val
     })
 
     save_config(config)
@@ -952,6 +1059,76 @@ def route_add_subject():
     return redirect(url_for("route_subjects"))
 
 
+@app.route("/subjects/edit/<sub_id>")
+def route_edit_subject(sub_id):
+    config = load_config()
+    target = None
+    for s in config.get("subjects", []):
+        if s["id"] == sub_id:
+            target = s
+            break
+
+    if not target:
+        flash("Subject not found.", "danger")
+        return redirect(url_for("route_subjects"))
+
+    return render_studio_view(
+        SUBJECT_EDIT_HTML,
+        active_tab="subjects",
+        page_heading=f"Edit Subject: {target['name']}",
+        target_sub=target,
+        preset_keys=list(DEFAULT_ICONS.keys())
+    )
+
+
+@app.route("/subjects/save/<sub_id>", methods=["POST"])
+def route_save_subject(sub_id):
+    config = load_config()
+    sub_name = request.form.get("sub_name", "").strip()
+    sub_desc = request.form.get("sub_desc", "").strip()
+    sub_icon_custom = request.form.get("sub_icon_custom", "").strip()
+    sub_icon_preset = request.form.get("sub_icon_preset", "book").strip()
+
+    icon_val = sub_icon_custom if sub_icon_custom.startswith("<svg") else sub_icon_preset
+
+    found = False
+    for s in config.get("subjects", []):
+        if s["id"] == sub_id:
+            s["name"] = sub_name
+            s["description"] = sub_desc
+            s["icon"] = icon_val
+            found = True
+            break
+
+    if not found:
+        flash("Subject not found.", "danger")
+        return redirect(url_for("route_subjects"))
+
+    save_config(config)
+    build_site()
+    flash(f"Subject '{sub_name}' updated successfully! All pages recompiled.", "success")
+    return redirect(url_for("route_subjects"))
+
+
+@app.route("/subjects/delete/<sub_id>", methods=["POST"])
+def route_delete_subject(sub_id):
+    config = load_config()
+    initial_count = len(config.get("subjects", []))
+    config["subjects"] = [s for s in config.get("subjects", []) if s["id"] != sub_id]
+
+    if len(config["subjects"]) < initial_count:
+        save_config(config)
+        build_site()
+        flash(f"Subject '{sub_id}' deleted and site tree rebuilt.", "success")
+    else:
+        flash("Subject not found.", "danger")
+
+    return redirect(url_for("route_subjects"))
+
+
+# ==============================================================================
+# Legal Compliance Pages
+# ==============================================================================
 @app.route("/pages")
 def route_legal_pages():
     return render_studio_view(
@@ -1007,36 +1184,84 @@ def route_rebuild():
     return redirect(request.referrer or url_for("route_notes"))
 
 
+# ==============================================================================
+# Deploy & Git Remote Linking
+# ==============================================================================
 @app.route("/deploy")
 def route_deploy():
     today_str = datetime.now().strftime("%Y-%m-%d %H:%M")
+    git_remote = get_git_remote()
+    config = load_config()
+    branch = config.get("github", {}).get("branch", "main")
+
     try:
         status_res = subprocess.run(["git", "status", "--short"], cwd=str(BASE_DIR), capture_output=True, text=True)
-        git_status = status_res.stdout.strip() or "All files are currently committed and clean."
+        git_status = status_res.stdout.strip() or "All files are committed and ready for deployment."
     except Exception as e:
-        git_status = f"Git status check error: {e}"
+        git_status = f"Git status check: {e}"
 
     return render_studio_view(
         DEPLOY_HTML,
         active_tab="deploy",
         page_heading="Deploy Website to GitHub & Cloudflare",
+        git_remote=git_remote,
+        branch=branch,
         git_status=git_status,
         today_str=today_str
     )
 
 
+@app.route("/deploy/save_repo", methods=["POST"])
+def route_save_repo():
+    repo_url = request.form.get("repo_url", "").strip()
+    branch = request.form.get("branch", "main").strip()
+
+    if not repo_url:
+        flash("Repository URL cannot be empty.", "danger")
+        return redirect(url_for("route_deploy"))
+
+    try:
+        check = subprocess.run(["git", "remote"], cwd=str(BASE_DIR), capture_output=True, text=True)
+        remotes = check.stdout.split()
+        if "origin" in remotes:
+            subprocess.run(["git", "remote", "set-url", "origin", repo_url], cwd=str(BASE_DIR), check=True)
+        else:
+            subprocess.run(["git", "remote", "add", "origin", repo_url], cwd=str(BASE_DIR), check=True)
+
+        config = load_config()
+        if "github" not in config:
+            config["github"] = {}
+        config["github"]["repo_url"] = repo_url
+        config["github"]["branch"] = branch
+        save_config(config)
+
+        flash(f"GitHub repository link saved successfully: {repo_url}", "success")
+    except Exception as e:
+        flash(f"Error saving repository link: {e}", "danger")
+
+    return redirect(url_for("route_deploy"))
+
+
 @app.route("/deploy/execute", methods=["POST"])
 def route_execute_deploy():
     commit_msg = request.form.get("commit_message", "Update study notes").strip()
+    config = load_config()
+    branch = config.get("github", {}).get("branch", "main")
+
+    git_remote = get_git_remote()
+    if not git_remote:
+        flash("Please save your GitHub Repository Link first before deploying.", "danger")
+        return redirect(url_for("route_deploy"))
+
     try:
-        # 1. Rebuild site to ensure newest HTML and sitemaps are generated
+        # 1. Rebuild site
         build_site()
 
         # 2. git add
         subprocess.run(["git", "add", "."], cwd=str(BASE_DIR), check=True)
 
-        # 3. git commit
-        commit_res = subprocess.run(
+        # 3. git commit (ignore error if no changes)
+        subprocess.run(
             ["git", "commit", "-m", commit_msg],
             cwd=str(BASE_DIR),
             capture_output=True,
@@ -1045,27 +1270,26 @@ def route_execute_deploy():
 
         # 4. git push
         push_res = subprocess.run(
-            ["git", "push", "origin", "main"],
+            ["git", "push", "origin", branch],
             cwd=str(BASE_DIR),
             capture_output=True,
             text=True
         )
 
         if push_res.returncode == 0:
-            flash(f"Deployment triggered successfully! Changes pushed to GitHub. Cloudflare Pages is now building your site.", "success")
+            flash("Deployment triggered successfully! Changes pushed to GitHub. Cloudflare Pages is now deploying your site.", "success")
         else:
-            flash(f"Commit created, but push notice: {push_res.stderr or push_res.stdout}. Please verify your GitHub remote URL.", "danger")
+            err_msg = push_res.stderr or push_res.stdout or "Push error"
+            flash(f"Git push result: {err_msg}. If pushing for the first time, check your GitHub token/credentials.", "danger")
 
-    except subprocess.CalledProcessError as e:
-        flash(f"Git operation: {e}", "danger")
     except Exception as e:
-        flash(f"Error during deployment: {e}", "danger")
+        flash(f"Deployment error: {e}", "danger")
 
     return redirect(url_for("route_deploy"))
 
 
 # ==============================================================================
-# Live Static Preview Server (Serves the compiled static site)
+# Live Static Preview Server & Fallback Catch-All (Zero 404s on LAN)
 # ==============================================================================
 @app.route("/preview/")
 @app.route("/preview/<path:filename>")
@@ -1080,10 +1304,34 @@ def route_preview(filename="index.html"):
     return send_from_directory(str(OUTPUT_DIR), filename)
 
 
+@app.route("/<path:req_path>")
+def route_fallback_preview(req_path):
+    """
+    Fallback server for direct paths on LAN:
+    If a request is made outside /preview/ (e.g. /pages/about.html or /physics/thermodynamics-carnot-engine.html),
+    it is automatically served from OUTPUT_DIR so users never hit a 404!
+    """
+    # Exclude internal studio route prefixes
+    reserved = ("notes", "design", "ads", "subjects", "pages", "deploy", "preview", "rebuild")
+    parts = req_path.split("/")
+    if parts[0] in reserved and not (parts[0] == "pages" and len(parts) > 1 and parts[1].endswith(".html")):
+        return "Not found", 404
+
+    target = OUTPUT_DIR / req_path
+    if target.is_dir():
+        target = target / "index.html"
+        req_path = f"{req_path.rstrip('/')}/index.html"
+
+    if target.exists() and target.is_file():
+        return send_from_directory(str(OUTPUT_DIR), req_path)
+
+    return "Page not found (404)", 404
+
+
 if __name__ == "__main__":
     print("\n" + "=" * 65)
     print("  🚀 shrtnotes Studio is running!")
     print(f"  👉 Local Browser:   http://localhost:5050")
-    print(f"  👉 Mobile / LAN:     http://{get_local_ip()}:5050")
+    print(f"  👉 Mobile / LAN:     http://{get_local_ip()}:5050/preview/index.html")
     print("=" * 65 + "\n")
     app.run(host="0.0.0.0", port=5050, debug=False)
