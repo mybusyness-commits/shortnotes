@@ -23,8 +23,8 @@
 
   function getPreferredTheme() {
     const saved = localStorage.getItem(THEME_KEY);
-    if (saved) return saved;
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    if (saved === 'light') return 'light';
+    return 'dark'; // Dark theme is the permanent base default
   }
 
   function applyTheme(theme) {
@@ -41,12 +41,12 @@
     themeToggleBtn.setAttribute('aria-label', `Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`);
   }
 
-  const initialTheme = getPreferredTheme();
+  const initialTheme = htmlEl.getAttribute('data-theme') || getPreferredTheme();
   applyTheme(initialTheme);
 
   if (themeToggleBtn) {
     themeToggleBtn.addEventListener('click', () => {
-      const current = htmlEl.getAttribute('data-theme') || 'light';
+      const current = htmlEl.getAttribute('data-theme') || 'dark';
       applyTheme(current === 'dark' ? 'light' : 'dark');
     });
   }
@@ -357,33 +357,66 @@
   const mobileMenuBtn = document.getElementById('mobile-menu-btn');
   const mobileNavDrawer = document.getElementById('mobile-nav-drawer');
   const mobileNavClose = document.getElementById('mobile-nav-close');
+  const mobileBackdrop = document.getElementById('mobile-backdrop');
 
   function openMobileNav() {
-    if (mobileNavDrawer && mobileBackdrop) {
+    if (mobileNavDrawer) {
       mobileNavDrawer.classList.add('open');
+    }
+    if (mobileBackdrop) {
       mobileBackdrop.classList.add('open');
-      document.body.style.overflow = 'hidden';
+    }
+    document.body.style.overflow = 'hidden';
+    if (mobileMenuBtn) {
+      mobileMenuBtn.setAttribute('aria-expanded', 'true');
     }
   }
 
   function closeMobileNav() {
-    if (mobileNavDrawer && mobileBackdrop) {
+    if (mobileNavDrawer) {
       mobileNavDrawer.classList.remove('open');
+    }
+    if (mobileBackdrop) {
       mobileBackdrop.classList.remove('open');
-      document.body.style.overflow = '';
     }
     const contentSidebar = document.getElementById('content-sidebar');
     if (contentSidebar) {
       contentSidebar.classList.remove('mobile-open');
     }
+    document.body.style.overflow = '';
+    if (mobileMenuBtn) {
+      mobileMenuBtn.setAttribute('aria-expanded', 'false');
+    }
   }
 
   if (mobileMenuBtn) {
-    mobileMenuBtn.addEventListener('click', openMobileNav);
+    mobileMenuBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      openMobileNav();
+    });
   }
 
   if (mobileNavClose) {
-    mobileNavClose.addEventListener('click', closeMobileNav);
+    mobileNavClose.addEventListener('click', (e) => {
+      e.preventDefault();
+      closeMobileNav();
+    });
+  }
+
+  if (mobileBackdrop) {
+    mobileBackdrop.addEventListener('click', () => {
+      closeMobileNav();
+    });
+  }
+
+  // Close mobile drawer when any navigation link inside it is tapped
+  if (mobileNavDrawer) {
+    mobileNavDrawer.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        closeMobileNav();
+      });
+    });
   }
 
   // ===========================================================================
@@ -394,22 +427,29 @@
   const sidebarCloseBtn = document.getElementById('sidebar-close-btn');
 
   if (mobileChapterBtn && contentSidebar) {
-    mobileChapterBtn.addEventListener('click', () => {
+    mobileChapterBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
       contentSidebar.classList.add('mobile-open');
       if (mobileBackdrop) {
         mobileBackdrop.classList.add('open');
-        document.body.style.overflow = 'hidden';
       }
+      document.body.style.overflow = 'hidden';
     });
   }
 
   if (sidebarCloseBtn && contentSidebar) {
-    sidebarCloseBtn.addEventListener('click', () => {
-      contentSidebar.classList.remove('mobile-open');
-      if (mobileBackdrop) {
-        mobileBackdrop.classList.remove('open');
-        document.body.style.overflow = '';
-      }
+    sidebarCloseBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      closeMobileNav();
+    });
+  }
+
+  if (contentSidebar) {
+    contentSidebar.querySelectorAll('.sidebar-item a').forEach(link => {
+      link.addEventListener('click', () => {
+        closeMobileNav();
+      });
     });
   }
 
@@ -464,4 +504,50 @@
       }
     });
   }
+
+  // ===========================================================================
+  // 9. Automatic Universal Overflow & Formula Containment Safeguard
+  // ===========================================================================
+  function enforceContentContainment() {
+    // 1. Ensure all KaTeX display formulas stay strictly within container and scroll horizontally
+    document.querySelectorAll('.katex-display').forEach(el => {
+      el.style.maxWidth = '100%';
+      el.style.width = '100%';
+      el.style.overflowX = 'auto';
+      el.style.overflowY = 'hidden';
+      el.style.webkitOverflowScrolling = 'touch';
+      el.style.boxSizing = 'border-box';
+    });
+
+    // 2. Ensure all tables inside .prose are wrapped in responsive scroll container
+    document.querySelectorAll('.prose table').forEach(tbl => {
+      if (!tbl.parentElement.classList.contains('table-responsive-wrapper')) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'table-responsive-wrapper';
+        tbl.parentNode.insertBefore(wrapper, tbl);
+        wrapper.appendChild(tbl);
+      }
+    });
+
+    // 3. Ensure code blocks are contained
+    document.querySelectorAll('.prose pre').forEach(pre => {
+      pre.style.maxWidth = '100%';
+      pre.style.overflowX = 'auto';
+    });
+  }
+
+  window.onKaTeXRendered = function () {
+    enforceContentContainment();
+  };
+
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    setTimeout(enforceContentContainment, 50);
+    setTimeout(enforceContentContainment, 300);
+  } else {
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(enforceContentContainment, 100);
+      setTimeout(enforceContentContainment, 500);
+    });
+  }
+  window.addEventListener('resize', enforceContentContainment);
 })();

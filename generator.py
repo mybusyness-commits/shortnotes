@@ -163,7 +163,7 @@ def markdown_to_html(md_text):
             '</div>'
         )
 
-    wrapped_html = re.sub(r'<table>[\s\S]*?</table>', _wrap_table, raw_html)
+    wrapped_html = re.sub(r'<table\b[^>]*>[\s\S]*?</table>', _wrap_table, raw_html)
     return wrapped_html
 
 

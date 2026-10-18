@@ -6,7 +6,7 @@
   "author": "shrtnotes Editorial Team",
   "theme": {
     "template": "obsidian",
-    "default_mode": "system",
+    "default_mode": "dark",
     "primary_color": "#2563eb",
     "accent_color": "#3b82f6",
     "font_family": "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
