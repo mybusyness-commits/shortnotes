@@ -700,13 +700,30 @@ SUBJECT_EDIT_HTML = """
 # ==============================================================================
 ADS_HTML = """
 <div class="card">
-  <h3 class="card-title">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
-    <span>Universal Ad Platform & Monetization Manager</span>
-  </h3>
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+    <h3 class="card-title" style="margin-bottom: 0;">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+      <span>Universal Ad Platform & Monetization Manager</span>
+    </h3>
+    <span class="badge" style="background: #064e3b; color: #a7f3d0; font-size: 0.8rem; padding: 0.35rem 0.75rem;">Zero-CLS Containers Active</span>
+  </div>
+  
   <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">
-    Supports <strong>Google AdSense, Media.net, Ezoic, Adsterra, Carbon, custom sponsor banners, or any network</strong>. You can change ad providers at any time without layout breakages.
+    Supports <strong>Google AdSense, Adsterra, Media.net, Ezoic, Carbon, custom sponsor banners, or any network</strong>. Paste your network's code in the matching slot dimensions below.
   </p>
+
+  <!-- Dimension Quick Reference Card -->
+  <div style="background: #172554; border: 1px solid #1e40af; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
+    <div style="font-size: 0.85rem; font-weight: 700; color: #93c5fd; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">
+      Standard IAB Ad Dimensions Cheat-Sheet:
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; font-size: 0.8rem; color: #cbd5e1;">
+      <div>&bull; <strong>Header:</strong> 728&times;90 (Desktop) / 320&times;50 (Mobile)</div>
+      <div>&bull; <strong>In-Article:</strong> 300&times;250 (Medium) / 336&times;280</div>
+      <div>&bull; <strong>Sidebar Rail:</strong> 300&times;600 (Half Page) / 160&times;600</div>
+      <div>&bull; <strong>Footer:</strong> 728&times;90 (Leaderboard) / 468&times;60</div>
+    </div>
+  </div>
 
   <form method="POST" action="{{ url_for('route_save_ads') }}">
     <div class="form-group" style="margin-bottom: 1.5rem;">
@@ -725,26 +742,55 @@ ADS_HTML = """
 
     <!-- Slot 1: Header Banner -->
     <div class="form-group" style="background: #0f172a; border: 1px solid var(--card-border); padding: 1.25rem; border-radius: 8px; margin-top: 1rem;">
-      <label class="form-label">1. Top Header Banner Ad Code (Any Network)</label>
-      <textarea name="header_ad" class="form-control" style="min-height: 90px;" placeholder="Paste HTML/JS ad unit code for the top header leaderboard">{{ config.ads.header_ad }}</textarea>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; flex-wrap: wrap; gap: 0.5rem;">
+        <label class="form-label" style="margin-bottom: 0;">1. Top Header Banner Ad Code</label>
+        <div style="display: flex; gap: 0.35rem;">
+          <span class="badge" style="background: #1e3a8a; color: #93c5fd;">728&times;90 Desktop Leaderboard</span>
+          <span class="badge" style="background: #064e3b; color: #a7f3d0;">320&times;50 Mobile</span>
+        </div>
+      </div>
+      <textarea name="header_ad" class="form-control" style="min-height: 90px;" placeholder="Paste HTML/JS ad unit code for the 728x90 or 320x50 top header leaderboard">{{ config.ads.header_ad }}</textarea>
+      <span style="font-size: 0.75rem; color: var(--text-muted);">Appears right below navigation on all pages. Fixed container prevents page jumping.</span>
     </div>
 
     <!-- Slot 2: In-Article Ad -->
     <div class="form-group" style="background: #0f172a; border: 1px solid var(--card-border); padding: 1.25rem; border-radius: 8px; margin-top: 1rem;">
-      <label class="form-label">2. In-Article Ad Code (Middle of Topic Content)</label>
-      <textarea name="in_article_ad" class="form-control" style="min-height: 90px;" placeholder="Paste HTML/JS ad unit code for in-article placement">{{ config.ads.in_article_ad }}</textarea>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; flex-wrap: wrap; gap: 0.5rem;">
+        <label class="form-label" style="margin-bottom: 0;">2. In-Article Ad Code (Inside Study Topic)</label>
+        <div style="display: flex; gap: 0.35rem;">
+          <span class="badge" style="background: #1e3a8a; color: #93c5fd;">300&times;250 Medium Rectangle</span>
+          <span class="badge" style="background: #064e3b; color: #a7f3d0;">336&times;280 Large Rectangle</span>
+        </div>
+      </div>
+      <textarea name="in_article_ad" class="form-control" style="min-height: 90px;" placeholder="Paste HTML/JS ad unit code for 300x250 or 336x280 in-article unit">{{ config.ads.in_article_ad }}</textarea>
+      <span style="font-size: 0.75rem; color: var(--text-muted);">Placed right before main topic prose notes. Highest visibility for reading users.</span>
     </div>
 
     <!-- Slot 3: Sidebar Sticky Ad -->
     <div class="form-group" style="background: #0f172a; border: 1px solid var(--card-border); padding: 1.25rem; border-radius: 8px; margin-top: 1rem;">
-      <label class="form-label">3. Desktop Sticky Sidebar Ad Code</label>
-      <textarea name="sidebar_ad" class="form-control" style="min-height: 90px;" placeholder="Paste HTML/JS ad unit code for the desktop sidebar">{{ config.ads.sidebar_ad }}</textarea>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; flex-wrap: wrap; gap: 0.5rem;">
+        <label class="form-label" style="margin-bottom: 0;">3. Desktop Sticky Sidebar & Lateral Rail Ad Code</label>
+        <div style="display: flex; gap: 0.35rem;">
+          <span class="badge" style="background: #1e3a8a; color: #93c5fd;">300&times;600 Half-Page</span>
+          <span class="badge" style="background: #064e3b; color: #a7f3d0;">160&times;600 Skyscraper</span>
+          <span class="badge" style="background: #581c87; color: #e9d5ff;">300&times;250</span>
+        </div>
+      </div>
+      <textarea name="sidebar_ad" class="form-control" style="min-height: 90px;" placeholder="Paste HTML/JS ad unit code for 300x600, 160x600, or 300x250 sidebar placement">{{ config.ads.sidebar_ad }}</textarea>
+      <span style="font-size: 0.75rem; color: var(--text-muted);">Pins to the lateral rail on widescreen desktop screens without disturbing reading flow.</span>
     </div>
 
     <!-- Slot 4: Footer Ad -->
     <div class="form-group" style="background: #0f172a; border: 1px solid var(--card-border); padding: 1.25rem; border-radius: 8px; margin-top: 1rem;">
-      <label class="form-label">4. Bottom Footer Banner Ad Code</label>
-      <textarea name="footer_ad" class="form-control" style="min-height: 90px;" placeholder="Paste HTML/JS ad unit code for the bottom footer">{{ config.ads.footer_ad }}</textarea>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; flex-wrap: wrap; gap: 0.5rem;">
+        <label class="form-label" style="margin-bottom: 0;">4. Bottom Footer Banner Ad Code</label>
+        <div style="display: flex; gap: 0.35rem;">
+          <span class="badge" style="background: #1e3a8a; color: #93c5fd;">728&times;90 Leaderboard</span>
+          <span class="badge" style="background: #064e3b; color: #a7f3d0;">468&times;60 Classic Banner</span>
+        </div>
+      </div>
+      <textarea name="footer_ad" class="form-control" style="min-height: 90px;" placeholder="Paste HTML/JS ad unit code for 728x90 or 468x60 bottom banner">{{ config.ads.footer_ad }}</textarea>
+      <span style="font-size: 0.75rem; color: var(--text-muted);">Displays above the footer. Catches users after finishing reading a note.</span>
     </div>
 
     <!-- Google AdSense Quick Setup Accordion/Helper -->
@@ -759,17 +805,17 @@ ADS_HTML = """
           <input type="text" name="adsense_client_id" class="form-control" value="{{ config.ads.adsense.client_id }}" placeholder="ca-pub-1234567890123456">
         </div>
         <div class="form-group">
-          <label class="form-label" style="color: #93c5fd;">Header Slot ID</label>
+          <label class="form-label" style="color: #93c5fd;">Header Slot ID (728&times;90)</label>
           <input type="text" name="adsense_header_slot" class="form-control" value="{{ config.ads.adsense.header_slot }}" placeholder="e.g. 1234567890">
         </div>
       </div>
       <div class="form-grid">
         <div class="form-group">
-          <label class="form-label" style="color: #93c5fd;">In-Article Slot ID</label>
+          <label class="form-label" style="color: #93c5fd;">In-Article Slot ID (300&times;250)</label>
           <input type="text" name="adsense_in_article_slot" class="form-control" value="{{ config.ads.adsense.in_article_slot }}" placeholder="e.g. 2345678901">
         </div>
         <div class="form-group">
-          <label class="form-label" style="color: #93c5fd;">Sidebar Slot ID</label>
+          <label class="form-label" style="color: #93c5fd;">Sidebar Slot ID (300&times;600 / 160&times;600)</label>
           <input type="text" name="adsense_sidebar_slot" class="form-control" value="{{ config.ads.adsense.sidebar_slot }}" placeholder="e.g. 3456789012">
         </div>
       </div>
@@ -1289,14 +1335,80 @@ def route_delete_chapter(sub_id, ch_id):
 # ==============================================================================
 @app.route("/design")
 def route_design():
+    config = load_config()
+    current_template = config.get("theme", {}).get("template", "modern")
     return render_studio_view(
         """
         <div class="card">
-          <h3 class="card-title">Website Design, Colors & Branding</h3>
+          <h3 class="card-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19 7-7 3 3-7 7-3-3z"/><path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="m2 2 7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+            <span>Website Design, Themes & Templates</span>
+          </h3>
           <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">
-            Changes made here update <strong>all pages across the site</strong> instantly with Clean URLs.
+            Switch design templates anytime. All 3 templates share the exact same structural grid, container paddings, and alignment geometry, so <strong>your site alignment and ads will NEVER be disturbed or misaligned</strong>.
           </p>
+
           <form method="POST" action="{{ url_for('route_save_design') }}">
+            <!-- Template Selector Cards -->
+            <div style="margin-bottom: 2rem;">
+              <label class="form-label" style="font-size: 0.95rem; font-weight: 700; color: #93c5fd; margin-bottom: 0.75rem;">
+                Select Active Design Template:
+              </label>
+
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+                <!-- Template 1: Modern Minimalist -->
+                <label style="display: block; cursor: pointer;">
+                  <div style="background: #0f172a; border: 2px solid {% if current_template == 'modern' %}#3b82f6{% else %}var(--card-border){% endif %}; border-radius: 8px; padding: 1.25rem; transition: all 0.2s;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                      <strong style="font-size: 1rem; color: #fff;">1. Modern Minimalist</strong>
+                      <input type="radio" name="template" value="modern" {% if current_template == 'modern' %}checked{% endif %} style="width: 18px; height: 18px;">
+                    </div>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+                      Clean neo-grotesque sans-serif, crisp blue accents, rounded corners. Default clean look.
+                    </p>
+                    <div style="display: flex; gap: 0.4rem;">
+                      <span class="badge" style="background: #1e3a8a; color: #93c5fd;">Inter Font</span>
+                      <span class="badge" style="background: #2563eb; color: #ffffff;">#2563eb Blue</span>
+                    </div>
+                  </div>
+                </label>
+
+                <!-- Template 2: Academic Classic -->
+                <label style="display: block; cursor: pointer;">
+                  <div style="background: #0f172a; border: 2px solid {% if current_template == 'academic' %}#14b8a6{% else %}var(--card-border){% endif %}; border-radius: 8px; padding: 1.25rem; transition: all 0.2s;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                      <strong style="font-size: 1rem; color: #fff;">2. Academic Classic</strong>
+                      <input type="radio" name="template" value="academic" {% if current_template == 'academic' %}checked{% endif %} style="width: 18px; height: 18px;">
+                    </div>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+                      Scholarly serif headings (Merriweather), refined forest emerald accents, textbook editorial styling.
+                    </p>
+                    <div style="display: flex; gap: 0.4rem;">
+                      <span class="badge" style="background: #064e3b; color: #a7f3d0;">Serif Headings</span>
+                      <span class="badge" style="background: #0f766e; color: #ffffff;">#0f766e Emerald</span>
+                    </div>
+                  </div>
+                </label>
+
+                <!-- Template 3: Obsidian Tech -->
+                <label style="display: block; cursor: pointer;">
+                  <div style="background: #0f172a; border: 2px solid {% if current_template == 'obsidian' %}#8b5cf6{% else %}var(--card-border){% endif %}; border-radius: 8px; padding: 1.25rem; transition: all 0.2s;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                      <strong style="font-size: 1rem; color: #fff;">3. Obsidian Tech</strong>
+                      <input type="radio" name="template" value="obsidian" {% if current_template == 'obsidian' %}checked{% endif %} style="width: 18px; height: 18px;">
+                    </div>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+                      Cyber technical aesthetic, sleek violet & indigo accents, monospace metadata badges. High-contrast formula focus.
+                    </p>
+                    <div style="display: flex; gap: 0.4rem;">
+                      <span class="badge" style="background: #3b0764; color: #d8b4fe;">Monospace Badges</span>
+                      <span class="badge" style="background: #7c3aed; color: #ffffff;">#7c3aed Violet</span>
+                    </div>
+                  </div>
+                </label>
+              </div>
+            </div>
+
             <div class="form-grid">
               <div class="form-group">
                 <label class="form-label">Website Name</label>
@@ -1313,20 +1425,24 @@ def route_design():
             </div>
             <div class="form-grid">
               <div class="form-group">
-                <label class="form-label">Site URL (without trailing slash)</label>
+                <label class="form-label">Site Canonical URL (without trailing slash)</label>
                 <input type="url" name="site_url" class="form-control" value="{{ config.site_url }}" required>
               </div>
               <div class="form-group">
-                <label class="form-label">Author Attribution</label>
+                <label class="form-label">Author / Editorial Attribution</label>
                 <input type="text" name="author" class="form-control" value="{{ config.author }}" required>
               </div>
             </div>
-            <button type="submit" class="btn btn-success" style="margin-top: 1rem;">Save Design & Rebuild</button>
+            <button type="submit" class="btn btn-success" style="margin-top: 1.5rem; font-size: 1rem; padding: 0.75rem 1.5rem;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/></svg>
+              <span>Save Design & Rebuild Website</span>
+            </button>
           </form>
         </div>
         """,
         active_tab="design",
-        page_heading="Website Design, Colors & Branding"
+        page_heading="Website Design, Colors & Switchable Templates",
+        current_template=current_template
     )
 
 
@@ -1339,9 +1455,13 @@ def route_save_design():
     config["site_url"] = request.form.get("site_url", config["site_url"]).strip().rstrip("/")
     config["author"] = request.form.get("author", config["author"]).strip()
 
+    if "theme" not in config:
+        config["theme"] = {}
+    config["theme"]["template"] = request.form.get("template", "modern").strip()
+
     save_config(config)
     build_site()
-    flash("Design settings saved and Clean URLs updated.", "success")
+    flash(f"Design settings saved! Switched to '{config['theme']['template'].title()}' template with 100% stable alignment.", "success")
     return redirect(url_for("route_design"))
 
 

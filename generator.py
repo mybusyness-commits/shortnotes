@@ -323,8 +323,8 @@ def build_site():
             subjects_dict[sub_id]["notes"].append(note_obj)
             all_notes.append(note_obj)
 
-    # Sort all notes for home page feed
-    all_notes.sort(key=lambda x: x["last_modified"], reverse=True)
+    # Sort all notes strictly newest to oldest (recent first)
+    all_notes.sort(key=lambda x: (x.get("last_modified") or x.get("date") or ""), reverse=True)
 
     sitemap_entries = []
 
@@ -543,6 +543,28 @@ def build_site():
     ]
     with open(OUTPUT_DIR / "robots.txt", "w", encoding="utf-8") as f:
         f.write("\n".join(robots_txt))
+
+    # 7. Generate Live Search Engine Index (search_index.json)
+    search_index = []
+    for note in all_notes:
+        plain_content = re.sub(r'(\*\*|__|\*|_|`|#|\[|\]|\([^\)]*\)|<[^>]+>|\$\$|\$)', ' ', note.get("raw_md", ""))
+        clean_snippet = ' '.join(plain_content.split())[:500]
+        search_index.append({
+            "title": note["title"],
+            "slug": note["slug"],
+            "subject": note["subject"],
+            "subject_name": note["subject_name"],
+            "chapter": note["chapter"],
+            "chapter_name": note["chapter_name"],
+            "url": f"/{note['subject']}/{note['chapter']}/{note['slug']}/",
+            "excerpt": note["excerpt"],
+            "tags": note["tags"],
+            "reading_time": note["reading_time"],
+            "content": clean_snippet
+        })
+
+    with open(OUTPUT_DIR / "search_index.json", "w", encoding="utf-8") as f:
+        json.dump(search_index, f, ensure_ascii=False, indent=2)
 
     print(f"✅ Build complete! Compiled {len(all_notes)} topics across chapters with 100% Clean URLs (0 .html) and {len(sitemap_entries)} sitemap URLs.")
     return len(all_notes)

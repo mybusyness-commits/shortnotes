@@ -1,0 +1,101 @@
+[
+  {
+    "title": "Fundamental Theorem of Calculus & Key Derivatives",
+    "slug": "calculus-fundamental-theorem",
+    "subject": "mathematics",
+    "subject_name": "Mathematics",
+    "chapter": "calculus",
+    "chapter_name": "Calculus",
+    "url": "/mathematics/calculus/calculus-fundamental-theorem/",
+    "excerpt": "Quick summary of differentiation rules, integration relations, and the Fundamental Theorem linking them.",
+    "tags": [
+      "calculus",
+      "derivatives",
+      "integration",
+      "fundamental theorem"
+    ],
+    "reading_time": 2,
+    "content": "1. Overview & Statement The Fundamental Theorem of Calculus bridges differential calculus and integral calculus, showing that differentiation and integration are inverse operations. Part 1: Derivative of an Integral If f is continuous on a, b , then the function g defined by: g = \\int {a}^{x} f \\, dt \\quad \\text{for } a \\le x \\le b is continuous on a, b , differentiable on , and its derivative is: g' = f Part 2: Evaluation Theorem If f is continuous on a, b and F is any antiderivative of f , the"
+  },
+  {
+    "title": "Matrix Multiplication & Inverses: Formulas, Properties & Step-by-Step Guide",
+    "slug": "matrix-multiplication-inverses",
+    "subject": "mathematics",
+    "subject_name": "Mathematics",
+    "chapter": "linear-algebra",
+    "chapter_name": "Linear Algebra",
+    "url": "/mathematics/linear-algebra/matrix-multiplication-inverses/",
+    "excerpt": "Comprehensive high-yield notes on matrix multiplication conditions, algebraic properties, 2x2 and 3x3 matrix inverses, and singular matrix criteria.",
+    "tags": [
+      "linear algebra",
+      "matrices",
+      "matrix inverse",
+      "determinants",
+      "matrix multiplication"
+    ],
+    "reading_time": 4,
+    "content": "1. Matrix Multiplication Fundamentals Matrix multiplication is a row-by-column binary operation. Two matrices A and B can only be multiplied if the number of columns in A equals the number of rows in B . If A has dimension m \\times k and B has dimension k \\times n , then the product C = AB has dimension m \\times n . Each entry c {ij} in product matrix C is computed as the dot product of the i -th row of A and the j -th column of B : c {ij} = \\sum {r=1}^{k} a {ir} b {rj} = a {i1}b {1j} + a {i2}b "
+  },
+  {
+    "title": "Attributes",
+    "slug": "attributes",
+    "subject": "mathematics",
+    "subject_name": "Mathematics",
+    "chapter": "statistics",
+    "chapter_name": "Statistics",
+    "url": "/mathematics/statistics/attributes/",
+    "excerpt": "Attributes",
+    "tags": [
+      "statistics",
+      "attributes",
+      "graph",
+      "histogram"
+    ],
+    "reading_time": 2,
+    "content": "\\text{\\bf CORE PRINCIPLE: THEORY OF ATTRIBUTES} \\text{Frequencies are organized into a } 2 \\times 2 \\text{ Contingency Table:} \\begin{array}{|c|c|c|c|} \\hline & B \\text{ } & \\beta \\text{ } & \\text{\\bf Total} \\\\ \\hline A \\text{ } & & & \\mathbf{ } \\\\ \\hline \\alpha \\text{ } & & & \\mathbf{ } \\\\ \\hline \\text{\\bf Total} & \\mathbf{ } & \\mathbf{ } & \\mathbf{N \\text{ }} \\\\ \\hline \\end{array} \\text{Under the Null Hypothesis } \\text{ of independence, the Expected Frequency } \\text; is:} E = \\frac{\\text{Row"
+  },
+  {
+    "title": "Laws of Thermodynamics & Carnot Engine Efficiency",
+    "slug": "thermodynamics-carnot-engine",
+    "subject": "physics",
+    "subject_name": "Physics",
+    "chapter": "thermodynamics",
+    "chapter_name": "Thermodynamics",
+    "url": "/physics/thermodynamics/thermodynamics-carnot-engine/",
+    "excerpt": "Concise summary of the Zeroth, First, and Second Laws of Thermodynamics, state functions, and Carnot cycle equations.",
+    "tags": [
+      "thermodynamics",
+      "carnot engine",
+      "physics",
+      "entropy"
+    ],
+    "reading_time": 2,
+    "content": "1. The Four Laws in Brief Zeroth Law : If system A is in thermal equilibrium with B , and B is with C , then A is in thermal equilibrium with C . This establishes the definition of temperature. First Law : \\Delta U = Q - W Where \\Delta U is the change in internal energy, Q is heat added to the system, and W is work done by the system . Second Law : The entropy of an isolated system never decreases over time: \\Delta S {\\text{universe}} \\ge 0 No cyclic heat engine can convert 100% of input heat in"
+  },
+  {
+    "title": "Cell Organelles, Membrane Transport & Cellular Respiration",
+    "slug": "cell-organelles-and-atp",
+    "subject": "biology",
+    "subject_name": "Biology",
+    "chapter": "cell-biology",
+    "chapter_name": "Cell Biology",
+    "url": "/biology/cell-biology/cell-organelles-and-atp/",
+    "excerpt": "Quick summary of eukaryotic cell organelles, passive vs active membrane transport, and net ATP yields in aerobic cellular respiration.",
+    "tags": [],
+    "reading_time": 2,
+    "content": "1. Organelle Functions Reference Nucleus : Houses linear genomic DNA, surrounded by a double membrane with nuclear pores; site of transcription and ribosome subunit assembly . Mitochondria : Double-membrane organelle; inner membrane contains cristae and electron transport chain complexes; produces majority of ATP via oxidative phosphorylation. Rough Endoplasmic Reticulum : Studded with ribosomes; synthesizes and post-translationally modifies proteins destined for secretion or membranes. Smooth E"
+  },
+  {
+    "title": "Electrophilic vs Nucleophilic Substitution & Elimination (SN1, SN2, E1, E2)",
+    "slug": "organic-reaction-mechanisms",
+    "subject": "chemistry",
+    "subject_name": "Chemistry",
+    "chapter": "organic-mechanisms",
+    "chapter_name": "Organic Mechanisms",
+    "url": "/chemistry/organic-mechanisms/organic-reaction-mechanisms/",
+    "excerpt": "Quick comparison chart of SN1, SN2, E1, and E2 mechanisms: kinetics, stereochemistry, solvent effects, and substrate preferences.",
+    "tags": [],
+    "reading_time": 2,
+    "content": "1. Quick Comparison Matrix | Parameter | S N1 | S N2 | E1 | E2 | | :--- | :--- | :--- | :--- | :--- | | Kinetics | First Order: k \\text{R-X} | Second Order: k \\text{R-X} \\text{Nu}^- | First Order: k \\text{R-X} | Second Order: k \\text{R-X} \\text{Base} | | Substrate Preference | 3^\\circ > 2^\\circ \\gg 1^\\circ | \\text{CH} 3 > 1^\\circ > 2^\\circ \\gg 3^\\circ | 3^\\circ > 2^\\circ \\gg 1^\\circ | 3^\\circ > 2^\\circ > 1^\\circ | | Nucleophile / Base | Weak nucleophile | Strong nucleophile | Weak base + heat | "
+  }
+]

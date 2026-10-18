@@ -1,17 +1,22 @@
 /**
  * shrtnotes - Client-Side Interactive Engine
- * Handles:
- * - Theme switcher (Light/Dark) with persistence
- * - Mobile full navigation drawer with backdrop
- * - Mobile note chapter navigation drawer
- * - Interactive instant search filtering
- * - Code block copy buttons
+ * ==========================================
+ * Features:
+ * - Theme Switcher (Light/Dark) with localStorage persistence
+ * - Desktop Subjects Navigation Dropdown
+ * - Search Icon Trigger & Expandable Search Overlay
+ * - Intelligent Live Multi-Field Auto-Suggest Engine (Subject, Chapter, Topic, Tags, Content)
+ * - Mobile Full Navigation Drawer
+ * - Mobile Chapter Navigation Drawer
+ * - Code Block Copy Buttons
  */
 
 (function () {
   'use strict';
 
-  // 1. Theme Management
+  // ===========================================================================
+  // 1. Theme Management (Light / Dark Mode)
+  // ===========================================================================
   const THEME_KEY = 'shrtnotes_theme';
   const htmlEl = document.documentElement;
   const themeToggleBtn = document.getElementById('theme-toggle-btn');
@@ -36,7 +41,6 @@
     themeToggleBtn.setAttribute('aria-label', `Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`);
   }
 
-  // Initialize theme
   const initialTheme = getPreferredTheme();
   applyTheme(initialTheme);
 
@@ -47,11 +51,312 @@
     });
   }
 
-  // 2. Mobile Full Navigation Drawer
+  // ===========================================================================
+  // 2. Desktop Subjects Dropdown Menu
+  // ===========================================================================
+  const subjectsDropdownBtn = document.getElementById('subjects-dropdown-btn');
+  const subjectsDropdownContainer = document.getElementById('subjects-dropdown-container');
+
+  if (subjectsDropdownBtn && subjectsDropdownContainer) {
+    subjectsDropdownBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = subjectsDropdownContainer.classList.contains('open');
+      subjectsDropdownContainer.classList.toggle('open', !isOpen);
+      subjectsDropdownBtn.setAttribute('aria-expanded', !isOpen ? 'true' : 'false');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!subjectsDropdownContainer.contains(e.target)) {
+        subjectsDropdownContainer.classList.remove('open');
+        subjectsDropdownBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+
+  // ===========================================================================
+  // 3. Search Icon Trigger & Expandable Search Overlay
+  // ===========================================================================
+  const searchToggleBtn = document.getElementById('search-toggle-btn');
+  const searchOverlay = document.getElementById('search-overlay');
+  const searchBackdrop = document.getElementById('search-backdrop');
+  const searchCloseBtn = document.getElementById('search-close-btn');
+  const searchInput = document.getElementById('global-search-input');
+  const searchSuggestions = document.getElementById('search-suggestions');
+
+  let searchIndex = null;
+  let isFetchingIndex = false;
+  let activeSuggestionIndex = -1;
+
+  // Determine root path for fetching search_index.json
+  function getRootPath() {
+    const cssLink = document.querySelector('link[rel="stylesheet"][href*="style.css"]');
+    if (cssLink) {
+      const href = cssLink.getAttribute('href');
+      const idx = href.indexOf('static/css/style.css');
+      if (idx !== -1) {
+        return href.substring(0, idx);
+      }
+    }
+    return '/';
+  }
+
+  async function loadSearchIndex() {
+    if (searchIndex || isFetchingIndex) return;
+    isFetchingIndex = true;
+    try {
+      const rootPath = getRootPath();
+      const res = await fetch(`${rootPath}search_index.json`);
+      if (res.ok) {
+        searchIndex = await res.json();
+      }
+    } catch (err) {
+      console.warn('Could not load search index:', err);
+    } finally {
+      isFetchingIndex = false;
+    }
+  }
+
+  function openSearch() {
+    if (!searchOverlay) return;
+    searchOverlay.classList.add('open');
+    if (searchBackdrop) searchBackdrop.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    loadSearchIndex();
+    setTimeout(() => {
+      if (searchInput) {
+        searchInput.focus();
+        searchInput.select();
+      }
+    }, 50);
+  }
+
+  function closeSearch() {
+    if (!searchOverlay) return;
+    searchOverlay.classList.remove('open');
+    if (searchBackdrop) searchBackdrop.classList.remove('open');
+    document.body.style.overflow = '';
+    activeSuggestionIndex = -1;
+    if (searchSuggestions) {
+      searchSuggestions.style.display = 'none';
+      searchSuggestions.innerHTML = '';
+    }
+  }
+
+  if (searchToggleBtn) {
+    searchToggleBtn.addEventListener('click', openSearch);
+  }
+
+  if (searchCloseBtn) {
+    searchCloseBtn.addEventListener('click', closeSearch);
+  }
+
+  if (searchBackdrop) {
+    searchBackdrop.addEventListener('click', closeSearch);
+  }
+
+  // Global Keyboard Shortcuts (Press '/' to search, 'Esc' to close)
+  document.addEventListener('keydown', (e) => {
+    if (e.key === '/' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+      e.preventDefault();
+      openSearch();
+    } else if (e.key === 'Escape') {
+      if (searchOverlay && searchOverlay.classList.contains('open')) {
+        closeSearch();
+      }
+      if (subjectsDropdownContainer) {
+        subjectsDropdownContainer.classList.remove('open');
+      }
+    }
+  });
+
+  // ===========================================================================
+  // 4. Intelligent Live Multi-Field Auto-Suggest Engine
+  // ===========================================================================
+  function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  function highlightMatches(text, tokens) {
+    if (!tokens.length) return text;
+    let safeText = text;
+    tokens.forEach(tok => {
+      if (!tok) return;
+      const regex = new RegExp(`(${escapeRegExp(tok)})`, 'gi');
+      safeText = safeText.replace(regex, '<mark>$1</mark>');
+    });
+    return safeText;
+  }
+
+  function performSearch(query) {
+    if (!searchIndex || !query.trim()) {
+      if (searchSuggestions) {
+        searchSuggestions.style.display = 'none';
+        searchSuggestions.innerHTML = '';
+      }
+      return;
+    }
+
+    const rawTokens = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
+    const rootPath = getRootPath();
+
+    const scored = [];
+
+    searchIndex.forEach(item => {
+      const titleLower = (item.title || '').toLowerCase();
+      const subjectLower = (item.subject_name || item.subject || '').toLowerCase();
+      const chapterLower = (item.chapter_name || item.chapter || '').toLowerCase();
+      const excerptLower = (item.excerpt || '').toLowerCase();
+      const contentLower = (item.content || '').toLowerCase();
+      const tagsList = Array.isArray(item.tags) ? item.tags : [];
+      const tagsLower = tagsList.map(t => String(t).toLowerCase());
+
+      let score = 0;
+      let allTokensMatch = true;
+
+      rawTokens.forEach(token => {
+        let tokenFound = false;
+
+        if (titleLower.includes(token)) {
+          score += 100;
+          if (titleLower.startsWith(token)) score += 50;
+          tokenFound = true;
+        }
+
+        if (tagsLower.some(t => t.includes(token))) {
+          score += 60;
+          tokenFound = true;
+        }
+
+        if (chapterLower.includes(token)) {
+          score += 40;
+          tokenFound = true;
+        }
+
+        if (subjectLower.includes(token)) {
+          score += 30;
+          tokenFound = true;
+        }
+
+        if (excerptLower.includes(token) || contentLower.includes(token)) {
+          score += 15;
+          tokenFound = true;
+        }
+
+        if (!tokenFound) {
+          allTokensMatch = false;
+        }
+      });
+
+      if (allTokensMatch && score > 0) {
+        scored.push({ item, score });
+      }
+    });
+
+    // Sort by relevance score descending
+    scored.sort((a, b) => b.score - a.score);
+    const topMatches = scored.slice(0, 8).map(s => s.item);
+
+    renderSuggestions(topMatches, rawTokens, rootPath, query);
+  }
+
+  function renderSuggestions(matches, tokens, rootPath, originalQuery) {
+    if (!searchSuggestions) return;
+
+    if (matches.length === 0) {
+      searchSuggestions.innerHTML = `
+        <div class="search-empty">
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 0.5rem; opacity: 0.6;"><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/><line x1="11" x2="11" y1="8" y2="14"/></svg>
+          <div>No study notes found matching "<strong>${originalQuery}</strong>".</div>
+          <div style="font-size: 0.8rem; margin-top: 0.25rem;">Try searching by subject (e.g. Physics), chapter (e.g. Calculus), or concept keywords.</div>
+        </div>
+      `;
+      searchSuggestions.style.display = 'block';
+      activeSuggestionIndex = -1;
+      return;
+    }
+
+    let html = '';
+    matches.forEach((item, index) => {
+      // Build clean URL ending with slash
+      const noteRel = `${item.subject}/${item.chapter}/${item.slug}/`;
+      const cleanHref = `${rootPath}${noteRel}`;
+      const highlightedTitle = highlightMatches(item.title, tokens);
+
+      const tagHtml = (item.tags || []).slice(0, 3).map(tag => {
+        return `<span class="search-tag-chip">#${tag}</span>`;
+      }).join('');
+
+      html += `
+        <a href="${cleanHref}" class="search-suggestion-item" data-index="${index}">
+          <div class="search-suggestion-top">
+            <span class="search-suggestion-crumb">
+              <span>${item.subject_name}</span>
+              <span>&rsaquo;</span>
+              <span>${item.chapter_name}</span>
+            </span>
+            <span class="search-suggestion-time">${item.reading_time || 2} min read</span>
+          </div>
+          <div class="search-suggestion-title">${highlightedTitle}</div>
+          <div class="search-suggestion-snippet">${item.excerpt || item.content || ''}</div>
+          ${tagHtml ? `<div class="search-suggestion-tags">${tagHtml}</div>` : ''}
+        </a>
+      `;
+    });
+
+    searchSuggestions.innerHTML = html;
+    searchSuggestions.style.display = 'block';
+    activeSuggestionIndex = -1;
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value;
+      if (!searchIndex) {
+        loadSearchIndex().then(() => performSearch(query));
+      } else {
+        performSearch(query);
+      }
+    });
+
+    // Keyboard Navigation within Suggestions
+    searchInput.addEventListener('keydown', (e) => {
+      const items = searchSuggestions ? searchSuggestions.querySelectorAll('.search-suggestion-item') : [];
+      if (!items.length) return;
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        activeSuggestionIndex = (activeSuggestionIndex + 1) % items.length;
+        updateActiveSuggestion(items);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        activeSuggestionIndex = (activeSuggestionIndex - 1 + items.length) % items.length;
+        updateActiveSuggestion(items);
+      } else if (e.key === 'Enter') {
+        if (activeSuggestionIndex >= 0 && items[activeSuggestionIndex]) {
+          e.preventDefault();
+          items[activeSuggestionIndex].click();
+        }
+      }
+    });
+  }
+
+  function updateActiveSuggestion(items) {
+    items.forEach((item, idx) => {
+      if (idx === activeSuggestionIndex) {
+        item.classList.add('highlighted');
+        item.scrollIntoView({ block: 'nearest' });
+      } else {
+        item.classList.remove('highlighted');
+      }
+    });
+  }
+
+  // ===========================================================================
+  // 5. Mobile Full Navigation Drawer
+  // ===========================================================================
   const mobileMenuBtn = document.getElementById('mobile-menu-btn');
   const mobileNavDrawer = document.getElementById('mobile-nav-drawer');
   const mobileNavClose = document.getElementById('mobile-nav-close');
-  const mobileBackdrop = document.getElementById('mobile-backdrop');
 
   function openMobileNav() {
     if (mobileNavDrawer && mobileBackdrop) {
@@ -81,11 +386,9 @@
     mobileNavClose.addEventListener('click', closeMobileNav);
   }
 
-  if (mobileBackdrop) {
-    mobileBackdrop.addEventListener('click', closeMobileNav);
-  }
-
-  // 3. Mobile Chapter Navigation Toggle for Notes
+  // ===========================================================================
+  // 6. Mobile Chapter Navigation Drawer for Notes
+  // ===========================================================================
   const mobileChapterBtn = document.getElementById('mobile-chapter-toggle-btn');
   const contentSidebar = document.getElementById('content-sidebar');
   const sidebarCloseBtn = document.getElementById('sidebar-close-btn');
@@ -110,24 +413,9 @@
     });
   }
 
-  // 4. Client-Side Instant Search Filter
-  const searchInput = document.getElementById('global-search-input');
-  if (searchInput) {
-    searchInput.addEventListener('input', function (e) {
-      const query = e.target.value.toLowerCase().trim();
-      const noteRows = document.querySelectorAll('.note-row');
-      noteRows.forEach(row => {
-        const text = row.textContent.toLowerCase();
-        if (!query || text.includes(query)) {
-          row.style.display = 'flex';
-        } else {
-          row.style.display = 'none';
-        }
-      });
-    });
-  }
-
-  // 5. Code Block Copy Buttons
+  // ===========================================================================
+  // 7. Code Block Copy Buttons
+  // ===========================================================================
   document.querySelectorAll('.prose pre').forEach(pre => {
     const copyBtn = document.createElement('button');
     copyBtn.className = 'code-copy-btn';

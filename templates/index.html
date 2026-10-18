@@ -43,14 +43,17 @@
   {% endfor %}
 </div>
 
-<!-- Recent Topics Feed -->
+<!-- Recent Topics Feed (Recent 5 Notes in Newest -> Oldest Order) -->
 <div class="section-header">
-  <h2 class="section-title">Latest Study Topics</h2>
-  <span style="font-size: 0.85rem; color: var(--text-muted);">{{ notes|length }} topics published</span>
+  <div style="display: flex; align-items: center; gap: 0.75rem;">
+    <h2 class="section-title">Latest Study Topics</h2>
+    <span class="recent-pill">Recent 5</span>
+  </div>
+  <span style="font-size: 0.85rem; color: var(--text-muted);">Newest to oldest</span>
 </div>
 
 <div class="notes-list">
-  {% for note in notes %}
+  {% for note in notes[:5] %}
   <a href="{{ root_path }}{{ note.subject }}/{{ note.chapter }}/{{ note.slug }}/" class="note-row">
     <div class="note-row-main">
       <span class="note-row-tag">{{ note.subject_name }} &bull; {{ note.chapter_name }}</span>
@@ -64,11 +67,23 @@
       </div>
       {% endif %}
     </div>
-    <div style="color: var(--text-muted); font-size: 0.8rem; white-space: nowrap; display: flex; align-items: center; gap: 0.35rem;">
-      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      <span>{{ note.reading_time }} min</span>
+    <div class="note-row-meta">
+      <div style="color: var(--text-muted); font-size: 0.8rem; white-space: nowrap; display: flex; align-items: center; gap: 0.35rem;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span>{{ note.reading_time }} min</span>
+      </div>
+      <span style="font-size: 0.75rem; color: var(--text-muted);">{{ note.last_modified }}</span>
     </div>
   </a>
   {% endfor %}
 </div>
+
+{% if notes|length > 5 %}
+<div class="explore-all-box">
+  <a href="{{ root_path }}#subjects-grid" class="explore-all-btn">
+    <span>Browse All Topics Across Subjects</span>
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+  </a>
+</div>
+{% endif %}
 {% endblock %}

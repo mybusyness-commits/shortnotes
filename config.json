@@ -1,10 +1,11 @@
 {
   "site_name": "shrtnotes",
   "tagline": "Concise, Clear & High-Yield Study Notes",
-  "description": "High-yield, distraction-free study notes for Mathematics, Physics, Chemistry, Biology and more. Prepared for students with clear explanations and formulas.",
+  "description": "High-yield study notes",
   "site_url": "https://shrtnotes.pages.dev",
   "author": "shrtnotes Editorial Team",
   "theme": {
+    "template": "modern",
     "default_mode": "system",
     "primary_color": "#2563eb",
     "accent_color": "#3b82f6",

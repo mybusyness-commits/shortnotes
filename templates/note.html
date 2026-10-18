@@ -188,5 +188,33 @@
       {% endif %}
     </div>
   </article>
+
+  <!-- Desktop Lateral Rail (Optimizes Widescreen Lateral Space for Ads & Quick Navigation) -->
+  <aside class="lateral-rail">
+    {% if ad_slots.sidebar %}
+    <div class="lateral-ad-box">
+      {{ ad_slots.sidebar|safe }}
+    </div>
+    {% endif %}
+
+    <div class="lateral-card">
+      <div class="lateral-card-header">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/></svg>
+        <span>In This Chapter</span>
+      </div>
+      <ul class="lateral-topics-list">
+        {% if note.chapter in grouped_chapters %}
+          {% for item in grouped_chapters[note.chapter].notes %}
+          <li class="lateral-topic-item {% if item.slug == note.slug %}active{% endif %}">
+            <a href="{{ root_path }}{{ item.subject }}/{{ item.chapter }}/{{ item.slug }}/">
+              <span class="lateral-topic-dot"></span>
+              <span class="lateral-topic-text">{{ item.title }}</span>
+            </a>
+          </li>
+          {% endfor %}
+        {% endif %}
+      </ul>
+    </div>
+  </aside>
 </div>
 {% endblock %}
