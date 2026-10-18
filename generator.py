@@ -10,6 +10,7 @@ import os
 import shutil
 import json
 import math
+import re
 from datetime import datetime
 from pathlib import Path
 import yaml
@@ -138,7 +139,7 @@ def calculate_reading_time(text):
 
 
 def markdown_to_html(md_text):
-    """Convert Markdown to clean HTML with KaTeX formulas preserved."""
+    """Convert Markdown to clean HTML with KaTeX formulas preserved and responsive scrollable tables."""
     md = markdown.Markdown(
         extensions=[
             "extra",
@@ -148,7 +149,22 @@ def markdown_to_html(md_text):
             "sane_lists"
         ]
     )
-    return md.convert(md_text)
+    raw_html = md.convert(md_text)
+
+    def _wrap_table(match):
+        table_html = match.group(0)
+        return (
+            '<div class="table-responsive-wrapper">'
+            '<div class="table-scroll-hint">'
+            '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8L22 12L18 16"/><path d="M6 8L2 12L6 16"/><path d="M2 12H22"/></svg>'
+            '<span>Scroll table horizontally</span>'
+            '</div>'
+            f'{table_html}'
+            '</div>'
+        )
+
+    wrapped_html = re.sub(r'<table>[\s\S]*?</table>', _wrap_table, raw_html)
+    return wrapped_html
 
 
 def write_clean_page(rel_path_dir, html_content):
@@ -277,6 +293,14 @@ def build_site():
             sub_name = subjects_dict[sub_id]["info"].get("name", sub_id.capitalize())
             chapter_name = ch_info.get("name", chapter_id.title())
 
+            raw_tags = meta.get("tags", [])
+            if isinstance(raw_tags, str):
+                tags = [t.strip().lower() for t in raw_tags.split(",") if t.strip()]
+            elif isinstance(raw_tags, list):
+                tags = [str(t).strip().lower() for t in raw_tags if str(t).strip()]
+            else:
+                tags = []
+
             note_obj = {
                 "file_path": str(note_file.relative_to(NOTES_DIR)),
                 "title": meta.get("title"),
@@ -286,6 +310,8 @@ def build_site():
                 "chapter": chapter_id,
                 "chapter_name": chapter_name,
                 "excerpt": excerpt,
+                "tags": tags,
+                "tags_str": ", ".join(tags),
                 "date": date,
                 "last_modified": last_modified,
                 "order": order,

@@ -108,6 +108,15 @@
   "analytics": {
     "google_analytics_id": ""
   },
+  "seo": {
+    "google_site_verification": "",
+    "bing_site_verification": "",
+    "meta_keywords": "study notes, short notes, high yield formulas, mathematics, physics, chemistry, biology, exam revision",
+    "meta_description": "High-yield, distraction-free study notes for Mathematics, Physics, Chemistry, Biology and more. Prepared for students with clear explanations and formulas.",
+    "og_image": "",
+    "twitter_handle": "",
+    "robots_directive": "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+  },
   "github": {
     "remote_name": "origin",
     "branch": "main",

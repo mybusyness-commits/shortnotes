@@ -72,6 +72,14 @@ def get_all_notes_list():
                     ch_name = ch["name"]
                     break
 
+            raw_tags = meta.get("tags", [])
+            if isinstance(raw_tags, str):
+                note_tags = [t.strip().lower() for t in raw_tags.split(",") if t.strip()]
+            elif isinstance(raw_tags, list):
+                note_tags = [str(t).strip().lower() for t in raw_tags if str(t).strip()]
+            else:
+                note_tags = []
+
             notes.append({
                 "file_path": str(f.relative_to(NOTES_DIR)),
                 "title": meta.get("title", f.stem),
@@ -82,7 +90,8 @@ def get_all_notes_list():
                 "chapter_name": ch_name,
                 "date": meta.get("date", ""),
                 "last_modified": meta.get("last_modified", ""),
-                "excerpt": meta.get("excerpt", "")
+                "excerpt": meta.get("excerpt", ""),
+                "tags": note_tags
             })
     notes.sort(key=lambda x: x.get("last_modified", ""), reverse=True)
     return notes
@@ -238,6 +247,12 @@ STUDIO_HTML = """
         </a>
       </li>
       <li>
+        <a href="{{ url_for('route_seo') }}" class="nav-btn {% if active_tab == 'seo' %}active{% endif %}">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/><path d="M11 8v6"/><path d="M8 11h6"/></svg>
+          <span>SEO & Google Search</span>
+        </a>
+      </li>
+      <li>
         <a href="{{ url_for('route_legal_pages') }}" class="nav-btn {% if active_tab == 'pages' %}active{% endif %}">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           <span>Legal Pages</span>
@@ -328,7 +343,16 @@ NOTES_LIST_HTML = """
       <tr>
         <td><span class="badge badge-blue">{{ note.subject_name }}</span></td>
         <td><span class="badge badge-purple">{{ note.chapter_name }}</span></td>
-        <td><strong>{{ note.title }}</strong></td>
+        <td>
+          <strong>{{ note.title }}</strong>
+          {% if note.tags %}
+          <div style="display: flex; gap: 0.25rem; flex-wrap: wrap; margin-top: 0.3rem;">
+            {% for t in note.tags %}
+            <span style="font-size: 0.7rem; background: rgba(59, 130, 246, 0.15); color: #93c5fd; padding: 1px 6px; border-radius: 4px;">#{{ t }}</span>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </td>
         <td style="color: var(--text-muted); font-size: 0.8rem;">{{ note.last_modified }}</td>
         <td style="text-align: right; white-space: nowrap;">
           <a href="{{ url_for('route_edit_note', rel_path=note.file_path) }}" class="btn btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;">
@@ -397,9 +421,17 @@ NOTE_FORM_HTML = """
       </div>
     </div>
 
-    <div class="form-group">
-      <label class="form-label">Short Topic Summary (SEO description & Google search snippet)</label>
-      <input type="text" name="excerpt" class="form-control" value="{{ note_meta.get('excerpt', '') }}" placeholder="A 1-2 sentence high-yield summary...">
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Google Search Snippet / Excerpt (1-2 sentences)</label>
+        <input type="text" name="excerpt" class="form-control" value="{{ note_meta.get('excerpt', '') }}" placeholder="A 1-2 sentence high-yield summary for Google search results...">
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Displays under your topic title in Google search results.</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">SEO Keywords & Topic Tags (comma-separated)</label>
+        <input type="text" name="tags" class="form-control" value="{{ tags_str }}" placeholder="e.g. calculus, derivatives, integration, fundamental-theorem">
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Used for Google indexing, Schema.org metadata, and page tag badges.</span>
+      </div>
     </div>
 
     <div class="form-group">
@@ -751,6 +783,150 @@ ADS_HTML = """
 </div>
 """
 
+SEO_HTML = """
+<div class="card">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+    <h3 class="card-title" style="margin-bottom: 0;">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/><path d="M11 8v6"/><path d="M8 11h6"/></svg>
+      <span>Search Engine Optimization (SEO) & Google Console Setup</span>
+    </h3>
+    <a href="https://search.google.com/search-console" target="_blank" rel="noopener" class="btn btn-primary" style="font-size: 0.8rem; padding: 0.4rem 0.85rem;">
+      Open Google Search Console &rarr;
+    </a>
+  </div>
+  <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+    Configure all necessary meta tags, search engine verification codes, indexing rules, and structured sitemaps required for Googlebot ranking and AdSense approval.
+  </p>
+
+  <form method="POST" action="{{ url_for('route_save_seo') }}">
+    <!-- Card 1: Google Search Console Verification -->
+    <div style="background: #0f172a; border: 1px solid var(--card-border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
+      <h4 style="font-size: 0.95rem; color: #93c5fd; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span>1. Search Engine Ownership Verification</span>
+      </h4>
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
+        Prove ownership of your website in Google Search Console and Bing Webmaster Tools. Paste either the full &lt;meta&gt; tag or just the verification code.
+      </p>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Google Search Console Verification Tag / Code *</label>
+          <input type="text" name="google_site_verification" class="form-control" value="{{ seo.get('google_site_verification', '') }}" placeholder="e.g. google-site-verification=abcXYZ or abcXYZ">
+          <span style="font-size: 0.75rem; color: var(--text-muted);">From GSC &rarr; Settings &rarr; Ownership verification &rarr; HTML Tag</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Bing Webmaster Tools Verification Tag (Optional)</label>
+          <input type="text" name="bing_site_verification" class="form-control" value="{{ seo.get('bing_site_verification', '') }}" placeholder="e.g. msvalidate.01 code or full meta tag">
+          <span style="font-size: 0.75rem; color: var(--text-muted);">For indexing on Bing & Yahoo search.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2: XML Sitemap & Crawling Control -->
+    <div style="background: #0f172a; border: 1px solid var(--card-border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
+      <h4 style="font-size: 0.95rem; color: #93c5fd; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>
+        <span>2. XML Sitemap & Google Indexing Directives</span>
+      </h4>
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
+        Your sitemap is automatically generated with Clean URLs for all Subjects, Chapters, Topics, and Compliance pages.
+      </p>
+
+      <div style="background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 0.85rem 1rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+        <div>
+          <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; display: block;">Your Live Sitemap URL:</span>
+          <code id="sitemap-url-val" style="color: #38bdf8; font-size: 0.875rem;">{{ config.site_url }}/sitemap.xml</code>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+          <button type="button" class="btn btn-secondary" onclick="copySitemapUrl()" id="copy-sitemap-btn" style="font-size: 0.75rem; padding: 0.35rem 0.75rem;">
+            Copy Sitemap URL
+          </button>
+          <a href="https://search.google.com/search-console/sitemaps" target="_blank" rel="noopener" class="btn btn-primary" style="font-size: 0.75rem; padding: 0.35rem 0.75rem;">
+            Submit to Google &rarr;
+          </a>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Robots Indexing Directive</label>
+        <input type="text" name="robots_directive" class="form-control" value="{{ seo.get('robots_directive', 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1') }}" required>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">
+          <code>max-image-preview:large</code> allows Google Discover and rich image search snippets.
+        </span>
+      </div>
+    </div>
+
+    <!-- Card 3: Global Search Keywords & Descriptions -->
+    <div style="background: #0f172a; border: 1px solid var(--card-border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
+      <h4 style="font-size: 0.95rem; color: #93c5fd; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+        <span>3. Global Search Keywords & Meta Descriptions</span>
+      </h4>
+
+      <div class="form-group">
+        <label class="form-label">Global Website Keywords (comma-separated)</label>
+        <input type="text" name="meta_keywords" class="form-control" value="{{ seo.get('meta_keywords', '') }}" placeholder="e.g. study notes, short notes, high yield formulas, mathematics, physics, chemistry, biology, exam revision">
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Keywords applicable to your entire study platform. (Individual topics also have their own per-topic tags!)</span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Global Fallback Meta Description</label>
+        <input type="text" name="meta_description" class="form-control" value="{{ seo.get('meta_description', config.description) }}" placeholder="A 150-160 character description of your website for search engines...">
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Used on your homepage, search results, and category archives.</span>
+      </div>
+    </div>
+
+    <!-- Card 4: Social Sharing, OpenGraph & Google Analytics -->
+    <div style="background: #0f172a; border: 1px solid var(--card-border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
+      <h4 style="font-size: 0.95rem; color: #93c5fd; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        <span>4. Social Sharing & Analytics (GA4)</span>
+      </h4>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Default Social Share Image URL (og:image)</label>
+          <input type="url" name="og_image" class="form-control" value="{{ seo.get('og_image', '') }}" placeholder="https://shrtnotes.pages.dev/static/images/og-preview.png">
+          <span style="font-size: 0.75rem; color: var(--text-muted);">Displays when someone shares your notes on Twitter, WhatsApp, or LinkedIn.</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Twitter / X Handle (Optional)</label>
+          <input type="text" name="twitter_handle" class="form-control" value="{{ seo.get('twitter_handle', '') }}" placeholder="@shrtnotes">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Google Analytics Measurement ID (GA4)</label>
+        <input type="text" name="google_analytics_id" class="form-control" value="{{ config.analytics.get('google_analytics_id', '') or seo.get('google_analytics_id', '') }}" placeholder="G-XXXXXXXXXX">
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Tracks visitor count, popular study notes, and search queries in Google Analytics.</span>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-success" style="font-size: 1rem; padding: 0.75rem 1.5rem;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/></svg>
+      <span>Save SEO Settings & Rebuild Website</span>
+    </button>
+  </form>
+</div>
+
+<script>
+function copySitemapUrl() {
+  const url = document.getElementById("sitemap-url-val").innerText;
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = document.getElementById("copy-sitemap-btn");
+    btn.textContent = "Copied!";
+    btn.style.background = "#10b981";
+    setTimeout(() => {
+      btn.textContent = "Copy Sitemap URL";
+      btn.style.background = "";
+    }, 2500);
+  });
+}
+</script>
+"""
+
+
 # ==============================================================================
 # Helper for Rendering Studio Templates
 # ==============================================================================
@@ -811,6 +987,7 @@ def route_new_note():
         page_heading="Write New Study Topic",
         is_edit=False,
         note_meta=note_meta,
+        tags_str="",
         raw_content="",
         subjects_json=json.dumps(config.get("subjects", [])),
         action_url=url_for("route_save_note")
@@ -833,6 +1010,14 @@ def route_edit_note():
     meta["slug"] = meta.get("slug") or target_file.stem
     config = load_config()
 
+    tags_val = meta.get("tags", [])
+    if isinstance(tags_val, list):
+        tags_str = ", ".join(tags_val)
+    elif isinstance(tags_val, str):
+        tags_str = tags_val
+    else:
+        tags_str = ""
+
     return render_studio_view(
         NOTE_FORM_HTML,
         active_tab="notes",
@@ -840,6 +1025,7 @@ def route_edit_note():
         is_edit=True,
         original_path=rel_path,
         note_meta=meta,
+        tags_str=tags_str,
         raw_content=raw_content,
         subjects_json=json.dumps(config.get("subjects", [])),
         action_url=url_for("route_save_note")
@@ -855,6 +1041,7 @@ def route_save_note():
     subject = request.form.get("subject", "").strip().lower()
     chapter = request.form.get("chapter", "").strip().lower().replace(" ", "-")
     excerpt = request.form.get("excerpt", "").strip()
+    raw_tags = request.form.get("tags", "").strip()
     content = request.form.get("content", "").strip()
 
     if not title or not slug or not subject:
@@ -873,12 +1060,15 @@ def route_save_note():
             if str(old_file) != str(target_path):
                 old_file.unlink()
 
+    tags_list = [t.strip().lower() for t in raw_tags.split(",") if t.strip()]
+
     frontmatter = {
         "title": title,
         "slug": slug,
         "subject": subject,
         "chapter": chapter,
         "excerpt": excerpt,
+        "tags": tags_list,
         "date": date_val,
         "last_modified": today_str
     }
@@ -1188,6 +1378,45 @@ def route_save_ads():
     build_site()
     flash("Ad network settings saved and site rebuilt with zero-CLS containers.", "success")
     return redirect(url_for("route_ads"))
+
+
+@app.route("/seo")
+def route_seo():
+    config = load_config()
+    seo = config.get("seo", {})
+    return render_studio_view(
+        SEO_HTML,
+        active_tab="seo",
+        page_heading="Search Engine Optimization & Google Search Setup",
+        seo=seo
+    )
+
+
+@app.route("/seo/save", methods=["POST"])
+def route_save_seo():
+    config = load_config()
+    if "seo" not in config:
+        config["seo"] = {}
+
+    g_ver = request.form.get("google_site_verification", "").strip()
+    config["seo"]["google_site_verification"] = g_ver
+    config["seo"]["bing_site_verification"] = request.form.get("bing_site_verification", "").strip()
+    config["seo"]["robots_directive"] = request.form.get("robots_directive", "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1").strip()
+    config["seo"]["meta_keywords"] = request.form.get("meta_keywords", "").strip()
+    config["seo"]["meta_description"] = request.form.get("meta_description", "").strip()
+    config["seo"]["og_image"] = request.form.get("og_image", "").strip()
+    config["seo"]["twitter_handle"] = request.form.get("twitter_handle", "").strip()
+
+    ga_id = request.form.get("google_analytics_id", "").strip()
+    if "analytics" not in config:
+        config["analytics"] = {}
+    config["analytics"]["google_analytics_id"] = ga_id
+    config["seo"]["google_analytics_id"] = ga_id
+
+    save_config(config)
+    build_site()
+    flash("SEO settings and Google verification meta tags saved! Clean URLs and sitemap updated.", "success")
+    return redirect(url_for("route_seo"))
 
 
 @app.route("/pages")
@@ -1579,7 +1808,7 @@ def route_fallback_preview(req_path):
     Fallback server for Clean URLs on LAN:
     Automatically serves the index.html of any clean URL path (e.g. /about/ or /mathematics/calculus/).
     """
-    reserved = ("notes", "design", "ads", "subjects", "pages", "deploy", "preview", "rebuild")
+    reserved = ("notes", "design", "ads", "seo", "subjects", "pages", "deploy", "preview", "rebuild")
     parts = req_path.split("/")
     if parts[0] in reserved and not (parts[0] == "pages" and len(parts) > 1):
         return "Not found", 404

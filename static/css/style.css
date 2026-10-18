@@ -257,6 +257,15 @@ img {
   grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
   gap: 2.5rem;
   align-items: start;
+  min-width: 0;
+  width: 100%;
+}
+
+article {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 .content-sidebar {
@@ -431,31 +440,165 @@ img {
   color: var(--text-secondary);
 }
 
-.prose table {
+/* Responsive Scrollable Table System */
+.table-responsive-wrapper {
+  display: block;
   width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 1.75rem 0;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-primary);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+}
+
+.table-scroll-hint {
+  display: none;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  padding: 0.35rem 0.75rem;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-subtle);
+  align-items: center;
+  gap: 0.4rem;
+}
+
+@media (max-width: 768px) {
+  .table-scroll-hint {
+    display: flex;
+  }
+}
+
+.table-responsive-wrapper table {
+  width: 100%;
+  min-width: 520px;
+  border-collapse: collapse;
+  margin: 0 !important;
+  border: none !important;
+}
+
+/* Fallback for direct unwrapped tables */
+.prose table {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   border-collapse: collapse;
   margin-bottom: 1.75rem;
   font-size: 0.95rem;
   border-radius: var(--radius-sm);
-  overflow: hidden;
   box-shadow: var(--shadow-sm);
 }
 
+.table-responsive-wrapper th, .table-responsive-wrapper td,
 .prose th, .prose td {
   padding: 0.75rem 1rem;
   border: 1px solid var(--border-color);
   text-align: left;
 }
 
-.prose th {
+.table-responsive-wrapper th, .prose th {
   background-color: var(--bg-tertiary);
   font-weight: 600;
   color: var(--text-primary);
 }
 
-.prose td {
+.table-responsive-wrapper td, .prose td {
   background-color: var(--bg-primary);
   color: var(--text-secondary);
+}
+
+/* Sleek Scrollbar for Tables & Wide Content */
+.table-responsive-wrapper::-webkit-scrollbar,
+.prose table::-webkit-scrollbar,
+.prose pre::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.table-responsive-wrapper::-webkit-scrollbar-track,
+.prose table::-webkit-scrollbar-track,
+.prose pre::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+  border-radius: 4px;
+}
+
+.table-responsive-wrapper::-webkit-scrollbar-thumb,
+.prose table::-webkit-scrollbar-thumb,
+.prose pre::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+.table-responsive-wrapper::-webkit-scrollbar-thumb:hover,
+.prose table::-webkit-scrollbar-thumb:hover,
+.prose pre::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* Topic Tags & Keywords Badge System */
+.note-tags-container {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--border-subtle);
+}
+
+.note-tags-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.note-tags-list {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.note-tag-badge {
+  display: inline-flex;
+  align-items: center;
+  background: var(--accent-light);
+  color: var(--accent);
+  font-size: 0.775rem;
+  font-weight: 500;
+  padding: 0.2rem 0.65rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  transition: all 0.15s ease;
+}
+
+.note-tag-badge:hover {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.note-row-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.4rem;
+}
+
+.tag-chip {
+  font-size: 0.725rem;
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-weight: 500;
 }
 
 .prose pre {

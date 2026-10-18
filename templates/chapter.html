@@ -26,6 +26,13 @@
     <div class="note-row-main">
       <h3 class="note-row-title">{{ note.title }}</h3>
       <p class="note-row-excerpt">{{ note.excerpt }}</p>
+      {% if note.tags %}
+      <div class="note-row-tags">
+        {% for tag in note.tags %}
+        <span class="tag-chip">#{{ tag }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
     </div>
     <div style="color: var(--text-muted); font-size: 0.8rem; white-space: nowrap; display: flex; align-items: center; gap: 0.35rem;">
       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>

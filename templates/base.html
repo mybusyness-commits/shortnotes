@@ -6,12 +6,67 @@
   <title>{% if page_title %}{{ page_title }} | {{ config.site_name }}{% else %}{{ config.site_name }} - {{ config.tagline }}{% endif %}</title>
   <meta name="description" content="{% if page_description %}{{ page_description }}{% else %}{{ config.description }}{% endif %}">
   
-  <!-- Canonical & OpenGraph (Clean URL ending in /) -->
+  <!-- Search Engine Verification Tags -->
+  {% if config.seo and config.seo.google_site_verification %}
+    {% if config.seo.google_site_verification.startswith('<meta') %}
+      {{ config.seo.google_site_verification|safe }}
+    {% else %}
+      <meta name="google-site-verification" content="{{ config.seo.google_site_verification }}">
+    {% endif %}
+  {% endif %}
+  {% if config.seo and config.seo.bing_site_verification %}
+    {% if config.seo.bing_site_verification.startswith('<meta') %}
+      {{ config.seo.bing_site_verification|safe }}
+    {% else %}
+      <meta name="msvalidate.01" content="{{ config.seo.bing_site_verification }}">
+    {% endif %}
+  {% endif %}
+
+  <!-- Robots Indexing & Snippet Directives -->
+  <meta name="robots" content="{% if config.seo and config.seo.robots_directive %}{{ config.seo.robots_directive }}{% else %}index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1{% endif %}">
+
+  <!-- Keywords Meta Tag -->
+  {% if note and note.tags %}
+  <meta name="keywords" content="{{ note.tags|join(', ') }}{% if config.seo and config.seo.meta_keywords %}, {{ config.seo.meta_keywords }}{% endif %}">
+  {% elif config.seo and config.seo.meta_keywords %}
+  <meta name="keywords" content="{{ config.seo.meta_keywords }}">
+  {% endif %}
+
+  <!-- Canonical & OpenGraph (Clean URLs) -->
   <link rel="canonical" href="{{ current_url }}">
-  <meta property="og:title" content="{% if page_title %}{{ page_title }} | {{ config.site_name }}{% else %}{{ config.site_name }}{% endif %}">
+  <meta property="og:site_name" content="{{ config.site_name }}">
+  <meta property="og:title" content="{% if page_title %}{{ page_title }} | {{ config.site_name }}{% else %}{{ config.site_name }} - {{ config.tagline }}{% endif %}">
   <meta property="og:description" content="{% if page_description %}{{ page_description }}{% else %}{{ config.description }}{% endif %}">
-  <meta property="og:type" content="website">
+  <meta property="og:type" content="{% if note %}article{% else %}website{% endif %}">
   <meta property="og:url" content="{{ current_url }}">
+  {% if config.seo and config.seo.og_image %}
+  <meta property="og:image" content="{{ config.seo.og_image }}">
+  <meta name="twitter:image" content="{{ config.seo.og_image }}">
+  {% endif %}
+
+  <!-- Twitter / X Card Metadata -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{% if page_title %}{{ page_title }} | {{ config.site_name }}{% else %}{{ config.site_name }}{% endif %}">
+  <meta name="twitter:description" content="{% if page_description %}{{ page_description }}{% else %}{{ config.description }}{% endif %}">
+  {% if config.seo and config.seo.twitter_handle %}
+  <meta name="twitter:site" content="{{ config.seo.twitter_handle }}">
+  {% endif %}
+
+  <!-- Global WebSite Schema.org JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "{{ config.site_name }}",
+    "url": "{{ config.site_url }}/",
+    "description": "{{ config.description }}",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "{{ config.site_url }}/?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
   
   <!-- CSS Stylesheet (Clean Relative Path) -->
   <link rel="stylesheet" href="{{ root_path }}static/css/style.css">
@@ -31,14 +86,15 @@
     {% endif %}
   {% endif %}
 
-  <!-- Analytics Tag (Optional) -->
-  {% if config.analytics.google_analytics_id %}
-  <script async src="https://www.googletagmanager.com/gtag/js?id={{ config.analytics.google_analytics_id }}"></script>
+  <!-- Analytics Tag (Google Analytics GA4 or Tag Manager) -->
+  {% set ga_id = config.analytics.google_analytics_id if config.analytics and config.analytics.google_analytics_id else (config.seo.google_analytics_id if config.seo and config.seo.google_analytics_id else '') %}
+  {% if ga_id %}
+  <script async src="https://www.googletagmanager.com/gtag/js?id={{ ga_id }}"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', '{{ config.analytics.google_analytics_id }}');
+    gtag('config', '{{ ga_id }}');
   </script>
   {% endif %}
 

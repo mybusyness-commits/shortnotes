@@ -5,8 +5,13 @@ subject: "mathematics"
 chapter: "Calculus"
 excerpt: "Quick summary of differentiation rules, integration relations, and the Fundamental Theorem linking them."
 date: "2026-10-17"
-last_modified: "2026-10-17"
+last_modified: "2026-10-18"
 order: 1
+tags:
+  - calculus
+  - derivatives
+  - integration
+  - fundamental theorem
 ---
 
 ## 1. Overview & Statement

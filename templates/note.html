@@ -40,6 +40,7 @@
       "headline": "{{ note.title }}",
       "description": "{{ note.excerpt }}",
       "articleSection": "{{ note.chapter_name }}",
+      "keywords": "{{ note.tags|join(', ') }}",
       "author": {
         "@type": "Organization",
         "name": "{{ config.site_name }}"
@@ -137,6 +138,17 @@
           {{ note.chapter_name }}
         </span>
       </div>
+
+      {% if note.tags %}
+      <div class="note-tags-container">
+        <span class="note-tags-label">Keywords:</span>
+        <div class="note-tags-list">
+          {% for tag in note.tags %}
+          <span class="note-tag-badge">#{{ tag }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
     </header>
 
     <!-- Universal In-Article Top Ad Slot -->

@@ -5,8 +5,13 @@ subject: "physics"
 chapter: "Thermodynamics"
 excerpt: "Concise summary of the Zeroth, First, and Second Laws of Thermodynamics, state functions, and Carnot cycle equations."
 date: "2026-10-17"
-last_modified: "2026-10-17"
+last_modified: "2026-10-18"
 order: 1
+tags:
+  - thermodynamics
+  - carnot engine
+  - physics
+  - entropy
 ---
 
 ## 1. The Four Laws in Brief
