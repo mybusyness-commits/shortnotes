@@ -7,13 +7,13 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://shrtnotes.pages.dev/mathematics/differential-caculus/topic-2/</loc>
-    <lastmod>2026-10-17</lastmod>
+    <loc>https://shrtnotes.pages.dev/mathematics/linear-algebra/matrix-multiplication-inverses/</loc>
+    <lastmod>2026-10-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://shrtnotes.pages.dev/mathematics/linear-algebra/matrix-multiplication-inverses/</loc>
+    <loc>https://shrtnotes.pages.dev/mathematics/statistics/attributes/</loc>
     <lastmod>2026-10-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -37,7 +37,7 @@
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://shrtnotes.pages.dev/mathematics/differential-caculus/</loc>
+    <loc>https://shrtnotes.pages.dev/mathematics/statistics/</loc>
     <lastmod>2026-10-18</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.85</priority>

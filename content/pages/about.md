@@ -35,4 +35,4 @@ Every note published on shrtnotes undergoes a three-step review:
 
 ## Contact & Feedback
 
-We welcome feedback, corrections, and topic suggestions from students and teachers worldwide. If you notice any typographical error or would like to request notes on a specific topic, please reach out via our [Contact Page](contact.html).
+We welcome feedback, corrections, and topic suggestions from students and teachers worldwide. If you notice any typographical error or would like to request notes on a specific topic, please reach out via our [Contact Page](/contact/).

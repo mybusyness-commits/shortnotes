@@ -8,7 +8,7 @@ last_modified: "2026-10-17"
 
 At **shrtnotes** (accessible from https://shrtnotes.pages.dev), one of our main priorities is the privacy of our visitors. This Privacy Policy document outlines the types of information that is collected and recorded by shrtnotes and how we use it.
 
-If you have additional questions or require more information about our Privacy Policy, please contact us through our [Contact Page](contact.html).
+If you have additional questions or require more information about our Privacy Policy, please contact us through our [Contact Page](/contact/).
 
 ---
 
