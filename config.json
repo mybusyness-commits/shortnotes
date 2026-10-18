@@ -96,7 +96,7 @@
     "header_ad": "<div id=\"banner-ad-test\">Custom Network Banner</div>",
     "in_article_ad": "<div id=\"in-article-ad-test\">Custom Network In-Article</div>",
     "sidebar_ad": "",
-    "footer_ad": "",
+    "footer_ad": "<script>\r\n  atOptions = {\r\n    'key' : '2758d01f0bcf596f946c737fd131f875',\r\n    'format' : 'iframe',\r\n    'height' : 60,\r\n    'width' : 468,\r\n    'params' : {}\r\n  };\r\n</script>\r\n<script src=\"https://bauval.org/22/2758d01f0bcf596f946c737fd131f875\"></script>",
     "adsense": {
       "client_id": "ca-pub-1234567890123456",
       "header_slot": "9876543210",
