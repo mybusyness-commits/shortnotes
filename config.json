@@ -94,14 +94,14 @@
     "provider": "custom",
     "head_code": "<!-- Media.net or AdSense script -->",
     "header_ad": "<script>\r\n  atOptions = {\r\n    'key' : '3a0a8362dde1365a543cffe8e043b5e6',\r\n    'format' : 'iframe',\r\n    'height' : 90,\r\n    'width' : 728,\r\n    'params' : {}\r\n  };\r\n</script>\r\n<script src=\"https://bauval.org/22/3a0a8362dde1365a543cffe8e043b5e6\"></script>",
-    "in_article_ad": "<script>\r\n  atOptions = {\r\n    'key' : '6bb3af9ec9167b7545cf7fa65d74101a',\r\n    'format' : 'iframe',\r\n    'height' : 250,\r\n    'width' : 300,\r\n    'params' : {}\r\n  };\r\n</script>\r\n<script src=\"https://bauval.org/22/6bb3af9ec9167b7545cf7fa65d74101a\"></script>",
-    "sidebar_ad": "<script>\r\n  atOptions = {\r\n    'key' : '689a74004ccb1759f84ac976d3cc1553',\r\n    'format' : 'iframe',\r\n    'height' : 50,\r\n    'width' : 320,\r\n    'params' : {}\r\n  };\r\n</script>\r\n<script src=\"https://bauval.org/22/689a74004ccb1759f84ac976d3cc1553\"></script>",
+    "in_article_ad": "<script>\r\n  atOptions = {\r\n    'key' : '689a74004ccb1759f84ac976d3cc1553',\r\n    'format' : 'iframe',\r\n    'height' : 50,\r\n    'width' : 320,\r\n    'params' : {}\r\n  };\r\n</script>\r\n<script src=\"https://bauval.org/22/689a74004ccb1759f84ac976d3cc1553\"></script>",
+    "sidebar_ad": "<script>\r\n  atOptions = {\r\n    'key' : '6bb3af9ec9167b7545cf7fa65d74101a',\r\n    'format' : 'iframe',\r\n    'height' : 250,\r\n    'width' : 300,\r\n    'params' : {}\r\n  };\r\n</script>\r\n<script src=\"https://bauval.org/22/6bb3af9ec9167b7545cf7fa65d74101a\"></script>",
     "footer_ad": "<script>\r\n  atOptions = {\r\n    'key' : '2758d01f0bcf596f946c737fd131f875',\r\n    'format' : 'iframe',\r\n    'height' : 60,\r\n    'width' : 468,\r\n    'params' : {}\r\n  };\r\n</script>\r\n<script src=\"https://bauval.org/22/2758d01f0bcf596f946c737fd131f875\"></script>",
     "adsense": {
-      "client_id": "ca-pub-1234567890123456",
-      "header_slot": "9876543210",
-      "in_article_slot": "8765432109",
-      "sidebar_slot": "7654321098",
+      "client_id": "",
+      "header_slot": "",
+      "in_article_slot": "",
+      "sidebar_slot": "",
       "footer_slot": ""
     }
   },
