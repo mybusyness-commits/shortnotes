@@ -5,7 +5,7 @@
   "site_url": "https://shrtnotes.pages.dev",
   "author": "shrtnotes Editorial Team",
   "theme": {
-    "template": "modern",
+    "template": "obsidian",
     "default_mode": "system",
     "primary_color": "#2563eb",
     "accent_color": "#3b82f6",
