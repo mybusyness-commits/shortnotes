@@ -435,4 +435,33 @@
       });
     });
   });
+
+  // ===========================================================================
+  // 8. Browse All Topics Toggle & Smooth Scroll
+  // ===========================================================================
+  const browseAllBtn = document.getElementById('browse-all-topics-btn');
+  if (browseAllBtn) {
+    browseAllBtn.addEventListener('click', (e) => {
+      const extraRows = document.querySelectorAll('.note-row-extra');
+      if (extraRows.length > 0) {
+        const firstHidden = Array.from(extraRows).some(r => r.style.display === 'none' || getComputedStyle(r).display === 'none');
+        if (firstHidden) {
+          extraRows.forEach(row => {
+            row.style.display = 'flex';
+          });
+          const total = browseAllBtn.getAttribute('data-total') || 'All';
+          browseAllBtn.innerHTML = `
+            <span>Explore All Subjects Above &uarr;</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+          `;
+          return;
+        }
+      }
+      // If already shown or no extra rows, smooth scroll to subjects grid
+      const subjectsTarget = document.getElementById('subjects-section') || document.getElementById('subjects-grid');
+      if (subjectsTarget) {
+        subjectsTarget.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  }
 })();
