@@ -102,9 +102,9 @@
       {% endfor %}
     </div>
 
-    <!-- Universal Sticky Sidebar Ad Slot -->
+    <!-- Left Lateral Rail Sticky Ad Slot (Zero-Congestion Display) -->
     {% if ad_slots.sidebar %}
-    <div style="margin-top: 2rem;">
+    <div class="lateral-ad-box lateral-ad-left">
       {{ ad_slots.sidebar|safe }}
     </div>
     {% endif %}
@@ -191,8 +191,9 @@
 
   <!-- Desktop Lateral Rail (Optimizes Widescreen Lateral Space for Ads & Quick Navigation) -->
   <aside class="lateral-rail">
+    <!-- Right Lateral Primary Ad Slot -->
     {% if ad_slots.sidebar %}
-    <div class="lateral-ad-box">
+    <div class="lateral-ad-box lateral-ad-right-top">
       {{ ad_slots.sidebar|safe }}
     </div>
     {% endif %}
@@ -215,6 +216,13 @@
         {% endif %}
       </ul>
     </div>
+
+    <!-- Right Lateral Secondary Ad Slot (Bottom Placement) -->
+    {% if ad_slots.in_article %}
+    <div class="lateral-ad-box lateral-ad-right-bottom" style="margin-top: 1.25rem;">
+      {{ ad_slots.in_article|safe }}
+    </div>
+    {% endif %}
   </aside>
 </div>
 {% endblock %}

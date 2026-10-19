@@ -256,10 +256,11 @@ img {
   color: var(--accent);
 }
 
-/* Desktop Navigation Links */
+/* Desktop Navigation Links (Pushed to Right Side) */
 .desktop-nav {
   display: flex;
   align-items: center;
+  margin-left: auto;
 }
 
 .nav-links {
@@ -315,8 +316,9 @@ img {
 .nav-dropdown-menu {
   position: absolute;
   top: calc(100% + 0.6rem);
-  left: 50%;
-  transform: translateX(-50%) translateY(8px);
+  right: 0;
+  left: auto;
+  transform: translateY(8px);
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
@@ -335,7 +337,7 @@ img {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
-  transform: translateX(-50%) translateY(0);
+  transform: translateY(0);
 }
 
 .dropdown-menu-header {
@@ -670,6 +672,14 @@ img {
   }
 }
 
+@media (min-width: 1440px) {
+  .docs-grid {
+    grid-template-columns: 270px minmax(0, 1fr) 290px;
+    gap: 2.75rem;
+    max-width: 1560px;
+  }
+}
+
 .lateral-rail {
   position: sticky;
   top: 5rem;
@@ -680,9 +690,13 @@ img {
   gap: 1.5rem;
 }
 
+/* Zero-Congestion Guarantee: Hide lateral ads and right rail on smaller screens */
 @media (max-width: 1199px) {
   .lateral-rail {
-    display: none;
+    display: none !important;
+  }
+  .lateral-ad-left {
+    display: none !important;
   }
 }
 
@@ -756,6 +770,15 @@ img {
 .lateral-ad-box {
   border-radius: var(--radius-md);
   overflow: hidden;
+  background: var(--ad-bg);
+  border: 1px solid var(--ad-border);
+  padding: 0.5rem;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.lateral-ad-left {
+  margin-top: 2rem;
 }
 
 /* Recent 5 Badge & Explore All */
@@ -1874,6 +1897,10 @@ article {
 
   .desktop-nav, .nav-links {
     display: none !important;
+  }
+
+  .nav-actions {
+    margin-left: auto;
   }
 
   .mobile-menu-btn {

@@ -121,6 +121,19 @@ def get_ssh_public_key():
     return ""
 
 
+def generate_qr_svg(url):
+    """Generate high-contrast vector SVG QR code for mobile scanning."""
+    try:
+        import qrcode
+        import qrcode.image.svg
+        factory = qrcode.image.svg.SvgPathImage
+        img = qrcode.make(url, image_factory=factory, box_size=8, border=2)
+        return img.to_string().decode("utf-8")
+    except Exception as e:
+        print(f"QR code generation error for {url}: {e}")
+        return ""
+
+
 # ==============================================================================
 # Base Studio Layout
 # ==============================================================================
@@ -200,6 +213,24 @@ STUDIO_HTML = """
     .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
     .badge-blue { background: #1e3a8a; color: #93c5fd; }
     .badge-purple { background: #3b0764; color: #d8b4fe; }
+
+    /* Quick Connect & Testing Hub Styles */
+    .testing-hub { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 2rem; }
+    @media (max-width: 990px) { .testing-hub { grid-template-columns: 1fr; } }
+    .hub-card { border-radius: 10px; padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem; position: relative; }
+    .hub-lan { border: 1px solid #1e40af; background: linear-gradient(145deg, #0f172a 0%, #172554 100%); }
+    .hub-prod { border: 1px solid #065f46; background: linear-gradient(145deg, #091a18 0%, #064e3b 100%); }
+    .hub-card-header { display: flex; align-items: flex-start; gap: 0.75rem; }
+    .hub-card-icon { width: 38px; height: 38px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .hub-card-body { display: flex; align-items: center; gap: 1.15rem; background: rgba(0, 0, 0, 0.3); border-radius: 8px; padding: 0.85rem; }
+    .hub-qr-box { background: #ffffff; border-radius: 6px; padding: 6px; width: 92px; height: 92px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.4); }
+    .hub-qr-box svg { width: 100%; height: 100%; display: block; }
+    .hub-details { flex: 1; display: flex; flex-direction: column; gap: 0.5rem; min-width: 0; }
+    .hub-url-pill { display: flex; align-items: center; justify-content: space-between; background: #0b1120; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; padding: 0.4rem 0.65rem; gap: 0.5rem; }
+    .hub-url-text { font-family: 'JetBrains Mono', monospace; font-size: 0.775rem; color: #cbd5e1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .hub-copy-btn { background: #1e293b; border: 1px solid rgba(255, 255, 255, 0.15); color: #93c5fd; padding: 0.25rem 0.55rem; border-radius: 4px; font-size: 0.725rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem; flex-shrink: 0; transition: all 0.15s; }
+    .hub-copy-btn:hover { background: #3b82f6; color: #fff; }
+    .hub-actions { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
   </style>
 </head>
 <body>
@@ -266,11 +297,17 @@ STUDIO_HTML = """
       </li>
     </ul>
 
-    <!-- LAN Mobile Testing Info Pill -->
+    <!-- LAN Mobile & Live Site Info Pill -->
     <div class="lan-pill">
-      <strong>LAN Mobile Testing:</strong>
-      <p style="margin-bottom: 0.35rem; color: #cbd5e1;">Clean URL (no .html) preview:</p>
-      <a href="http://{{ lan_ip }}:5050/preview/" target="_blank">http://{{ lan_ip }}:5050/preview/</a>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+        <strong style="color: #93c5fd; font-size: 0.8rem;">Mobile Testing (LAN)</strong>
+        <span class="badge" style="background: #1e40af; color: #dbeafe; font-size: 0.65rem;">Wi-Fi</span>
+      </div>
+      <a href="{{ lan_url }}" target="_blank" style="font-size: 0.775rem; color: #60a5fa; word-break: break-all; display: block; margin-bottom: 0.5rem;">{{ lan_url }}</a>
+      <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.45rem; display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 0.725rem; color: #94a3b8;">Production:</span>
+        <a href="{{ deployed_url }}" target="_blank" style="font-size: 0.725rem; color: #34d399; font-weight: 600; text-decoration: none;">Live Site &rarr;</a>
+      </div>
     </div>
   </aside>
 
@@ -303,11 +340,107 @@ STUDIO_HTML = """
         {% endif %}
       {% endwith %}
 
+      <!-- Quick Connect & Device Testing Hub (LAN Mobile QR & Deployed Live Site) -->
+      <div class="testing-hub">
+        <!-- 1. LAN Mobile Testing Card with QR Code -->
+        <div class="hub-card hub-lan">
+          <div class="hub-card-header">
+            <div class="hub-card-icon" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><line x1="12" x2="12.01" y1="18" y2="18"/></svg>
+            </div>
+            <div style="flex: 1; min-width: 0;">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap;">
+                <strong style="font-size: 0.95rem; color: #93c5fd;">LAN Mobile Testing</strong>
+                <span class="badge" style="background: #1e3a8a; color: #bfdbfe;">Local Wi-Fi / Hotspot</span>
+              </div>
+              <p style="font-size: 0.775rem; color: #94a3b8; margin-top: 0.2rem;">Scan with phone camera to test mobile responsive view & LaTeX formulas live</p>
+            </div>
+          </div>
+
+          <div class="hub-card-body">
+            <div class="hub-qr-box" title="Scan with your phone camera to test live on mobile">
+              {{ lan_qr_svg|safe }}
+            </div>
+            <div class="hub-details">
+              <div class="hub-url-pill">
+                <span class="hub-url-text" title="{{ lan_url }}">{{ lan_url }}</span>
+                <button type="button" class="hub-copy-btn" onclick="copyHubUrl('{{ lan_url }}', this)" title="Copy LAN preview URL">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                  <span>Copy</span>
+                </button>
+              </div>
+              <div class="hub-actions">
+                <a href="{{ lan_url }}" target="_blank" class="btn btn-primary" style="padding: 0.4rem 0.85rem; font-size: 0.825rem;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
+                  <span>Open Preview</span>
+                </a>
+                <span style="font-size: 0.725rem; color: #64748b;">Phone must be on same Wi-Fi</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Live Deployed Site Card (Next to that) -->
+        <div class="hub-card hub-prod">
+          <div class="hub-card-header">
+            <div class="hub-card-icon" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            </div>
+            <div style="flex: 1; min-width: 0;">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap;">
+                <strong style="font-size: 0.95rem; color: #a7f3d0;">Live Deployed Site</strong>
+                <span class="badge" style="background: #064e3b; color: #6ee7b7;">🟢 Cloudflare Pages Live</span>
+              </div>
+              <p style="font-size: 0.775rem; color: #94a3b8; margin-top: 0.2rem;">Public production website with automatic edge CDN & HTTPS</p>
+            </div>
+          </div>
+
+          <div class="hub-card-body">
+            <div class="hub-qr-box" title="Scan with phone camera to open live deployed site">
+              {{ deployed_qr_svg|safe }}
+            </div>
+            <div class="hub-details">
+              <div class="hub-url-pill">
+                <span class="hub-url-text" title="{{ deployed_url }}">{{ deployed_url }}</span>
+                <button type="button" class="hub-copy-btn" onclick="copyHubUrl('{{ deployed_url }}', this)" title="Copy live site URL">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                  <span>Copy</span>
+                </button>
+              </div>
+              <div class="hub-actions">
+                <a href="{{ deployed_url }}" target="_blank" class="btn btn-success" style="padding: 0.4rem 0.85rem; font-size: 0.825rem;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
+                  <span>Open Live Site</span>
+                </a>
+                <span style="font-size: 0.725rem; color: #34d399;">shrtnotes.pages.dev</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Dynamic Tab Content -->
       <!-- CONTENT_PLACEHOLDER -->
     </div>
   </main>
 
+  <script>
+    function copyHubUrl(text, btn) {
+      navigator.clipboard.writeText(text).then(() => {
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Copied!</span>`;
+        btn.style.background = '#059669';
+        btn.style.color = '#ffffff';
+        setTimeout(() => {
+          btn.innerHTML = originalHtml;
+          btn.style.background = '';
+          btn.style.color = '';
+        }, 1800);
+      }).catch(err => {
+        prompt('Copy this link:', text);
+      });
+    }
+  </script>
 </body>
 </html>
 """
@@ -981,6 +1114,14 @@ def render_studio_view(child_content, active_tab, page_heading, **kwargs):
     notes = get_all_notes_list()
     lan_ip = get_local_ip()
 
+    lan_url = f"http://{lan_ip}:5050/preview/"
+    deployed_url = config.get("site_url", "https://shrtnotes.pages.dev").rstrip("/")
+    if not deployed_url:
+        deployed_url = "https://shrtnotes.pages.dev"
+
+    lan_qr_svg = generate_qr_svg(lan_url)
+    deployed_qr_svg = generate_qr_svg(deployed_url)
+
     cleaned = child_content.replace('{% extends "studio_base" %}', '').replace('{% block studio_content %}', '').replace('{% endblock %}', '')
     full_template = STUDIO_HTML.replace('<!-- CONTENT_PLACEHOLDER -->', cleaned)
 
@@ -991,6 +1132,10 @@ def render_studio_view(child_content, active_tab, page_heading, **kwargs):
         config=config,
         notes_count=len(notes),
         lan_ip=lan_ip,
+        lan_url=lan_url,
+        deployed_url=deployed_url,
+        lan_qr_svg=lan_qr_svg,
+        deployed_qr_svg=deployed_qr_svg,
         get_icon=get_icon,
         **kwargs
     )
