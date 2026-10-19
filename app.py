@@ -214,23 +214,162 @@ STUDIO_HTML = """
     .badge-blue { background: #1e3a8a; color: #93c5fd; }
     .badge-purple { background: #3b0764; color: #d8b4fe; }
 
-    /* Quick Connect & Testing Hub Styles */
-    .testing-hub { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 2rem; }
-    @media (max-width: 990px) { .testing-hub { grid-template-columns: 1fr; } }
-    .hub-card { border-radius: 10px; padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem; position: relative; }
-    .hub-lan { border: 1px solid #1e40af; background: linear-gradient(145deg, #0f172a 0%, #172554 100%); }
-    .hub-prod { border: 1px solid #065f46; background: linear-gradient(145deg, #091a18 0%, #064e3b 100%); }
-    .hub-card-header { display: flex; align-items: flex-start; gap: 0.75rem; }
-    .hub-card-icon { width: 38px; height: 38px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .hub-card-body { display: flex; align-items: center; gap: 1.15rem; background: rgba(0, 0, 0, 0.3); border-radius: 8px; padding: 0.85rem; }
-    .hub-qr-box { background: #ffffff; border-radius: 6px; padding: 6px; width: 92px; height: 92px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.4); }
-    .hub-qr-box svg { width: 100%; height: 100%; display: block; }
-    .hub-details { flex: 1; display: flex; flex-direction: column; gap: 0.5rem; min-width: 0; }
-    .hub-url-pill { display: flex; align-items: center; justify-content: space-between; background: #0b1120; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; padding: 0.4rem 0.65rem; gap: 0.5rem; }
-    .hub-url-text { font-family: 'JetBrains Mono', monospace; font-size: 0.775rem; color: #cbd5e1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .hub-copy-btn { background: #1e293b; border: 1px solid rgba(255, 255, 255, 0.15); color: #93c5fd; padding: 0.25rem 0.55rem; border-radius: 4px; font-size: 0.725rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem; flex-shrink: 0; transition: all 0.15s; }
-    .hub-copy-btn:hover { background: #3b82f6; color: #fff; }
-    .hub-actions { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+    /* Left Sidebar Testing & Production Hub Styles */
+    .sidebar-hub {
+      margin: 0.65rem;
+      padding: 0.65rem;
+      background: #0d1527;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+    }
+    .sidebar-hub-tabs {
+      display: flex;
+      background: #080c14;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      padding: 2px;
+      gap: 2px;
+    }
+    .sidebar-hub-tab {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      padding: 0.35rem 0.45rem;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.725rem;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+    .sidebar-hub-tab:hover {
+      color: #fff;
+    }
+    .sidebar-hub-tab.active {
+      background: #1e293b;
+      color: #93c5fd;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+    .sidebar-hub-tab.active.tab-prod {
+      color: #6ee7b7;
+      background: #064e3b;
+    }
+    .sidebar-hub-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+    .sidebar-hub-qr-row {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      background: rgba(0,0,0,0.25);
+      border-radius: 6px;
+      padding: 0.45rem;
+    }
+    .sidebar-qr-box {
+      background: #ffffff;
+      border-radius: 4px;
+      padding: 3px;
+      width: 76px;
+      height: 76px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    .sidebar-qr-box svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .sidebar-hub-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      min-width: 0;
+    }
+    .sidebar-hub-title {
+      font-size: 0.775rem;
+      font-weight: 700;
+      color: #93c5fd;
+    }
+    .sidebar-hub-badge {
+      display: inline-block;
+      font-size: 0.625rem;
+      font-weight: 600;
+      padding: 1px 5px;
+      border-radius: 3px;
+      background: #1e3a8a;
+      color: #bfdbfe;
+      width: fit-content;
+    }
+    .sidebar-hub-badge.badge-green {
+      background: #064e3b;
+      color: #a7f3d0;
+    }
+    .sidebar-url-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #080c14;
+      border: 1px solid #1e293b;
+      border-radius: 4px;
+      padding: 0.3rem 0.45rem;
+      gap: 0.35rem;
+    }
+    .sidebar-url-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.675rem;
+      color: #cbd5e1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .sidebar-copy-btn {
+      background: #1e293b;
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #93c5fd;
+      padding: 0.2rem 0.45rem;
+      border-radius: 3px;
+      font-size: 0.65rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      flex-shrink: 0;
+      transition: all 0.15s;
+    }
+    .sidebar-copy-btn:hover {
+      background: #3b82f6;
+      color: #fff;
+    }
+    .sidebar-hub-actions {
+      display: flex;
+      gap: 0.4rem;
+    }
+    .sidebar-hub-btn {
+      flex: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      padding: 0.35rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.15s;
+    }
   </style>
 </head>
 <body>
@@ -297,16 +436,75 @@ STUDIO_HTML = """
       </li>
     </ul>
 
-    <!-- LAN Mobile & Live Site Info Pill -->
-    <div class="lan-pill">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-        <strong style="color: #93c5fd; font-size: 0.8rem;">Mobile Testing (LAN)</strong>
-        <span class="badge" style="background: #1e40af; color: #dbeafe; font-size: 0.65rem;">Wi-Fi</span>
+    <!-- Left Sidebar Testing & Production Hub -->
+    <div class="sidebar-hub">
+      <div class="sidebar-hub-tabs">
+        <button type="button" class="sidebar-hub-tab active tab-lan" id="tab-btn-lan" onclick="switchSidebarHub('lan')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><line x1="12" x2="12.01" y1="18" y2="18"/></svg>
+          <span>LAN Mobile</span>
+        </button>
+        <button type="button" class="sidebar-hub-tab tab-prod" id="tab-btn-prod" onclick="switchSidebarHub('prod')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span>Live Site</span>
+        </button>
       </div>
-      <a href="{{ lan_url }}" target="_blank" style="font-size: 0.775rem; color: #60a5fa; word-break: break-all; display: block; margin-bottom: 0.5rem;">{{ lan_url }}</a>
-      <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.45rem; display: flex; justify-content: space-between; align-items: center;">
-        <span style="font-size: 0.725rem; color: #94a3b8;">Production:</span>
-        <a href="{{ deployed_url }}" target="_blank" style="font-size: 0.725rem; color: #34d399; font-weight: 600; text-decoration: none;">Live Site &rarr;</a>
+
+      <!-- LAN Panel -->
+      <div class="sidebar-hub-panel" id="sidebar-panel-lan">
+        <div class="sidebar-hub-qr-row">
+          <div class="sidebar-qr-box" title="Scan with phone camera to test live on mobile">
+            {{ lan_qr_svg|safe }}
+          </div>
+          <div class="sidebar-hub-info">
+            <span class="sidebar-hub-title">Wi-Fi Testing</span>
+            <span class="sidebar-hub-badge">Local Hotspot</span>
+            <span style="font-size: 0.65rem; color: #64748b; line-height: 1.2; margin-top: 2px;">Same Wi-Fi required</span>
+          </div>
+        </div>
+
+        <div class="sidebar-url-box">
+          <span class="sidebar-url-text" title="{{ lan_url }}">{{ lan_url }}</span>
+          <button type="button" class="sidebar-copy-btn" onclick="copySidebarUrl('{{ lan_url }}', this)" title="Copy LAN URL">
+            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+            <span>Copy</span>
+          </button>
+        </div>
+
+        <div class="sidebar-hub-actions">
+          <a href="{{ lan_url }}" target="_blank" class="sidebar-hub-btn btn-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
+            <span>Open Preview</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Deployed Production Panel -->
+      <div class="sidebar-hub-panel" id="sidebar-panel-prod" style="display: none;">
+        <div class="sidebar-hub-qr-row">
+          <div class="sidebar-qr-box" title="Scan with phone camera to open live deployed site">
+            {{ deployed_qr_svg|safe }}
+          </div>
+          <div class="sidebar-hub-info">
+            <span class="sidebar-hub-title" style="color: #6ee7b7;">Production</span>
+            <span class="sidebar-hub-badge badge-green">Cloudflare Pages</span>
+            <span style="font-size: 0.65rem; color: #64748b; line-height: 1.2; margin-top: 2px;">Public edge CDN</span>
+          </div>
+        </div>
+
+        <div class="sidebar-url-box">
+          <span class="sidebar-url-text" title="{{ deployed_url }}">{{ deployed_url }}</span>
+          <button type="button" class="sidebar-copy-btn" onclick="copySidebarUrl('{{ deployed_url }}', this)" title="Copy live URL">
+            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+            <span>Copy</span>
+          </button>
+        </div>
+
+        <div class="sidebar-hub-actions">
+          <a href="{{ deployed_url }}" target="_blank" class="sidebar-hub-btn btn-success">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
+            <span>Open Live Site</span>
+          </a>
+        </div>
       </div>
     </div>
   </aside>
@@ -340,95 +538,34 @@ STUDIO_HTML = """
         {% endif %}
       {% endwith %}
 
-      <!-- Quick Connect & Device Testing Hub (LAN Mobile QR & Deployed Live Site) -->
-      <div class="testing-hub">
-        <!-- 1. LAN Mobile Testing Card with QR Code -->
-        <div class="hub-card hub-lan">
-          <div class="hub-card-header">
-            <div class="hub-card-icon" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><line x1="12" x2="12.01" y1="18" y2="18"/></svg>
-            </div>
-            <div style="flex: 1; min-width: 0;">
-              <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap;">
-                <strong style="font-size: 0.95rem; color: #93c5fd;">LAN Mobile Testing</strong>
-                <span class="badge" style="background: #1e3a8a; color: #bfdbfe;">Local Wi-Fi / Hotspot</span>
-              </div>
-              <p style="font-size: 0.775rem; color: #94a3b8; margin-top: 0.2rem;">Scan with phone camera to test mobile responsive view & LaTeX formulas live</p>
-            </div>
-          </div>
-
-          <div class="hub-card-body">
-            <div class="hub-qr-box" title="Scan with your phone camera to test live on mobile">
-              {{ lan_qr_svg|safe }}
-            </div>
-            <div class="hub-details">
-              <div class="hub-url-pill">
-                <span class="hub-url-text" title="{{ lan_url }}">{{ lan_url }}</span>
-                <button type="button" class="hub-copy-btn" onclick="copyHubUrl('{{ lan_url }}', this)" title="Copy LAN preview URL">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-                  <span>Copy</span>
-                </button>
-              </div>
-              <div class="hub-actions">
-                <a href="{{ lan_url }}" target="_blank" class="btn btn-primary" style="padding: 0.4rem 0.85rem; font-size: 0.825rem;">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
-                  <span>Open Preview</span>
-                </a>
-                <span style="font-size: 0.725rem; color: #64748b;">Phone must be on same Wi-Fi</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 2. Live Deployed Site Card (Next to that) -->
-        <div class="hub-card hub-prod">
-          <div class="hub-card-header">
-            <div class="hub-card-icon" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-            </div>
-            <div style="flex: 1; min-width: 0;">
-              <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap;">
-                <strong style="font-size: 0.95rem; color: #a7f3d0;">Live Deployed Site</strong>
-                <span class="badge" style="background: #064e3b; color: #6ee7b7;">🟢 Cloudflare Pages Live</span>
-              </div>
-              <p style="font-size: 0.775rem; color: #94a3b8; margin-top: 0.2rem;">Public production website with automatic edge CDN & HTTPS</p>
-            </div>
-          </div>
-
-          <div class="hub-card-body">
-            <div class="hub-qr-box" title="Scan with phone camera to open live deployed site">
-              {{ deployed_qr_svg|safe }}
-            </div>
-            <div class="hub-details">
-              <div class="hub-url-pill">
-                <span class="hub-url-text" title="{{ deployed_url }}">{{ deployed_url }}</span>
-                <button type="button" class="hub-copy-btn" onclick="copyHubUrl('{{ deployed_url }}', this)" title="Copy live site URL">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-                  <span>Copy</span>
-                </button>
-              </div>
-              <div class="hub-actions">
-                <a href="{{ deployed_url }}" target="_blank" class="btn btn-success" style="padding: 0.4rem 0.85rem; font-size: 0.825rem;">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
-                  <span>Open Live Site</span>
-                </a>
-                <span style="font-size: 0.725rem; color: #34d399;">shrtnotes.pages.dev</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- Dynamic Tab Content -->
       <!-- CONTENT_PLACEHOLDER -->
     </div>
   </main>
 
   <script>
-    function copyHubUrl(text, btn) {
+    function switchSidebarHub(tab) {
+      const btnLan = document.getElementById('tab-btn-lan');
+      const btnProd = document.getElementById('tab-btn-prod');
+      const panelLan = document.getElementById('sidebar-panel-lan');
+      const panelProd = document.getElementById('sidebar-panel-prod');
+      if (tab === 'lan') {
+        btnLan.classList.add('active');
+        btnProd.classList.remove('active');
+        panelLan.style.display = 'flex';
+        panelProd.style.display = 'none';
+      } else {
+        btnProd.classList.add('active');
+        btnLan.classList.remove('active');
+        panelProd.style.display = 'flex';
+        panelLan.style.display = 'none';
+      }
+    }
+
+    function copySidebarUrl(text, btn) {
       navigator.clipboard.writeText(text).then(() => {
         const originalHtml = btn.innerHTML;
-        btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Copied!</span>`;
+        btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Copied!</span>`;
         btn.style.background = '#059669';
         btn.style.color = '#ffffff';
         setTimeout(() => {
