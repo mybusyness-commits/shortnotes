@@ -1,17 +1,17 @@
 ---
-title: "Fundamental Theorem of Calculus & Key Derivatives"
-slug: "calculus-fundamental-theorem"
-subject: "mathematics"
-chapter: "Calculus"
-excerpt: "Quick summary of differentiation rules, integration relations, and the Fundamental Theorem linking them."
-date: "2026-10-17"
-last_modified: "2026-10-18"
-order: 1
+title: Fundamental Theorem of Calculus & Key Derivatives
+slug: calculus-fundamental-theorem
+subject: mathematics
+chapter: calculus
+excerpt: Quick summary of differentiation rules, integration relations, and the Fundamental
+  Theorem linking them.
 tags:
-  - calculus
-  - derivatives
-  - integration
-  - fundamental theorem
+- calculus
+- derivatives
+- integration
+- fundamental theorem
+date: '2026-10-17'
+last_modified: '2026-10-21'
 ---
 
 ## 1. Overview & Statement
