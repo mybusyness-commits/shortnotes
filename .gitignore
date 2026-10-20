@@ -5,8 +5,11 @@ __pycache__/
 *.pyo
 *.pyd
 .Python
+# Local secrets & environment
 env/
 .env
+secrets.json
+*.local.json
 
 # OS Files
 .DS_Store

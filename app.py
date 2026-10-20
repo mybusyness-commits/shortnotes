@@ -14,7 +14,15 @@ import sys
 import json
 import socket
 import subprocess
+import re
+import time
+import requests
 import yaml
+import urllib3.util.connection as urllib_conn
+try:
+    urllib_conn.allowed_gai_family = lambda: socket.AF_INET
+except Exception:
+    pass
 from datetime import datetime
 from pathlib import Path
 from flask import Flask, render_template_string, request, redirect, url_for, flash, jsonify, send_from_directory
@@ -132,6 +140,186 @@ def generate_qr_svg(url):
     except Exception as e:
         print(f"QR code generation error for {url}: {e}")
         return ""
+
+
+# ==============================================================================
+# AI Model Connector (Gemini, Groq, OpenAI, Ollama)
+# ==============================================================================
+def call_ai_model(prompt, system_instruction=None, json_mode=False, provider=None, api_key=None, model=None, custom_endpoint=None):
+    """
+    Unified AI model caller supporting Google Gemini, Groq, OpenAI, Ollama, and custom endpoints.
+    Returns (success: bool, result_or_error: str).
+    """
+    config = load_config()
+    ai_cfg = config.get("ai", {})
+    provider = (provider or ai_cfg.get("provider", "gemini")).lower()
+    api_key = (api_key or ai_cfg.get("api_key", "")).strip() or os.environ.get("GEMINI_API_KEY", "").strip()
+    model = (model or ai_cfg.get("model", "")).strip()
+    custom_endpoint = (custom_endpoint or ai_cfg.get("custom_endpoint", "")).strip()
+
+    if not api_key and provider != "ollama":
+        return False, "AI API Key is not configured. Please enter your API key in AI Settings (Studio -> AI Copilot & Models)."
+
+    system_text = system_instruction or ai_cfg.get(
+        "system_instructions",
+        "You are an expert academic tutor and LaTeX formula specialist for shrtnotes. You transform study notes into clear, high-yield revision summaries with proper KaTeX formulas and responsive tables."
+    )
+
+    if provider == "gemini":
+        candidate_models = [model] if model else []
+        for fb in ["gemini-3.6-flash", "gemini-flash-lite-latest", "gemini-3.8-flash"]:
+            if fb not in candidate_models:
+                candidate_models.append(fb)
+
+        last_err = ""
+        for cur_model in candidate_models:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{cur_model}:generateContent?key={api_key}"
+            payload = {
+                "contents": [
+                    {
+                        "parts": [{"text": f"{system_text}\n\nTask:\n{prompt}" if system_text else prompt}]
+                    }
+                ],
+                "generationConfig": {
+                    "temperature": 0.2,
+                    "maxOutputTokens": 4096
+                }
+            }
+            if json_mode:
+                payload["generationConfig"]["responseMimeType"] = "application/json"
+
+            # Allow 1 quick retry on 503 high demand before switching model
+            for attempt in range(2):
+                try:
+                    resp = requests.post(url, json=payload, headers={"Content-Type": "application/json"}, timeout=40)
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        candidates = data.get("candidates", [])
+                        if candidates:
+                            text = candidates[0].get("content", {}).get("parts", [{}])[0].get("text", "")
+                            return True, text.strip()
+                    elif resp.status_code == 503:
+                        if attempt == 0:
+                            time.sleep(1.5)
+                            continue
+                        last_err = f"Gemini API 503 High Demand on {cur_model}"
+                        break
+                    elif resp.status_code == 404:
+                        last_err = f"Gemini API 404 (Model {cur_model} deprecated/not found)"
+                        break
+                    else:
+                        try:
+                            err_json = resp.json()
+                            err_msg = err_json.get("error", {}).get("message", resp.text)
+                        except Exception:
+                            err_msg = resp.text
+                        last_err = f"Gemini API Error ({resp.status_code}) on {cur_model}: {err_msg}"
+                        if resp.status_code == 429:
+                            return False, last_err
+                        break
+                except requests.exceptions.Timeout:
+                    last_err = f"Gemini API request timed out on {cur_model} (waited 40s)."
+                    break
+                except Exception as e:
+                    return False, f"Failed to call Gemini API: {str(e)}"
+
+        return False, last_err or "Gemini API unavailable across candidate models. Please check your key or try Groq/Ollama."
+
+    elif provider in ["openai", "groq", "ollama", "custom"]:
+        base_url = custom_endpoint or ai_cfg.get("custom_endpoint", "").strip()
+        if not base_url:
+            if provider == "groq":
+                base_url = "https://api.groq.com/openai/v1"
+                if not model:
+                    model = "llama-3.3-70b-versatile"
+            elif provider == "ollama":
+                base_url = "http://localhost:11434/v1"
+                if not model:
+                    model = "llama3"
+            else:  # openai
+                base_url = "https://api.openai.com/v1"
+                if not model:
+                    model = "gpt-4o-mini"
+
+        endpoint = f"{base_url.rstrip('/')}/chat/completions"
+        headers = {"Content-Type": "application/json"}
+        if api_key:
+            headers["Authorization"] = f"Bearer {api_key}"
+
+        messages = []
+        if system_text:
+            messages.append({"role": "system", "content": system_text})
+        messages.append({"role": "user", "content": prompt})
+
+        payload = {
+            "model": model,
+            "messages": messages,
+            "temperature": 0.2,
+            "max_tokens": 4096
+        }
+        if json_mode and provider in ["openai", "groq"]:
+            payload["response_format"] = {"type": "json_object"}
+
+        try:
+            resp = requests.post(endpoint, json=payload, headers=headers, timeout=30)
+            if resp.status_code != 200:
+                try:
+                    err_json = resp.json()
+                    err_msg = err_json.get("error", {}).get("message", resp.text)
+                except Exception:
+                    err_msg = resp.text
+                return False, f"AI Provider Error ({resp.status_code}): {err_msg}"
+
+            data = resp.json()
+            choices = data.get("choices", [])
+            if not choices:
+                return False, "AI returned empty response choices."
+            text = choices[0].get("message", {}).get("content", "")
+            return True, text.strip()
+        except requests.exceptions.Timeout:
+            return False, "AI API request timed out (30s). Please try again."
+        except Exception as e:
+            return False, f"Failed to call AI API: {str(e)}"
+
+    return False, f"Unsupported AI provider '{provider}'."
+
+
+def offline_fallback_formatter(text):
+    """Smart offline formatting heuristics when AI is unavailable or busy."""
+    import re
+    lines = text.strip().split("\n")
+    formatted_lines = []
+    
+    greek = {
+        r'\bpi\b': r'\pi', r'\btheta\b': r'\theta', r'\balpha\b': r'\alpha',
+        r'\bbeta\b': r'\beta', r'\bgamma\b': r'\gamma', r'\bdelta\b': r'\delta',
+        r'\blambda\b': r'\lambda', r'\bomega\b': r'\omega', r'\bmu\b': r'\mu',
+        r'\bphi\b': r'\phi', r'\bsigma\b': r'\sigma', r'\bepsilon\b': r'\epsilon'
+    }
+
+    for line in lines:
+        s = line.strip()
+        if not s:
+            formatted_lines.append("")
+            continue
+
+        is_formula = (
+            any(sym in s for sym in ["=", "\\int", "\\sum", "\\sqrt", "lim", "->"])
+            and not s.startswith("#")
+            and not s.startswith("$")
+            and not s.startswith("*")
+            and len(s.split()) < 15
+        )
+
+        if is_formula:
+            clean_s = s
+            for k, v in greek.items():
+                clean_s = re.sub(k, v, clean_s)
+            formatted_lines.append(f"$$\n{clean_s}\n$$")
+        else:
+            formatted_lines.append(line)
+
+    return "\n".join(formatted_lines)
 
 
 # ==============================================================================
@@ -370,6 +558,87 @@ STUDIO_HTML = """
       text-decoration: none;
       transition: all 0.15s;
     }
+
+    /* AI Copilot & Assistant Styles */
+    .ai-copilot-card {
+      background: linear-gradient(135deg, #1e1035 0%, #0d1527 100%);
+      border: 1px solid #7e22ce;
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 12px rgba(126, 34, 206, 0.15);
+    }
+    .ai-copilot-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .ai-pulse-dot {
+      width: 8px;
+      height: 8px;
+      background: #a855f7;
+      border-radius: 50%;
+      display: inline-block;
+      box-shadow: 0 0 8px #c084fc;
+      animation: pulse-ai 2s infinite;
+    }
+    @keyframes pulse-ai {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.25); }
+    }
+    .ai-copilot-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .ai-action-btn {
+      background: #2e1065;
+      border: 1px solid #9333ea;
+      color: #e9d5ff;
+      padding: 0.45rem 0.85rem;
+      border-radius: 6px;
+      font-size: 0.825rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+    .ai-action-btn:hover {
+      background: #3b0764;
+      border-color: #c084fc;
+      color: #fff;
+      transform: translateY(-1px);
+    }
+    .ai-action-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .ai-modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    .ai-modal-box {
+      background: #111827;
+      border: 1px solid #7e22ce;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 680px;
+      padding: 1.75rem;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+    }
   </style>
 </head>
 <body>
@@ -420,6 +689,12 @@ STUDIO_HTML = """
         <a href="{{ url_for('route_seo') }}" class="nav-btn {% if active_tab == 'seo' %}active{% endif %}">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/><path d="M11 8v6"/><path d="M8 11h6"/></svg>
           <span>SEO & Google Search</span>
+        </a>
+      </li>
+      <li>
+        <a href="{{ url_for('route_ai_settings') }}" class="nav-btn {% if active_tab == 'ai' %}active{% endif %}">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a8 8 0 0 0-8 8c0 3.31 2.01 6.16 4.9 7.37.13.06.2.2.2.35v1.28c0 .55.45 1 1 1h3.8c.55 0 1-.45 1-1v-1.28c0-.15.07-.29.2-.35 2.89-1.21 4.9-4.06 4.9-7.37a8 8 0 0 0-8-8z"/><line x1="9" x2="15" y1="22" y2="22"/><line x1="10" x2="14" y1="18" y2="18"/></svg>
+          <span>AI Copilot & Models</span>
         </a>
       </li>
       <li>
@@ -652,12 +927,71 @@ NOTES_LIST_HTML = """
 # ==============================================================================
 NOTE_FORM_HTML = """
 <div class="card">
-  <h3 class="card-title">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-    <span>{% if is_edit %}Edit Topic{% else %}Write New Study Topic{% endif %}</span>
-  </h3>
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+    <h3 class="card-title" style="margin-bottom: 0;">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      <span>{% if is_edit %}Edit Topic{% else %}Write New Study Topic{% endif %}</span>
+    </h3>
+    <button type="button" class="btn" onclick="openAIDraftModal()" style="background: linear-gradient(135deg, #7e22ce 0%, #3b82f6 100%); color: #fff; font-size: 0.85rem; padding: 0.45rem 1rem;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/></svg>
+      <span>🪄 Quick Draft from Raw Text</span>
+    </button>
+  </div>
 
-  <form method="POST" action="{{ action_url }}">
+  <!-- AI Studio Copilot Panel -->
+  <div class="ai-copilot-card">
+    <div class="ai-copilot-header">
+      <div style="display: flex; align-items: center; gap: 0.6rem;">
+        <span class="ai-pulse-dot"></span>
+        <strong style="color: #c084fc; font-size: 0.95rem;">AI Studio Copilot</strong>
+        <span class="badge" id="ai-status-badge" style="background: rgba(168, 85, 247, 0.2); color: #d8b4fe; font-size: 0.7rem;">
+          {{ ai_status_text }}
+        </span>
+      </div>
+      <div style="display: flex; gap: 0.5rem; align-items: center;">
+        <a href="{{ url_for('route_ai_settings') }}" target="_blank" style="font-size: 0.75rem; color: #a855f7; text-decoration: underline;">
+          ⚙️ AI Settings
+        </a>
+      </div>
+    </div>
+
+    <div style="font-size: 0.775rem; color: #cbd5e1; margin-bottom: 0.75rem;">
+      1-Click AI assistance for your topic content, formulas, tables, and Google SEO:
+    </div>
+
+    <!-- Quick action buttons -->
+    <div class="ai-copilot-actions">
+      <button type="button" class="ai-action-btn" id="btn-ai-format" onclick="runAICopilot('format_notes')" title="Converts raw text into clean Markdown with KaTeX formulas and responsive tables">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/></svg>
+        <span>✨ Format to KaTeX & Markdown</span>
+      </button>
+
+      <button type="button" class="ai-action-btn" id="btn-ai-seo" onclick="runAICopilot('generate_seo')" title="Auto-generates Topic Title, URL Slug, Search Snippet, and SEO Keywords">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <span>🏷️ Auto-Fill SEO & Tags</span>
+      </button>
+
+      <button type="button" class="ai-action-btn" id="btn-ai-formula" onclick="runAICopilot('formula_sheet')" title="Generates a High-Yield Formula Cheat-Sheet box at the end of the note">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="9" y2="9"/><line x1="4" x2="20" y1="15" y2="15"/><line x1="10" x2="8" y1="3" y2="21"/><line x1="16" x2="14" y1="3" y2="21"/></svg>
+        <span>📐 Add Formula Cheat-Sheet</span>
+      </button>
+
+      <button type="button" class="ai-action-btn" id="btn-ai-quiz" onclick="runAICopilot('generate_quiz')" title="Generates 3 practice MCQs with collapsible answers for student recall">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
+        <span>📝 Add 3 Practice MCQs</span>
+      </button>
+
+      <button type="button" class="ai-action-btn" id="btn-ai-tables" onclick="runAICopilot('fix_tables')" title="Cleans up and formats tables so they never disturb alignment">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
+        <span>📊 Clean & Align Tables</span>
+      </button>
+    </div>
+
+    <!-- AI Live Status Banner -->
+    <div id="ai-feedback-msg" style="display: none; margin-top: 0.75rem; padding: 0.5rem 0.85rem; border-radius: 6px; font-size: 0.8rem;"></div>
+  </div>
+
+  <form method="POST" action="{{ action_url }}" id="topic-form">
     {% if is_edit %}
     <input type="hidden" name="original_path" value="{{ original_path }}">
     {% endif %}
@@ -683,43 +1017,70 @@ NOTE_FORM_HTML = """
     <div class="form-grid">
       <div class="form-group">
         <label class="form-label">Topic Title *</label>
-        <input type="text" name="title" class="form-control" value="{{ note_meta.get('title', '') }}" placeholder="e.g. Fundamental Theorem of Calculus" required>
+        <input type="text" name="title" id="note-title" class="form-control" value="{{ note_meta.get('title', '') }}" placeholder="e.g. Fundamental Theorem of Calculus" required>
       </div>
       <div class="form-group">
         <label class="form-label">URL Slug (lowercase-hyphens) *</label>
-        <input type="text" name="slug" class="form-control" value="{{ note_meta.get('slug', '') }}" placeholder="e.g. fundamental-theorem" required>
+        <input type="text" name="slug" id="note-slug" class="form-control" value="{{ note_meta.get('slug', '') }}" placeholder="e.g. fundamental-theorem" required>
       </div>
     </div>
 
     <div class="form-grid">
       <div class="form-group">
         <label class="form-label">Google Search Snippet / Excerpt (1-2 sentences)</label>
-        <input type="text" name="excerpt" class="form-control" value="{{ note_meta.get('excerpt', '') }}" placeholder="A 1-2 sentence high-yield summary for Google search results...">
+        <input type="text" name="excerpt" id="note-excerpt" class="form-control" value="{{ note_meta.get('excerpt', '') }}" placeholder="A 1-2 sentence high-yield summary for Google search results...">
         <span style="font-size: 0.75rem; color: var(--text-muted);">Displays under your topic title in Google search results.</span>
       </div>
       <div class="form-group">
         <label class="form-label">SEO Keywords & Topic Tags (comma-separated)</label>
-        <input type="text" name="tags" class="form-control" value="{{ tags_str }}" placeholder="e.g. calculus, derivatives, integration, fundamental-theorem">
+        <input type="text" name="tags" id="note-tags" class="form-control" value="{{ tags_str }}" placeholder="e.g. calculus, derivatives, integration, fundamental-theorem">
         <span style="font-size: 0.75rem; color: var(--text-muted);">Used for Google indexing, Schema.org metadata, and page tag badges.</span>
       </div>
     </div>
 
     <div class="form-group">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; flex-wrap: wrap; gap: 0.5rem;">
         <label class="form-label" style="margin-bottom: 0;">Topic Content (Markdown & KaTeX Formulas Supported) *</label>
-        <span style="font-size: 0.75rem; color: var(--text-muted);">Inline: $E = mc^2$ | Centered: $$\\int x dx$$</span>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Inline: <code>$E = mc^2$</code> | Block Display: <code>$$\\int_0^1 x dx$$</code></span>
       </div>
-      <textarea name="content" class="form-control" placeholder="Write your topic notes here..." required>{{ raw_content }}</textarea>
+      <textarea name="content" id="note-content" class="form-control" placeholder="Write or paste your study notes here..." required>{{ raw_content }}</textarea>
     </div>
 
     <div style="display: flex; gap: 1rem; align-items: center; margin-top: 1.5rem;">
-      <button type="submit" class="btn btn-success">
+      <button type="submit" class="btn btn-success" style="font-size: 0.95rem; padding: 0.65rem 1.4rem;">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/></svg>
         <span>Save Topic & Rebuild Clean URLs</span>
       </button>
       <a href="{{ url_for('route_notes') }}" class="btn btn-secondary">Cancel</a>
     </div>
   </form>
+</div>
+
+<!-- Quick Draft Modal -->
+<div class="ai-modal-overlay" id="ai-draft-modal">
+  <div class="ai-modal-box">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <h3 style="font-size: 1.15rem; color: #fff; display: flex; align-items: center; gap: 0.5rem;">
+        <span>🪄 Quick Draft with AI Copilot</span>
+      </h3>
+      <button type="button" onclick="closeAIDraftModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer; line-height: 1;">&times;</button>
+    </div>
+    <p style="font-size: 0.825rem; color: #94a3b8; margin-bottom: 1rem;">
+      Paste any messy textbook paragraphs, lecture notes, or rough formula text. AI Copilot will automatically structure it into clean Markdown, convert formulas to KaTeX, and fill your title, slug, excerpt, tags, subject, and chapter!
+    </p>
+
+    <div class="form-group">
+      <label class="form-label">Raw Notes / Study Material:</label>
+      <textarea id="ai-raw-draft-input" class="form-control" style="min-height: 200px; font-size: 0.85rem;" placeholder="Paste raw text here, e.g.:&#10;Carnot Heat Engine: The efficiency of a reversible Carnot engine operating between temperatures T1 and T2 is eta = 1 - T2/T1. Work done is W = Q1 - Q2..."></textarea>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.25rem;">
+      <button type="button" class="btn btn-secondary" onclick="closeAIDraftModal()">Cancel</button>
+      <button type="button" class="btn" id="btn-run-draft" onclick="executeAIDraft()" style="background: linear-gradient(135deg, #7e22ce 0%, #3b82f6 100%); color: #fff;">
+        <span>✨ Generate Full Topic</span>
+      </button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -753,6 +1114,158 @@ NOTE_FORM_HTML = """
 
   // Initialize on page load
   updateChapterOptions();
+
+  function showAIFeedback(msg, isSuccess = true) {
+    const box = document.getElementById('ai-feedback-msg');
+    box.style.display = 'block';
+    if (isSuccess) {
+      box.style.background = '#064e3b';
+      box.style.border = '1px solid #059669';
+      box.style.color = '#a7f3d0';
+      box.innerHTML = msg;
+    } else {
+      box.style.background = '#450a0a';
+      box.style.border = '1px solid #dc2626';
+      box.style.color = '#fecaca';
+      box.innerHTML = msg;
+    }
+    setTimeout(() => {
+      box.style.display = 'none';
+    }, 7000);
+  }
+
+  function openAIDraftModal() {
+    document.getElementById('ai-draft-modal').style.display = 'flex';
+  }
+
+  function closeAIDraftModal() {
+    document.getElementById('ai-draft-modal').style.display = 'none';
+  }
+
+  async function runAICopilot(action) {
+    const contentArea = document.getElementById('note-content');
+    const titleInput = document.getElementById('note-title');
+    const subSelect = document.getElementById('note-subject-select');
+    const chSelect = document.getElementById('note-chapter-select');
+
+    const contentVal = contentArea.value.trim();
+    if (!contentVal && action !== 'generate_seo') {
+      alert('Please enter some text in the topic content textarea first, then run AI Copilot.');
+      contentArea.focus();
+      return;
+    }
+
+    const btnIdMap = {
+      'format_notes': 'btn-ai-format',
+      'generate_seo': 'btn-ai-seo',
+      'formula_sheet': 'btn-ai-formula',
+      'generate_quiz': 'btn-ai-quiz',
+      'fix_tables': 'btn-ai-tables'
+    };
+    const targetBtn = document.getElementById(btnIdMap[action]);
+    const originalText = targetBtn.innerHTML;
+    targetBtn.disabled = true;
+    targetBtn.innerHTML = `<span>⏳ Processing with AI...</span>`;
+
+    try {
+      const resp = await fetch('{{ url_for("route_api_ai_copilot") }}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: action,
+          content: contentVal,
+          title: titleInput.value,
+          subject: subSelect.value,
+          chapter: chSelect.value
+        })
+      });
+
+      const res = await resp.json();
+      if (!res.success) {
+        showAIFeedback(`⚠️ ${res.message} <a href="{{ url_for('route_ai_settings') }}" style="color:#fff; text-decoration:underline; font-weight:bold; margin-left:0.5rem;">Configure API Key &rarr;</a>`, false);
+      } else {
+        if (action === 'format_notes') {
+          contentArea.value = res.data;
+          showAIFeedback(res.warning ? ('⚡ ' + res.warning) : '✨ Study notes formatted with KaTeX math formulas and clean Markdown!');
+        } else if (action === 'fix_tables') {
+          contentArea.value = res.data;
+          showAIFeedback('📊 Table formatted into clean, responsive Markdown!');
+        } else if (action === 'formula_sheet') {
+          contentArea.value = contentArea.value.trim() + '\\n\\n' + res.data;
+          showAIFeedback('📐 High-Yield Formula Cheat-Sheet inserted at the bottom!');
+        } else if (action === 'generate_quiz') {
+          contentArea.value = contentArea.value.trim() + '\\n\\n' + res.data;
+          showAIFeedback('📝 3 Practice MCQs inserted with collapsible answers!');
+        } else if (action === 'generate_seo') {
+          const seo = res.data;
+          if (seo.title && !titleInput.value) titleInput.value = seo.title;
+          if (seo.slug) document.getElementById('note-slug').value = seo.slug;
+          if (seo.excerpt) document.getElementById('note-excerpt').value = seo.excerpt;
+          if (seo.tags) document.getElementById('note-tags').value = seo.tags;
+          if (seo.subject) {
+            subSelect.value = seo.subject;
+            updateChapterOptions();
+            if (seo.chapter) chSelect.value = seo.chapter;
+          }
+          showAIFeedback('🏷️ Title, URL Slug, Excerpt, and SEO Tags generated!');
+        }
+      }
+    } catch (err) {
+      showAIFeedback(`Failed to contact AI Copilot: ${err.message}`, false);
+    } finally {
+      targetBtn.disabled = false;
+      targetBtn.innerHTML = originalText;
+    }
+  }
+
+  async function executeAIDraft() {
+    const rawInput = document.getElementById('ai-raw-draft-input').value.trim();
+    if (!rawInput) {
+      alert('Please paste some study text or notes to draft.');
+      return;
+    }
+
+    const btn = document.getElementById('btn-run-draft');
+    const origHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span>⏳ Generating Topic...</span>';
+
+    try {
+      const resp = await fetch('{{ url_for("route_api_ai_copilot") }}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'quick_draft',
+          content: rawInput
+        })
+      });
+
+      const res = await resp.json();
+      if (!res.success) {
+        alert(res.message);
+      } else {
+        const d = res.data;
+        if (d.title) document.getElementById('note-title').value = d.title;
+        if (d.slug) document.getElementById('note-slug').value = d.slug;
+        if (d.excerpt) document.getElementById('note-excerpt').value = d.excerpt;
+        if (d.tags) document.getElementById('note-tags').value = d.tags;
+        if (d.content) document.getElementById('note-content').value = d.content;
+        if (d.subject) {
+          const subSelect = document.getElementById('note-subject-select');
+          subSelect.value = d.subject;
+          updateChapterOptions();
+          if (d.chapter) document.getElementById('note-chapter-select').value = d.chapter;
+        }
+        closeAIDraftModal();
+        showAIFeedback('🎉 Topic draft created successfully! Review and click Save when ready.');
+      }
+    } catch (err) {
+      alert(`Error generating draft: ${err.message}`);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = origHtml;
+    }
+  }
 </script>
 """
 
@@ -1242,6 +1755,236 @@ function copySitemapUrl() {
 </script>
 """
 
+# ==============================================================================
+# AI Settings Template
+# ==============================================================================
+AI_SETTINGS_HTML = """
+<div class="card">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+    <div>
+      <h3 class="card-title" style="margin-bottom: 0.25rem;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a8 8 0 0 0-8 8c0 3.31 2.01 6.16 4.9 7.37.13.06.2.2.2.35v1.28c0 .55.45 1 1 1h3.8c.55 0 1-.45 1-1v-1.28c0-.15.07-.29.2-.35 2.89-1.21 4.9-4.06 4.9-7.37a8 8 0 0 0-8-8z"/><line x1="9" x2="15" y1="22" y2="22"/><line x1="10" x2="14" y1="18" y2="18"/></svg>
+        <span>AI Studio Copilot & Model Settings</span>
+      </h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted);">
+        Connect an AI model to automate notes formatting, KaTeX LaTeX math, SEO keyword tags, and table cleanup.
+      </p>
+    </div>
+    <button type="button" class="btn btn-secondary" onclick="runConnectionTest()" id="btn-quick-test" style="border: 1px solid #7e22ce; color: #d8b4fe;">
+      ⚡ Test Connection
+    </button>
+  </div>
+
+  <!-- Live Connection Diagnostic Box -->
+  <div id="test-result-box" style="display: none; margin-bottom: 1.5rem; padding: 1rem 1.25rem; border-radius: 8px; font-size: 0.875rem;"></div>
+
+  <form method="POST" action="{{ url_for('route_save_ai_settings') }}">
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">AI Provider *</label>
+        <select name="provider" id="ai-provider-select" class="form-control" onchange="onProviderChange()">
+          <option value="gemini" {% if ai.provider == 'gemini' %}selected{% endif %}>Google Gemini (Recommended - 100% Free via Google AI Studio)</option>
+          <option value="groq" {% if ai.provider == 'groq' %}selected{% endif %}>Groq Cloud (Ultra-Fast LLaMA-3 Free Tier)</option>
+          <option value="openai" {% if ai.provider == 'openai' %}selected{% endif %}>OpenAI (GPT-4o mini)</option>
+          <option value="ollama" {% if ai.provider == 'ollama' %}selected{% endif %}>Local Ollama (100% Free, Offline on your PC)</option>
+          <option value="custom" {% if ai.provider == 'custom' %}selected{% endif %}>Custom OpenAI-Compatible Endpoint</option>
+        </select>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Gemini is free (15 requests/min) and excels at KaTeX formulas.</span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Model Name *</label>
+        <input type="text" name="model" id="ai-model-input" class="form-control" value="{{ ai.model or 'gemini-3.6-flash' }}" placeholder="e.g. gemini-3.6-flash" required>
+        <div style="display: flex; gap: 0.35rem; margin-top: 0.4rem; flex-wrap: wrap;">
+          <button type="button" class="badge" style="background:#1e293b; color:#93c5fd; border:none; cursor:pointer;" onclick="setModel('gemini-3.6-flash')">gemini-3.6-flash (Fastest &amp; Recommended)</button>
+          <button type="button" class="badge" style="background:#1e293b; color:#93c5fd; border:none; cursor:pointer;" onclick="setModel('gemini-flash-lite-latest')">gemini-flash-lite</button>
+          <button type="button" class="badge" style="background:#1e293b; color:#93c5fd; border:none; cursor:pointer;" onclick="setModel('gemini-3.8-flash')">gemini-3.8-flash</button>
+          <button type="button" class="badge" style="background:#1e293b; color:#93c5fd; border:none; cursor:pointer;" onclick="setModel('llama-3.3-70b-versatile')">llama-3.3-70b (Groq)</button>
+          <button type="button" class="badge" style="background:#1e293b; color:#93c5fd; border:none; cursor:pointer;" onclick="setModel('gpt-4o-mini')">gpt-4o-mini (OpenAI)</button>
+          <button type="button" class="badge" style="background:#1e293b; color:#93c5fd; border:none; cursor:pointer;" onclick="setModel('llama3')">llama3 (Ollama)</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">API Key <span id="api-key-req-label">*</span></label>
+        <div style="position: relative;">
+          <input type="password" name="api_key" id="ai-api-key" class="form-control" value="{{ ai.api_key }}" placeholder="Paste API Key here...">
+          <button type="button" onclick="toggleKeyVisibility()" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 0.8rem;">
+            👁️ Show/Hide
+          </button>
+        </div>
+        <span style="font-size: 0.75rem; color: var(--text-muted);" id="api-key-hint">Never shared publicly; stored locally in your workspace config.</span>
+      </div>
+
+      <div class="form-group" id="endpoint-group">
+        <label class="form-label">Custom API Base URL (Optional for Ollama / Proxies)</label>
+        <input type="text" name="custom_endpoint" id="ai-endpoint-input" class="form-control" value="{{ ai.custom_endpoint }}" placeholder="e.g. http://localhost:11434/v1">
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Leave empty for official Gemini / Groq / OpenAI clouds.</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Custom System Instructions / Persona Prompt</label>
+      <textarea name="system_instructions" class="form-control" style="min-height: 100px; font-size: 0.85rem;">{{ ai.system_instructions }}</textarea>
+      <span style="font-size: 0.75rem; color: var(--text-muted);">Defines how the AI structures study notes, handles formulas, and organizes tables.</span>
+    </div>
+
+    <div style="display: flex; gap: 1rem; align-items: center; margin-top: 1.5rem;">
+      <button type="submit" class="btn btn-primary" style="padding: 0.65rem 1.4rem;">
+        <span>Save AI Settings</span>
+      </button>
+      <button type="button" class="btn btn-secondary" onclick="runConnectionTest()">
+        <span>⚡ Test Connection</span>
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- Step by Step Setup Guide Card -->
+<div class="card" style="border-left: 4px solid #3b82f6;">
+  <h4 style="font-size: 1rem; font-weight: 700; color: #93c5fd; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+    <span>📖 How to Get Your Free Google Gemini API Key in 30 Seconds</span>
+  </h4>
+  <ol style="margin-left: 1.25rem; font-size: 0.875rem; color: #cbd5e1; line-height: 1.8;">
+    <li>Go to <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: #60a5fa; font-weight: 600; text-decoration: underline;">Google AI Studio API Keys (aistudio.google.com) &rarr;</a> and log in with your Google account.</li>
+    <li>Click the blue <strong>"Create API key"</strong> button.</li>
+    <li>Copy your generated key, paste it into the <strong>API Key</strong> field above, and click <strong>Save AI Settings</strong>.</li>
+    <li><em>Cost:</em> 100% Free! Google provides 15 requests per minute and 1,500 requests per day at zero charge.</li>
+  </ol>
+</div>
+
+<!-- Interactive AI Playground Card -->
+<div class="card">
+  <h4 style="font-size: 1rem; font-weight: 700; color: #d8b4fe; margin-bottom: 0.75rem;">
+    🧪 AI Copilot Playground (Live Sandbox)
+  </h4>
+  <p style="font-size: 0.825rem; color: var(--text-muted); margin-bottom: 1rem;">
+    Test how AI processes your raw formulas, concepts, or tables before adding them to notes:
+  </p>
+
+  <div class="form-grid">
+    <div>
+      <label class="form-label">Input Raw Study Text:</label>
+      <textarea id="playground-input" class="form-control" style="min-height: 180px; font-size: 0.85rem;" placeholder="e.g. Newton's second law states that F = m * a where F is net force in Newtons, m is mass in kg, and a is acceleration in m/s^2. Kinetic energy is KE = 1/2 m v^2."></textarea>
+      <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
+        <button type="button" class="btn btn-secondary" onclick="runPlaygroundTest('format')">✨ Test KaTeX Format</button>
+        <button type="button" class="btn btn-secondary" onclick="runPlaygroundTest('quiz')">📝 Test MCQ Generator</button>
+      </div>
+    </div>
+
+    <div>
+      <label class="form-label">AI Rendered Output (KaTeX & Markdown):</label>
+      <textarea id="playground-output" class="form-control" style="min-height: 180px; font-size: 0.85rem;" placeholder="Result will appear here..." readonly></textarea>
+    </div>
+  </div>
+</div>
+
+<script>
+  function toggleKeyVisibility() {
+    const keyInput = document.getElementById('ai-api-key');
+    keyInput.type = keyInput.type === 'password' ? 'text' : 'password';
+  }
+
+  function setModel(modelName) {
+    document.getElementById('ai-model-input').value = modelName;
+  }
+
+  function onProviderChange() {
+    const provider = document.getElementById('ai-provider-select').value;
+    const modelInput = document.getElementById('ai-model-input');
+    const endpointInput = document.getElementById('ai-endpoint-input');
+    const keyReq = document.getElementById('api-key-req-label');
+
+    if (provider === 'gemini') {
+      if (!modelInput.value || modelInput.value.includes('llama') || modelInput.value.includes('gpt')) {
+        modelInput.value = 'gemini-3.6-flash';
+      }
+      keyReq.textContent = '*';
+    } else if (provider === 'groq') {
+      modelInput.value = 'llama-3.3-70b-versatile';
+      keyReq.textContent = '*';
+    } else if (provider === 'openai') {
+      modelInput.value = 'gpt-4o-mini';
+      keyReq.textContent = '*';
+    } else if (provider === 'ollama') {
+      modelInput.value = 'llama3';
+      if (!endpointInput.value) endpointInput.value = 'http://localhost:11434/v1';
+      keyReq.textContent = '(Not needed for local Ollama)';
+    }
+  }
+
+  async function runConnectionTest() {
+    const box = document.getElementById('test-result-box');
+    box.style.display = 'block';
+    box.style.background = '#1e293b';
+    box.style.color = '#93c5fd';
+    box.innerHTML = '<span>⚡ Testing AI connection... Sending ping request to model...</span>';
+
+    try {
+      const resp = await fetch('{{ url_for("route_api_ai_test") }}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          provider: document.getElementById('ai-provider-select').value,
+          api_key: document.getElementById('ai-api-key').value,
+          model: document.getElementById('ai-model-input').value,
+          custom_endpoint: document.getElementById('ai-endpoint-input').value
+        })
+      });
+
+      const data = await resp.json();
+      if (data.success) {
+        box.style.background = '#064e3b';
+        box.style.border = '1px solid #059669';
+        box.style.color = '#a7f3d0';
+        box.innerHTML = `<strong>✅ AI Connection Successful! (${data.latency_ms}ms)</strong><br><span style="font-size: 0.8rem; opacity: 0.9;">Model <em>${data.model}</em> responded: "${data.reply}"</span>`;
+      } else {
+        box.style.background = '#450a0a';
+        box.style.border = '1px solid #dc2626';
+        box.style.color = '#fecaca';
+        box.innerHTML = `<strong>❌ Connection Failed:</strong><br>${data.message}`;
+      }
+    } catch (err) {
+      box.style.background = '#450a0a';
+      box.style.border = '1px solid #dc2626';
+      box.style.color = '#fecaca';
+      box.innerHTML = `<strong>❌ Request Error:</strong> ${err.message}`;
+    }
+  }
+
+  async function runPlaygroundTest(mode) {
+    const input = document.getElementById('playground-input').value.trim();
+    const output = document.getElementById('playground-output');
+    if (!input) {
+      alert('Please enter some text in the playground input.');
+      return;
+    }
+
+    output.value = 'Processing with AI model...';
+    try {
+      const resp = await fetch('{{ url_for("route_api_ai_copilot") }}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: mode === 'format' ? 'format_notes' : 'generate_quiz',
+          content: input
+        })
+      });
+      const data = await resp.json();
+      if (data.success) {
+        output.value = data.data;
+      } else {
+        output.value = 'Error: ' + data.message;
+      }
+    } catch (e) {
+      output.value = 'Error: ' + e.message;
+    }
+  }
+</script>
+"""
+
 
 # ==============================================================================
 # Helper for Rendering Studio Templates
@@ -1259,6 +2002,16 @@ def render_studio_view(child_content, active_tab, page_heading, **kwargs):
     lan_qr_svg = generate_qr_svg(lan_url)
     deployed_qr_svg = generate_qr_svg(deployed_url)
 
+    ai_cfg = config.get("ai", {})
+    ai_provider = ai_cfg.get("provider", "gemini").capitalize()
+    has_key = bool(ai_cfg.get("api_key", "").strip() or os.environ.get("GEMINI_API_KEY", "").strip())
+    if ai_cfg.get("provider") == "ollama":
+        ai_status_text = "🟢 Ollama (Local)"
+    elif has_key:
+        ai_status_text = f"🟢 {ai_provider} Ready"
+    else:
+        ai_status_text = "⚙️ Configure AI Key"
+
     cleaned = child_content.replace('{% extends "studio_base" %}', '').replace('{% block studio_content %}', '').replace('{% endblock %}', '')
     full_template = STUDIO_HTML.replace('<!-- CONTENT_PLACEHOLDER -->', cleaned)
 
@@ -1273,6 +2026,7 @@ def render_studio_view(child_content, active_tab, page_heading, **kwargs):
         deployed_url=deployed_url,
         lan_qr_svg=lan_qr_svg,
         deployed_qr_svg=deployed_qr_svg,
+        ai_status_text=ai_status_text,
         get_icon=get_icon,
         **kwargs
     )
@@ -1821,6 +2575,276 @@ def route_save_seo():
     return redirect(url_for("route_seo"))
 
 
+# ==============================================================================
+# AI Studio Copilot Routes
+# ==============================================================================
+@app.route("/ai")
+def route_ai_settings():
+    config = load_config()
+    ai_cfg = config.get("ai", {})
+    return render_studio_view(
+        AI_SETTINGS_HTML,
+        active_tab="ai",
+        page_heading="AI Studio Copilot & Model Configuration",
+        ai=ai_cfg
+    )
+
+
+@app.route("/ai/save", methods=["POST"])
+def route_save_ai_settings():
+    config = load_config()
+    if "ai" not in config:
+        config["ai"] = {}
+
+    config["ai"]["provider"] = request.form.get("provider", "gemini").strip()
+    config["ai"]["api_key"] = request.form.get("api_key", "").strip()
+    config["ai"]["model"] = request.form.get("model", "gemini-3.6-flash").strip()
+    config["ai"]["custom_endpoint"] = request.form.get("custom_endpoint", "").strip()
+    config["ai"]["system_instructions"] = request.form.get("system_instructions", "").strip()
+
+    save_config(config)
+    flash("AI Copilot settings saved successfully!", "success")
+    return redirect(url_for("route_ai_settings"))
+
+
+@app.route("/api/ai/test", methods=["POST"])
+def route_api_ai_test():
+    payload = request.get_json(silent=True) or {}
+    config = load_config()
+    ai_cfg = config.get("ai", {})
+
+    provider = payload.get("provider") or ai_cfg.get("provider", "gemini")
+    api_key = payload.get("api_key") or ai_cfg.get("api_key", "")
+    model = payload.get("model") or ai_cfg.get("model", "gemini-3.6-flash")
+    endpoint = payload.get("custom_endpoint") or ai_cfg.get("custom_endpoint", "")
+
+    t0 = time.time()
+    success, reply = call_ai_model(
+        "Ping test: reply with 'AI Copilot is online and ready for shrtnotes!'",
+        provider=provider,
+        api_key=api_key,
+        model=model,
+        custom_endpoint=endpoint
+    )
+    latency = int((time.time() - t0) * 1000)
+
+    if success:
+        return jsonify({
+            "success": True,
+            "latency_ms": latency,
+            "model": model,
+            "reply": reply
+        })
+    else:
+        return jsonify({
+            "success": False,
+            "message": reply
+        })
+
+
+@app.route("/api/ai/copilot", methods=["POST"])
+def route_api_ai_copilot():
+    data = request.get_json(silent=True) or {}
+    action = data.get("action", "")
+    content = data.get("content", "").strip()
+    title = data.get("title", "").strip()
+    subject = data.get("subject", "").strip()
+    chapter = data.get("chapter", "").strip()
+
+    config = load_config()
+    ai_cfg = config.get("ai", {})
+    api_key = ai_cfg.get("api_key", "").strip() or os.environ.get("GEMINI_API_KEY", "").strip()
+    provider = ai_cfg.get("provider", "gemini")
+
+    if not api_key and provider != "ollama":
+        if action == "format_notes" and content:
+            formatted = offline_fallback_formatter(content)
+            return jsonify({
+                "success": True,
+                "data": formatted,
+                "offline": True,
+                "message": "Basic offline formatting applied. Configure a free Gemini API key in AI Settings for full LaTeX intelligence."
+            })
+        return jsonify({
+            "success": False,
+            "message": "AI API key not configured. Please add your free Google Gemini API key under 'AI Copilot & Models' in the left menu."
+        })
+
+    if action == "format_notes":
+        prompt = f"""You are an expert academic study notes formatter for a high-yield student revision site.
+Transform the following raw study notes into clean, beautiful GitHub Flavored Markdown with proper KaTeX formulas and responsive tables.
+
+FORMATTING RULES:
+1. Use hierarchical Markdown headings (# for Main Section, ## for Subsections, ### for Concepts).
+2. All mathematical, physical, or chemical equations MUST use valid KaTeX / LaTeX syntax:
+   - Use inline math `$ ... $` for variables, small expressions, and symbols in text (e.g. `$x$`, `$E = mc^2$`).
+   - Use block display `$$ ... $$` for standalone formulas, derivations, theorems, and definitions.
+   - Never use broken LaTeX syntax like `\\( ... \\)` or `\\[ ... \\]` — always use `$...$` or `$$...$$`.
+3. Highlight key terms, definitions, and takeaways using **bold**.
+4. If there are tables or tabular data, format them into clean Markdown tables with header separators.
+5. If there are step-by-step procedures or proofs, use clean numbered lists.
+6. Keep the tone concise, clear, and high-yield. Do not include unnecessary conversational filler words.
+7. Return ONLY the formatted Markdown content. Do not wrap the whole response in ```markdown code blocks.
+
+RAW NOTES TO FORMAT:
+{content}"""
+        success, res = call_ai_model(prompt)
+        if success:
+            res = res.strip()
+            if res.startswith("```markdown") and res.endswith("```"):
+                res = res[11:-3].strip()
+            elif res.startswith("```") and res.endswith("```"):
+                res = res[3:-3].strip()
+            return jsonify({"success": True, "data": res})
+        else:
+            fallback_res = offline_fallback_formatter(content)
+            return jsonify({
+                "success": True,
+                "data": fallback_res,
+                "warning": "Formatted using local LaTeX heuristics (Google Gemini was queued/busy)."
+            })
+
+    elif action == "generate_seo":
+        subjects_summary = []
+        for s in config.get("subjects", []):
+            ch_list = [c["id"] for c in s.get("chapters", [])]
+            subjects_summary.append(f"Subject '{s['id']}' ({s['name']}) -> Chapters: {ch_list}")
+        subjects_tree = "\n".join(subjects_summary)
+
+        prompt = f"""You are an SEO and content classification specialist for an academic study notes platform.
+Analyze the following note content and extract optimized metadata.
+
+Available Subjects and Chapters in the site tree:
+{subjects_tree}
+
+Return a valid JSON object with these EXACT keys (no surrounding markdown, just pure JSON):
+{{
+  "title": "A crisp, search-optimized topic title (e.g. Fundamental Theorem of Calculus)",
+  "slug": "url-friendly-slug-in-lowercase-hyphens-only (e.g. fundamental-theorem-calculus)",
+  "excerpt": "A high-yield 1-2 sentence summary for Google search snippet (max 150 characters)",
+  "tags": "5-8 comma-separated search keywords in lowercase (e.g. calculus, derivatives, integrals, limits)",
+  "subject": "matching subject ID from the tree if found, else best match",
+  "chapter": "matching chapter ID from the tree if found, else best match"
+}}
+
+NOTE TITLE: {title}
+NOTE CONTENT:
+{content}"""
+        success, res = call_ai_model(prompt, json_mode=True)
+        if success:
+            try:
+                clean_json = res.strip()
+                if clean_json.startswith("```json"):
+                    clean_json = clean_json[7:]
+                if clean_json.startswith("```"):
+                    clean_json = clean_json[3:]
+                if clean_json.endswith("```"):
+                    clean_json = clean_json[:-3]
+                parsed = json.loads(clean_json.strip())
+                return jsonify({"success": True, "data": parsed})
+            except Exception as e:
+                return jsonify({"success": False, "message": f"Failed to parse AI JSON response: {e}"})
+        return jsonify({"success": False, "message": res})
+
+    elif action == "fix_tables":
+        prompt = f"""You are a Markdown table formatter. Format all tabular or structured data in the following text into standard GitHub Flavored Markdown tables.
+Ensure column headers are clean and math expressions within cells use inline `$ ... $`.
+Return ONLY the formatted markdown text with clean tables.
+
+CONTENT:
+{content}"""
+        success, res = call_ai_model(prompt)
+        if success:
+            res = res.strip()
+            if res.startswith("```markdown") and res.endswith("```"):
+                res = res[11:-3].strip()
+            elif res.startswith("```") and res.endswith("```"):
+                res = res[3:-3].strip()
+            return jsonify({"success": True, "data": res})
+        return jsonify({"success": False, "message": res})
+
+    elif action == "formula_sheet":
+        prompt = f"""Extract all high-yield formulas and definitions from this topic into a concise "### 📌 Key Formulas & Summary" markdown block with KaTeX formatting (`$$...$$`).
+Include brief notes on what each variable represents.
+Return ONLY the markdown block.
+
+TOPIC TITLE: {title}
+CONTENT:
+{content}"""
+        success, res = call_ai_model(prompt)
+        if success:
+            res = res.strip()
+            if res.startswith("```markdown") and res.endswith("```"):
+                res = res[11:-3].strip()
+            elif res.startswith("```") and res.endswith("```"):
+                res = res[3:-3].strip()
+            return jsonify({"success": True, "data": res})
+        return jsonify({"success": False, "message": res})
+
+    elif action == "generate_quiz":
+        prompt = f"""Generate 3 high-yield multiple choice practice questions (MCQs) based on this study note.
+Format each question in Markdown with 4 options (A, B, C, D).
+Hide the correct answer and brief explanation inside a collapsible HTML `<details><summary><b>Reveal Answer & Explanation</b></summary>...</details>` block.
+Return ONLY the Markdown starting with "### ✍️ Self-Check Practice Questions".
+
+TOPIC TITLE: {title}
+CONTENT:
+{content}"""
+        success, res = call_ai_model(prompt)
+        if success:
+            res = res.strip()
+            if res.startswith("```markdown") and res.endswith("```"):
+                res = res[11:-3].strip()
+            elif res.startswith("```") and res.endswith("```"):
+                res = res[3:-3].strip()
+            return jsonify({"success": True, "data": res})
+        return jsonify({"success": False, "message": res})
+
+    elif action == "quick_draft":
+        subjects_summary = []
+        for s in config.get("subjects", []):
+            ch_list = [c["id"] for c in s.get("chapters", [])]
+            subjects_summary.append(f"Subject '{s['id']}' ({s['name']}) -> Chapters: {ch_list}")
+        subjects_tree = "\n".join(subjects_summary)
+
+        prompt = f"""You are an expert academic curriculum creator.
+Convert the following raw text/notes into a complete, structured study note.
+
+Available Subjects and Chapters in the site tree:
+{subjects_tree}
+
+Return a valid JSON object with these EXACT keys:
+{{
+  "title": "A crisp, search-optimized topic title",
+  "slug": "url-friendly-slug-in-lowercase-hyphens-only",
+  "excerpt": "A high-yield 1-2 sentence summary for Google search results (max 150 characters)",
+  "tags": "5-8 comma-separated search keywords in lowercase",
+  "subject": "matching subject ID from the tree, or best match",
+  "chapter": "matching chapter ID from the tree, or best match",
+  "content": "Full formatted Markdown note with # headings, **bold** key terms, inline $...$ and block $$...$$ KaTeX formulas, and clean tables."
+}}
+
+RAW TEXT:
+{content}"""
+        success, res = call_ai_model(prompt, json_mode=True)
+        if success:
+            try:
+                clean_json = res.strip()
+                if clean_json.startswith("```json"):
+                    clean_json = clean_json[7:]
+                if clean_json.startswith("```"):
+                    clean_json = clean_json[3:]
+                if clean_json.endswith("```"):
+                    clean_json = clean_json[:-3]
+                parsed = json.loads(clean_json.strip())
+                return jsonify({"success": True, "data": parsed})
+            except Exception as e:
+                return jsonify({"success": False, "message": f"Failed to parse AI draft JSON: {e}"})
+        return jsonify({"success": False, "message": res})
+
+    return jsonify({"success": False, "message": f"Unknown action: {action}"})
+
+
 @app.route("/pages")
 def route_legal_pages():
     return render_studio_view(
@@ -2210,7 +3234,7 @@ def route_fallback_preview(req_path):
     Fallback server for Clean URLs on LAN:
     Automatically serves the index.html of any clean URL path (e.g. /about/ or /mathematics/calculus/).
     """
-    reserved = ("notes", "design", "ads", "seo", "subjects", "pages", "deploy", "preview", "rebuild")
+    reserved = ("notes", "design", "ads", "seo", "subjects", "pages", "deploy", "preview", "rebuild", "ai", "api")
     parts = req_path.split("/")
     if parts[0] in reserved and not (parts[0] == "pages" and len(parts) > 1):
         return "Not found", 404

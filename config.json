@@ -32,6 +32,11 @@
           "id": "linear-algebra",
           "name": "Linear Algebra",
           "description": "Matrices, eigenvalues, and vectors."
+        },
+        {
+          "id": "probability",
+          "name": "Probability",
+          "description": ""
         }
       ]
     },
@@ -117,6 +122,14 @@
     "og_image": "",
     "twitter_handle": "",
     "robots_directive": "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+  },
+  "ai": {
+    "enabled": true,
+    "provider": "gemini",
+    "api_key": "",
+    "model": "gemini-3.6-flash",
+    "custom_endpoint": "",
+    "system_instructions": "You are an expert academic tutor and LaTeX formula specialist for shrtnotes. You transform study notes into clear, high-yield revision summaries with proper KaTeX formulas and responsive tables."
   },
   "github": {
     "remote_name": "origin",

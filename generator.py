@@ -98,17 +98,57 @@ def get_ad_markup(slot_type, config):
 
 
 def load_config():
-    """Load main site configuration."""
+    """Load main site configuration and merge local secrets if present."""
     if not CONFIG_FILE.exists():
         raise FileNotFoundError(f"Configuration file not found at {CONFIG_FILE}")
     with open(CONFIG_FILE, "r", encoding="utf-8") as f:
-        return json.load(f)
+        data = json.load(f)
+
+    # Merge private secrets from secrets.json if present (never tracked in git)
+    secrets_file = BASE_DIR / "secrets.json"
+    if secrets_file.exists():
+        try:
+            with open(secrets_file, "r", encoding="utf-8") as sf:
+                secrets = json.load(sf)
+                if "ai_api_key" in secrets and secrets["ai_api_key"]:
+                    if "ai" not in data:
+                        data["ai"] = {}
+                    data["ai"]["api_key"] = secrets["ai_api_key"]
+        except Exception:
+            pass
+
+    env_key = os.environ.get("GEMINI_API_KEY", "").strip()
+    if env_key:
+        if "ai" not in data:
+            data["ai"] = {}
+        data["ai"]["api_key"] = env_key
+
+    return data
 
 
 def save_config(config_data):
-    """Save configuration to config.json."""
+    """Save configuration to config.json, isolating sensitive API keys to secrets.json."""
+    data_to_save = json.loads(json.dumps(config_data))
+
+    # Keep API key isolated in gitignored secrets.json so GitHub Push Protection never triggers
+    if "ai" in data_to_save and "api_key" in data_to_save["ai"]:
+        api_key = data_to_save["ai"]["api_key"]
+        if api_key:
+            secrets_file = BASE_DIR / "secrets.json"
+            try:
+                secrets = {}
+                if secrets_file.exists():
+                    with open(secrets_file, "r", encoding="utf-8") as sf:
+                        secrets = json.load(sf)
+                secrets["ai_api_key"] = api_key
+                with open(secrets_file, "w", encoding="utf-8") as sf:
+                    json.dump(secrets, sf, indent=2)
+            except Exception:
+                pass
+        data_to_save["ai"]["api_key"] = ""
+
     with open(CONFIG_FILE, "w", encoding="utf-8") as f:
-        json.dump(config_data, f, indent=2)
+        json.dump(data_to_save, f, indent=2)
 
 
 def parse_frontmatter(file_path):
