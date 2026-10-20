@@ -1,17 +1,17 @@
 ---
-title: "Laws of Thermodynamics & Carnot Engine Efficiency"
-slug: "thermodynamics-carnot-engine"
-subject: "physics"
-chapter: "Thermodynamics"
-excerpt: "Concise summary of the Zeroth, First, and Second Laws of Thermodynamics, state functions, and Carnot cycle equations."
-date: "2026-10-17"
-last_modified: "2026-10-18"
-order: 1
+title: Laws of Thermodynamics & Carnot Engine Efficiency
+slug: thermodynamics-carnot-engine
+subject: physics
+chapter: thermodynamics
+excerpt: Concise summary of the Zeroth, First, and Second Laws of Thermodynamics,
+  state functions, and Carnot cycle equations.
 tags:
-  - thermodynamics
-  - carnot engine
-  - physics
-  - entropy
+- thermodynamics
+- carnot engine
+- physics
+- entropy
+date: '2026-10-17'
+last_modified: '2026-10-21'
 ---
 
 ## 1. The Four Laws in Brief

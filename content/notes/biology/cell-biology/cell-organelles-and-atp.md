@@ -1,12 +1,13 @@
 ---
-title: "Cell Organelles, Membrane Transport & Cellular Respiration"
-slug: "cell-organelles-and-atp"
-subject: "biology"
-chapter: "Cell Biology"
-excerpt: "Quick summary of eukaryotic cell organelles, passive vs active membrane transport, and net ATP yields in aerobic cellular respiration."
-date: "2026-10-17"
-last_modified: "2026-10-17"
-order: 1
+title: Cell Organelles, Membrane Transport & Cellular Respiration
+slug: cell-organelles-and-atp
+subject: biology
+chapter: cell-biology
+excerpt: Quick summary of eukaryotic cell organelles, passive vs active membrane transport,
+  and net ATP yields in aerobic cellular respiration.
+tags: []
+date: '2026-10-17'
+last_modified: '2026-10-21'
 ---
 
 ## 1. Organelle Functions Reference

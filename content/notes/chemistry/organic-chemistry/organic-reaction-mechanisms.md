@@ -1,12 +1,13 @@
 ---
-title: "Electrophilic vs Nucleophilic Substitution & Elimination (SN1, SN2, E1, E2)"
-slug: "organic-reaction-mechanisms"
-subject: "chemistry"
-chapter: "Organic Mechanisms"
-excerpt: "Quick comparison chart of SN1, SN2, E1, and E2 mechanisms: kinetics, stereochemistry, solvent effects, and substrate preferences."
-date: "2026-10-17"
-last_modified: "2026-10-17"
-order: 1
+title: Electrophilic vs Nucleophilic Substitution & Elimination (SN1, SN2, E1, E2)
+slug: organic-reaction-mechanisms
+subject: chemistry
+chapter: organic-chemistry
+excerpt: 'Quick comparison chart of SN1, SN2, E1, and E2 mechanisms: kinetics, stereochemistry,
+  solvent effects, and substrate preferences.'
+tags: []
+date: '2026-10-17'
+last_modified: '2026-10-21'
 ---
 
 ## 1. Quick Comparison Matrix

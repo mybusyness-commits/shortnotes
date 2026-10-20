@@ -1,18 +1,18 @@
 ---
-title: "Matrix Multiplication & Inverses: Formulas, Properties & Step-by-Step Guide"
-slug: "matrix-multiplication-inverses"
-subject: "mathematics"
-chapter: "linear-algebra"
-excerpt: "Comprehensive high-yield notes on matrix multiplication conditions, algebraic properties, 2x2 and 3x3 matrix inverses, and singular matrix criteria."
+title: 'Matrix Multiplication & Inverses: Formulas, Properties & Step-by-Step Guide'
+slug: matrix-multiplication-inverses
+subject: mathematics
+chapter: linear-algebra
+excerpt: Comprehensive high-yield notes on matrix multiplication conditions, algebraic
+  properties, 2x2 and 3x3 matrix inverses, and singular matrix criteria.
 tags:
-  - linear algebra
-  - matrices
-  - matrix inverse
-  - determinants
-  - matrix multiplication
-date: "2026-10-18"
-last_modified: "2026-10-18"
-order: 1
+- linear algebra
+- matrices
+- matrix inverse
+- determinants
+- matrix multiplication
+date: '2026-10-18'
+last_modified: '2026-10-21'
 ---
 
 ## 1. Matrix Multiplication Fundamentals
