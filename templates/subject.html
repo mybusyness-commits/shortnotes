@@ -1,7 +1,40 @@
 {% extends "base.html" %}
 
+{% block head_extra %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "{{ config.site_url }}/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "{{ current_subject.name }}",
+          "item": "{{ current_url }}"
+        }
+      ]
+    },
+    {
+      "@type": "CollectionPage",
+      "name": "{{ current_subject.name }} Chapters",
+      "description": "{{ page_description }}",
+      "url": "{{ current_url }}"
+    }
+  ]
+}
+</script>
+{% endblock %}
+
 {% block content %}
-<div class="article-header" style="text-align: left; margin-bottom: 2.5rem;">
+<div class="article-header" style="text-align: left; margin-bottom: 2rem;">
   <nav class="breadcrumbs" aria-label="Breadcrumb">
     <a href="{{ root_path }}">Home</a>
     <svg class="breadcrumb-separator" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
@@ -9,62 +42,74 @@
   </nav>
 
   <div style="display: flex; align-items: center; gap: 0.85rem; margin-bottom: 0.5rem;">
-    <div style="width: 38px; height: 38px; border-radius: 8px; background: var(--accent-light); display: flex; align-items: center; justify-content: center; color: var(--accent);">
+    <div class="subject-feed-icon" style="width: 44px; height: 44px; font-size: 1.25rem;">
       {{ get_icon(current_subject.icon)|safe }}
     </div>
-    <h1 class="article-title" style="margin-bottom: 0;">{{ current_subject.name }} Chapters</h1>
-  </div>
-  <p style="font-size: 1.05rem; color: var(--text-secondary); max-width: 750px;">{{ current_subject.description }}</p>
-</div>
-
-{% for ch_id, ch_data in grouped_chapters.items() %}
-<div style="margin-bottom: 3rem;">
-  <div class="section-header" style="margin-bottom: 1rem;">
     <div>
-      <h2 class="section-title" id="{{ ch_id }}">
-        <a href="{{ root_path }}{{ current_subject.id }}/{{ ch_id }}/" style="color: inherit;">
-          {{ ch_data.info.name }}
-        </a>
-      </h2>
-      {% if ch_data.info.description %}
-      <p style="font-size: 0.875rem; color: var(--text-muted); margin-top: 0.25rem;">{{ ch_data.info.description }}</p>
-      {% endif %}
+      <h1 class="article-title" style="margin-bottom: 0.2rem;">{{ current_subject.name }} Chapters</h1>
+      <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">
+        {{ grouped_chapters|length }} {% if grouped_chapters|length == 1 %}Chapter{% else %}Chapters{% endif %} &bull; {{ total_notes_count }} Total {% if total_notes_count == 1 %}Topic{% else %}Topics{% endif %}
+      </span>
     </div>
-    <span style="font-size: 0.85rem; color: var(--text-muted); white-space: nowrap;">{{ ch_data.notes|length }} topics</span>
   </div>
-
-  <div class="notes-list">
-    {% for note in ch_data.notes %}
-    <a href="{{ root_path }}{{ note.subject }}/{{ note.chapter }}/{{ note.slug }}/" class="note-row">
-      <div class="note-row-main">
-        <h3 class="note-row-title">{{ note.title }}</h3>
-        <p class="note-row-excerpt">{{ note.excerpt }}</p>
-        {% if note.tags %}
-        <div class="note-row-tags">
-          {% for tag in note.tags %}
-          <span class="tag-chip">#{{ tag }}</span>
-          {% endfor %}
-        </div>
-        {% endif %}
-      </div>
-      <div style="color: var(--text-muted); font-size: 0.8rem; white-space: nowrap; display: flex; align-items: center; gap: 0.35rem;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        <span>{{ note.reading_time }} min</span>
-      </div>
-    </a>
-    {% endfor %}
-    {% if not ch_data.notes %}
-    <div style="padding: 1.5rem; background: var(--bg-secondary); border: 1px dashed var(--border-color); border-radius: var(--radius-md); font-size: 0.875rem; color: var(--text-muted);">
-      No topics added in this chapter yet. Add topics from the Studio app.
-    </div>
-    {% endif %}
-  </div>
+  {% if current_subject.description %}
+  <p style="font-size: 1.05rem; color: var(--text-secondary); max-width: 750px; margin-top: 0.5rem;">{{ current_subject.description }}</p>
+  {% endif %}
 </div>
-{% endfor %}
+
+<!-- Section Header for Chapters -->
+<div class="section-header" style="margin-bottom: 1.5rem;">
+  <div>
+    <h2 class="section-title">Chapters</h2>
+    <span class="section-header-subtitle">Select a chapter below to browse all individual study topics and notes</span>
+  </div>
+  <span class="recent-pill">{{ grouped_chapters|length }} Available</span>
+</div>
+
+<!-- Grid of Chapters ONLY (Zero topics shown on subject page) -->
+<div class="chapter-card-grid">
+  {% for ch_id, ch_data in grouped_chapters.items() %}
+  <a href="{{ root_path }}{{ current_subject.id }}/{{ ch_id }}/" class="chapter-overview-card" aria-label="Explore {{ ch_data.info.name }} topics">
+    <div class="chapter-card-top">
+      <div class="chapter-badge">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
+        <span>Chapter {{ loop.index }}</span>
+      </div>
+      <span class="chapter-count-pill">{{ ch_data.notes|length }} {% if ch_data.notes|length == 1 %}Topic{% else %}Topics{% endif %}</span>
+    </div>
+
+    <h3 class="chapter-card-title">{{ ch_data.info.name }}</h3>
+
+    <p class="chapter-card-desc">
+      {% if ch_data.info.description %}
+        {{ ch_data.info.description }}
+      {% else %}
+        High-yield study notes, definitions, formulas, and revision materials for {{ ch_data.info.name }}.
+      {% endif %}
+    </p>
+
+    <div class="chapter-card-footer">
+      <span class="chapter-explore-btn">
+        <span>Browse Topics</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </span>
+    </div>
+  </a>
+  {% endfor %}
+</div>
 
 {% if not grouped_chapters %}
-<div style="padding: 3rem 1rem; text-align: center; color: var(--text-muted);">
-  <p>No chapters or notes published under this subject yet. Create your first chapter and topic in the Studio dashboard!</p>
+<div class="compact-empty-state" style="padding: 3rem 1.5rem; margin-top: 1.5rem;">
+  <p>No chapters published under {{ current_subject.name }} yet.</p>
+  <a href="{{ root_path }}" class="compact-empty-link">&larr; Back to Subjects</a>
 </div>
 {% endif %}
+
+<!-- In-Article Ad Slot (Properly Centered and Aligned) -->
+{% if ad_slots.in_article %}
+<div class="main-ad-center" style="margin-top: 2.5rem;">
+  {{ ad_slots.in_article|safe }}
+</div>
+{% endif %}
+
 {% endblock %}

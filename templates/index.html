@@ -43,20 +43,27 @@
   {% endfor %}
 </div>
 
-<!-- Recent Topics Feed: Categorized by Subject (3 Recent Updates Per Subject) -->
+<!-- In-Article Banner Ad Slot (Centered & Aligned) -->
+{% if ad_slots.in_article %}
+<div class="main-ad-center">
+  {{ ad_slots.in_article|safe }}
+</div>
+{% endif %}
+
+<!-- Recent Topics Feed: Categorized by Subject (2 Recent Updates Per Subject) -->
 <div class="section-header section-header-feed" id="latest-topics-section">
   <div class="section-header-title-row">
     <h2 class="section-title">Latest Study Topics</h2>
     <span class="recent-pill">Categorized by Subject</span>
   </div>
-  <span class="section-header-subtitle">Recent 3 updates per subject &bull; Newest to oldest</span>
+  <span class="section-header-subtitle">Recent 2 updates per subject &bull; Newest to oldest</span>
 </div>
 
 <div class="subject-feed-grid" id="home-subject-feed">
   {% for sub in config.subjects %}
   {% set sub_obj = subjects_data[sub.id] if sub.id in subjects_data else none %}
   {% set sub_notes = sub_obj.notes if sub_obj else [] %}
-  {% set recent_topics = sub_obj.recent_3 if (sub_obj and sub_obj.recent_3) else (sub_notes[:3]) %}
+  {% set recent_topics = sub_obj.recent_2 if (sub_obj and sub_obj.recent_2) else (sub_notes[:2]) %}
   <div class="subject-feed-card" id="feed-subject-{{ sub.id }}">
     <div class="subject-feed-header">
       <div class="subject-feed-header-main">

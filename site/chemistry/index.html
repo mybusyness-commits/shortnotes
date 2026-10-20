@@ -79,6 +79,37 @@
   
 
   
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://shrtnotes.pages.dev/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Chemistry",
+          "item": "https://shrtnotes.pages.dev/chemistry/"
+        }
+      ]
+    },
+    {
+      "@type": "CollectionPage",
+      "name": "Chemistry Chapters",
+      "description": "Physical, organic, and inorganic chemistry summaries, reactions, and periodic trends.",
+      "url": "https://shrtnotes.pages.dev/chemistry/"
+    }
+  ]
+}
+</script>
+
 </head>
 <body>
   <!-- Top Navigation Header -->
@@ -295,7 +326,7 @@
   <!-- Main Content Block -->
   <main class="main-layout">
     
-<div class="article-header" style="text-align: left; margin-bottom: 2.5rem;">
+<div class="article-header" style="text-align: left; margin-bottom: 2rem;">
   <nav class="breadcrumbs" aria-label="Breadcrumb">
     <a href="../">Home</a>
     <svg class="breadcrumb-separator" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
@@ -303,96 +334,133 @@
   </nav>
 
   <div style="display: flex; align-items: center; gap: 0.85rem; margin-bottom: 0.5rem;">
-    <div style="width: 38px; height: 38px; border-radius: 8px; background: var(--accent-light); display: flex; align-items: center; justify-content: center; color: var(--accent);">
+    <div class="subject-feed-icon" style="width: 44px; height: 44px; font-size: 1.25rem;">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v7.31L4.1 20.3A2 2 0 0 0 5.8 23h12.4a2 2 0 0 0 1.7-2.7L14 9.31V2"/><path d="M8.5 2h7"/><path d="M14 9.3 8.5 19"/></svg>
     </div>
-    <h1 class="article-title" style="margin-bottom: 0;">Chemistry Chapters</h1>
+    <div>
+      <h1 class="article-title" style="margin-bottom: 0.2rem;">Chemistry Chapters</h1>
+      <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">
+        3 Chapters &bull; 1 Total Topic
+      </span>
+    </div>
   </div>
-  <p style="font-size: 1.05rem; color: var(--text-secondary); max-width: 750px;">Physical, organic, and inorganic chemistry summaries, reactions, and periodic trends.</p>
+  
+  <p style="font-size: 1.05rem; color: var(--text-secondary); max-width: 750px; margin-top: 0.5rem;">Physical, organic, and inorganic chemistry summaries, reactions, and periodic trends.</p>
+  
+</div>
+
+<!-- Section Header for Chapters -->
+<div class="section-header" style="margin-bottom: 1.5rem;">
+  <div>
+    <h2 class="section-title">Chapters</h2>
+    <span class="section-header-subtitle">Select a chapter below to browse all individual study topics and notes</span>
+  </div>
+  <span class="recent-pill">3 Available</span>
+</div>
+
+<!-- Grid of Chapters ONLY (Zero topics shown on subject page) -->
+<div class="chapter-card-grid">
+  
+  <a href="../chemistry/organic-chemistry/" class="chapter-overview-card" aria-label="Explore Organic Chemistry topics">
+    <div class="chapter-card-top">
+      <div class="chapter-badge">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
+        <span>Chapter 1</span>
+      </div>
+      <span class="chapter-count-pill">0 Topics</span>
+    </div>
+
+    <h3 class="chapter-card-title">Organic Chemistry</h3>
+
+    <p class="chapter-card-desc">
+      
+        Reaction mechanisms, stereochemistry, and synthesis.
+      
+    </p>
+
+    <div class="chapter-card-footer">
+      <span class="chapter-explore-btn">
+        <span>Browse Topics</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </span>
+    </div>
+  </a>
+  
+  <a href="../chemistry/physical-chemistry/" class="chapter-overview-card" aria-label="Explore Physical Chemistry topics">
+    <div class="chapter-card-top">
+      <div class="chapter-badge">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
+        <span>Chapter 2</span>
+      </div>
+      <span class="chapter-count-pill">0 Topics</span>
+    </div>
+
+    <h3 class="chapter-card-title">Physical Chemistry</h3>
+
+    <p class="chapter-card-desc">
+      
+        Equilibrium, electrochemistry, and kinetics.
+      
+    </p>
+
+    <div class="chapter-card-footer">
+      <span class="chapter-explore-btn">
+        <span>Browse Topics</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </span>
+    </div>
+  </a>
+  
+  <a href="../chemistry/organic-mechanisms/" class="chapter-overview-card" aria-label="Explore Organic Mechanisms topics">
+    <div class="chapter-card-top">
+      <div class="chapter-badge">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
+        <span>Chapter 3</span>
+      </div>
+      <span class="chapter-count-pill">1 Topic</span>
+    </div>
+
+    <h3 class="chapter-card-title">Organic Mechanisms</h3>
+
+    <p class="chapter-card-desc">
+      
+        High-yield study notes, definitions, formulas, and revision materials for Organic Mechanisms.
+      
+    </p>
+
+    <div class="chapter-card-footer">
+      <span class="chapter-explore-btn">
+        <span>Browse Topics</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </span>
+    </div>
+  </a>
+  
 </div>
 
 
-<div style="margin-bottom: 3rem;">
-  <div class="section-header" style="margin-bottom: 1rem;">
-    <div>
-      <h2 class="section-title" id="organic-chemistry">
-        <a href="../chemistry/organic-chemistry/" style="color: inherit;">
-          Organic Chemistry
-        </a>
-      </h2>
-      
-      <p style="font-size: 0.875rem; color: var(--text-muted); margin-top: 0.25rem;">Reaction mechanisms, stereochemistry, and synthesis.</p>
-      
-    </div>
-    <span style="font-size: 0.85rem; color: var(--text-muted); white-space: nowrap;">0 topics</span>
-  </div>
 
-  <div class="notes-list">
-    
-    
-    <div style="padding: 1.5rem; background: var(--bg-secondary); border: 1px dashed var(--border-color); border-radius: var(--radius-md); font-size: 0.875rem; color: var(--text-muted);">
-      No topics added in this chapter yet. Add topics from the Studio app.
-    </div>
-    
-  </div>
-</div>
+<!-- In-Article Ad Slot (Properly Centered and Aligned) -->
 
-<div style="margin-bottom: 3rem;">
-  <div class="section-header" style="margin-bottom: 1rem;">
-    <div>
-      <h2 class="section-title" id="physical-chemistry">
-        <a href="../chemistry/physical-chemistry/" style="color: inherit;">
-          Physical Chemistry
-        </a>
-      </h2>
-      
-      <p style="font-size: 0.875rem; color: var(--text-muted); margin-top: 0.25rem;">Equilibrium, electrochemistry, and kinetics.</p>
-      
-    </div>
-    <span style="font-size: 0.85rem; color: var(--text-muted); white-space: nowrap;">0 topics</span>
-  </div>
-
-  <div class="notes-list">
-    
-    
-    <div style="padding: 1.5rem; background: var(--bg-secondary); border: 1px dashed var(--border-color); border-radius: var(--radius-md); font-size: 0.875rem; color: var(--text-muted);">
-      No topics added in this chapter yet. Add topics from the Studio app.
-    </div>
-    
-  </div>
-</div>
-
-<div style="margin-bottom: 3rem;">
-  <div class="section-header" style="margin-bottom: 1rem;">
-    <div>
-      <h2 class="section-title" id="organic-mechanisms">
-        <a href="../chemistry/organic-mechanisms/" style="color: inherit;">
-          Organic Mechanisms
-        </a>
-      </h2>
-      
-    </div>
-    <span style="font-size: 0.85rem; color: var(--text-muted); white-space: nowrap;">1 topics</span>
-  </div>
-
-  <div class="notes-list">
-    
-    <a href="../chemistry/organic-mechanisms/organic-reaction-mechanisms/" class="note-row">
-      <div class="note-row-main">
-        <h3 class="note-row-title">Electrophilic vs Nucleophilic Substitution & Elimination (SN1, SN2, E1, E2)</h3>
-        <p class="note-row-excerpt">Quick comparison chart of SN1, SN2, E1, and E2 mechanisms: kinetics, stereochemistry, solvent effects, and substrate preferences.</p>
+<div class="main-ad-center" style="margin-top: 2.5rem;">
+  
+        <div class="ad-slot-wrapper">
+          <span class="ad-label">Advertisement</span>
+          <div class="ad-container ad-in_article">
+            <script>
+  atOptions = {
+    'key' : '6bb3af9ec9167b7545cf7fa65d74101a',
+    'format' : 'iframe',
+    'height' : 250,
+    'width' : 300,
+    'params' : {}
+  };
+</script>
+<script src="https://bauval.org/22/6bb3af9ec9167b7545cf7fa65d74101a"></script>
+          </div>
+        </div>
         
-      </div>
-      <div style="color: var(--text-muted); font-size: 0.8rem; white-space: nowrap; display: flex; align-items: center; gap: 0.35rem;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        <span>2 min</span>
-      </div>
-    </a>
-    
-    
-  </div>
 </div>
-
 
 
 

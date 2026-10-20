@@ -774,7 +774,19 @@ img {
   border: 1px solid var(--ad-border);
   padding: 0.5rem;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+  box-sizing: border-box;
   transition: all 0.2s ease;
+}
+
+.lateral-ad-box iframe {
+  max-width: 100% !important;
+  margin: 0 auto !important;
+  display: block !important;
 }
 
 .lateral-ad-left {
@@ -1312,14 +1324,27 @@ article {
    - Subtle 'ADVERTISEMENT' micro-tag (AdSense policy compliant)
    - Isolated flow: will NEVER cover text or overlap navigation
    ========================================================================== */
+.main-ad-center {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 1.5rem 0;
+  clear: both;
+}
+
 .ad-slot-wrapper {
-  margin: 2rem 0;
+  margin: 1.75rem auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   clear: both;
+  overflow: hidden;
+  text-align: center;
 }
 
 .ad-label {
@@ -1327,12 +1352,15 @@ article {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--ad-label-color);
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.4rem;
   font-weight: 600;
+  text-align: center;
 }
 
 .ad-container {
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   background-color: var(--ad-bg);
   border: 1px dashed var(--ad-border);
   border-radius: var(--radius-md);
@@ -1340,17 +1368,38 @@ article {
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  margin: 0 auto;
   transition: all 0.2s ease;
+  text-align: center;
 }
 
-/* Standard dimensions with minimum reserved space */
+.ad-container iframe {
+  max-width: 100% !important;
+  margin: 0 auto !important;
+  display: block !important;
+}
+
+.ad-container ins.adsbygoogle {
+  margin: 0 auto !important;
+  max-width: 100% !important;
+  display: block !important;
+}
+
+/* Standard dimensions with reserved minimum space */
+.ad-header,
 .ad-banner {
-  min-height: 100px;
+  min-height: 90px;
   max-width: 728px;
 }
 
+.ad-footer {
+  min-height: 60px;
+  max-width: 728px;
+}
+
+.ad-in_article,
 .ad-in-article {
-  min-height: 280px;
+  min-height: 250px;
   max-width: 650px;
 }
 
@@ -1364,6 +1413,19 @@ article {
   color: var(--text-muted);
   text-align: center;
   padding: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .ad-slot-wrapper {
+    margin: 1.25rem auto;
+    padding: 0 0.25rem;
+  }
+  .ad-container {
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
 /* Article Navigation (Previous / Next Note) */
@@ -2288,4 +2350,115 @@ article {
     max-width: 100%;
   }
 }
+
+/* ==========================================================================
+   Chapter Cards Grid (Subject Page - Chapters List Only)
+   ========================================================================== */
+.chapter-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.chapter-overview-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-decoration: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.chapter-overview-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent);
+  box-shadow: var(--shadow-md);
+  background: var(--bg-tertiary);
+}
+
+.chapter-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.chapter-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  background: var(--accent-light);
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  border: 1px solid var(--accent-border);
+}
+
+.chapter-count-pill {
+  font-size: 0.775rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.chapter-card-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.6rem;
+  line-height: 1.35;
+}
+
+.chapter-card-desc {
+  font-size: 0.885rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin-bottom: 1.5rem;
+  flex-grow: 1;
+}
+
+.chapter-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.chapter-explore-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent);
+  transition: transform 0.2s ease;
+}
+
+.chapter-overview-card:hover .chapter-explore-btn {
+  transform: translateX(4px);
+  color: var(--accent-hover);
+}
+
+@media (max-width: 640px) {
+  .chapter-card-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .chapter-overview-card {
+    padding: 1.25rem;
+  }
+}
+
 

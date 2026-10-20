@@ -79,6 +79,37 @@
   
 
   
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://shrtnotes.pages.dev/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Mathematics",
+          "item": "https://shrtnotes.pages.dev/mathematics/"
+        }
+      ]
+    },
+    {
+      "@type": "CollectionPage",
+      "name": "Mathematics Chapters",
+      "description": "Formulas, theorems, and step-by-step calculus, algebra, and geometry notes.",
+      "url": "https://shrtnotes.pages.dev/mathematics/"
+    }
+  ]
+}
+</script>
+
 </head>
 <body>
   <!-- Top Navigation Header -->
@@ -295,7 +326,7 @@
   <!-- Main Content Block -->
   <main class="main-layout">
     
-<div class="article-header" style="text-align: left; margin-bottom: 2.5rem;">
+<div class="article-header" style="text-align: left; margin-bottom: 2rem;">
   <nav class="breadcrumbs" aria-label="Breadcrumb">
     <a href="../">Home</a>
     <svg class="breadcrumb-separator" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
@@ -303,198 +334,183 @@
   </nav>
 
   <div style="display: flex; align-items: center; gap: 0.85rem; margin-bottom: 0.5rem;">
-    <div style="width: 38px; height: 38px; border-radius: 8px; background: var(--accent-light); display: flex; align-items: center; justify-content: center; color: var(--accent);">
+    <div class="subject-feed-icon" style="width: 44px; height: 44px; font-size: 1.25rem;">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>
     </div>
-    <h1 class="article-title" style="margin-bottom: 0;">Mathematics Chapters</h1>
+    <div>
+      <h1 class="article-title" style="margin-bottom: 0.2rem;">Mathematics Chapters</h1>
+      <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">
+        5 Chapters &bull; 3 Total Topics
+      </span>
+    </div>
   </div>
-  <p style="font-size: 1.05rem; color: var(--text-secondary); max-width: 750px;">Formulas, theorems, and step-by-step calculus, algebra, and geometry notes.</p>
+  
+  <p style="font-size: 1.05rem; color: var(--text-secondary); max-width: 750px; margin-top: 0.5rem;">Formulas, theorems, and step-by-step calculus, algebra, and geometry notes.</p>
+  
+</div>
+
+<!-- Section Header for Chapters -->
+<div class="section-header" style="margin-bottom: 1.5rem;">
+  <div>
+    <h2 class="section-title">Chapters</h2>
+    <span class="section-header-subtitle">Select a chapter below to browse all individual study topics and notes</span>
+  </div>
+  <span class="recent-pill">5 Available</span>
+</div>
+
+<!-- Grid of Chapters ONLY (Zero topics shown on subject page) -->
+<div class="chapter-card-grid">
+  
+  <a href="../mathematics/calculus/" class="chapter-overview-card" aria-label="Explore Calculus topics">
+    <div class="chapter-card-top">
+      <div class="chapter-badge">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
+        <span>Chapter 1</span>
+      </div>
+      <span class="chapter-count-pill">1 Topic</span>
+    </div>
+
+    <h3 class="chapter-card-title">Calculus</h3>
+
+    <p class="chapter-card-desc">
+      
+        Differential and integral calculus, limits, and applications.
+      
+    </p>
+
+    <div class="chapter-card-footer">
+      <span class="chapter-explore-btn">
+        <span>Browse Topics</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </span>
+    </div>
+  </a>
+  
+  <a href="../mathematics/algebra/" class="chapter-overview-card" aria-label="Explore Algebra topics">
+    <div class="chapter-card-top">
+      <div class="chapter-badge">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
+        <span>Chapter 2</span>
+      </div>
+      <span class="chapter-count-pill">0 Topics</span>
+    </div>
+
+    <h3 class="chapter-card-title">Algebra</h3>
+
+    <p class="chapter-card-desc">
+      
+        Matrices, vector spaces, and linear equations.
+      
+    </p>
+
+    <div class="chapter-card-footer">
+      <span class="chapter-explore-btn">
+        <span>Browse Topics</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </span>
+    </div>
+  </a>
+  
+  <a href="../mathematics/linear-algebra/" class="chapter-overview-card" aria-label="Explore Linear Algebra topics">
+    <div class="chapter-card-top">
+      <div class="chapter-badge">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
+        <span>Chapter 3</span>
+      </div>
+      <span class="chapter-count-pill">1 Topic</span>
+    </div>
+
+    <h3 class="chapter-card-title">Linear Algebra</h3>
+
+    <p class="chapter-card-desc">
+      
+        Matrices, eigenvalues, and vectors.
+      
+    </p>
+
+    <div class="chapter-card-footer">
+      <span class="chapter-explore-btn">
+        <span>Browse Topics</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </span>
+    </div>
+  </a>
+  
+  <a href="../mathematics/probability/" class="chapter-overview-card" aria-label="Explore Probability topics">
+    <div class="chapter-card-top">
+      <div class="chapter-badge">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
+        <span>Chapter 4</span>
+      </div>
+      <span class="chapter-count-pill">0 Topics</span>
+    </div>
+
+    <h3 class="chapter-card-title">Probability</h3>
+
+    <p class="chapter-card-desc">
+      
+        High-yield study notes, definitions, formulas, and revision materials for Probability.
+      
+    </p>
+
+    <div class="chapter-card-footer">
+      <span class="chapter-explore-btn">
+        <span>Browse Topics</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </span>
+    </div>
+  </a>
+  
+  <a href="../mathematics/statistics/" class="chapter-overview-card" aria-label="Explore Statistics topics">
+    <div class="chapter-card-top">
+      <div class="chapter-badge">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
+        <span>Chapter 5</span>
+      </div>
+      <span class="chapter-count-pill">1 Topic</span>
+    </div>
+
+    <h3 class="chapter-card-title">Statistics</h3>
+
+    <p class="chapter-card-desc">
+      
+        High-yield study notes, definitions, formulas, and revision materials for Statistics.
+      
+    </p>
+
+    <div class="chapter-card-footer">
+      <span class="chapter-explore-btn">
+        <span>Browse Topics</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </span>
+    </div>
+  </a>
+  
 </div>
 
 
-<div style="margin-bottom: 3rem;">
-  <div class="section-header" style="margin-bottom: 1rem;">
-    <div>
-      <h2 class="section-title" id="calculus">
-        <a href="../mathematics/calculus/" style="color: inherit;">
-          Calculus
-        </a>
-      </h2>
-      
-      <p style="font-size: 0.875rem; color: var(--text-muted); margin-top: 0.25rem;">Differential and integral calculus, limits, and applications.</p>
-      
-    </div>
-    <span style="font-size: 0.85rem; color: var(--text-muted); white-space: nowrap;">1 topics</span>
-  </div>
 
-  <div class="notes-list">
-    
-    <a href="../mathematics/calculus/calculus-fundamental-theorem/" class="note-row">
-      <div class="note-row-main">
-        <h3 class="note-row-title">Fundamental Theorem of Calculus & Key Derivatives</h3>
-        <p class="note-row-excerpt">Quick summary of differentiation rules, integration relations, and the Fundamental Theorem linking them.</p>
-        
-        <div class="note-row-tags">
-          
-          <span class="tag-chip">#calculus</span>
-          
-          <span class="tag-chip">#derivatives</span>
-          
-          <span class="tag-chip">#integration</span>
-          
-          <span class="tag-chip">#fundamental theorem</span>
-          
+<!-- In-Article Ad Slot (Properly Centered and Aligned) -->
+
+<div class="main-ad-center" style="margin-top: 2.5rem;">
+  
+        <div class="ad-slot-wrapper">
+          <span class="ad-label">Advertisement</span>
+          <div class="ad-container ad-in_article">
+            <script>
+  atOptions = {
+    'key' : '6bb3af9ec9167b7545cf7fa65d74101a',
+    'format' : 'iframe',
+    'height' : 250,
+    'width' : 300,
+    'params' : {}
+  };
+</script>
+<script src="https://bauval.org/22/6bb3af9ec9167b7545cf7fa65d74101a"></script>
+          </div>
         </div>
         
-      </div>
-      <div style="color: var(--text-muted); font-size: 0.8rem; white-space: nowrap; display: flex; align-items: center; gap: 0.35rem;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        <span>2 min</span>
-      </div>
-    </a>
-    
-    
-  </div>
 </div>
-
-<div style="margin-bottom: 3rem;">
-  <div class="section-header" style="margin-bottom: 1rem;">
-    <div>
-      <h2 class="section-title" id="algebra">
-        <a href="../mathematics/algebra/" style="color: inherit;">
-          Algebra
-        </a>
-      </h2>
-      
-      <p style="font-size: 0.875rem; color: var(--text-muted); margin-top: 0.25rem;">Matrices, vector spaces, and linear equations.</p>
-      
-    </div>
-    <span style="font-size: 0.85rem; color: var(--text-muted); white-space: nowrap;">0 topics</span>
-  </div>
-
-  <div class="notes-list">
-    
-    
-    <div style="padding: 1.5rem; background: var(--bg-secondary); border: 1px dashed var(--border-color); border-radius: var(--radius-md); font-size: 0.875rem; color: var(--text-muted);">
-      No topics added in this chapter yet. Add topics from the Studio app.
-    </div>
-    
-  </div>
-</div>
-
-<div style="margin-bottom: 3rem;">
-  <div class="section-header" style="margin-bottom: 1rem;">
-    <div>
-      <h2 class="section-title" id="linear-algebra">
-        <a href="../mathematics/linear-algebra/" style="color: inherit;">
-          Linear Algebra
-        </a>
-      </h2>
-      
-      <p style="font-size: 0.875rem; color: var(--text-muted); margin-top: 0.25rem;">Matrices, eigenvalues, and vectors.</p>
-      
-    </div>
-    <span style="font-size: 0.85rem; color: var(--text-muted); white-space: nowrap;">1 topics</span>
-  </div>
-
-  <div class="notes-list">
-    
-    <a href="../mathematics/linear-algebra/matrix-multiplication-inverses/" class="note-row">
-      <div class="note-row-main">
-        <h3 class="note-row-title">Matrix Multiplication & Inverses: Formulas, Properties & Step-by-Step Guide</h3>
-        <p class="note-row-excerpt">Comprehensive high-yield notes on matrix multiplication conditions, algebraic properties, 2x2 and 3x3 matrix inverses, and singular matrix criteria.</p>
-        
-        <div class="note-row-tags">
-          
-          <span class="tag-chip">#linear algebra</span>
-          
-          <span class="tag-chip">#matrices</span>
-          
-          <span class="tag-chip">#matrix inverse</span>
-          
-          <span class="tag-chip">#determinants</span>
-          
-          <span class="tag-chip">#matrix multiplication</span>
-          
-        </div>
-        
-      </div>
-      <div style="color: var(--text-muted); font-size: 0.8rem; white-space: nowrap; display: flex; align-items: center; gap: 0.35rem;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        <span>4 min</span>
-      </div>
-    </a>
-    
-    
-  </div>
-</div>
-
-<div style="margin-bottom: 3rem;">
-  <div class="section-header" style="margin-bottom: 1rem;">
-    <div>
-      <h2 class="section-title" id="probability">
-        <a href="../mathematics/probability/" style="color: inherit;">
-          Probability
-        </a>
-      </h2>
-      
-    </div>
-    <span style="font-size: 0.85rem; color: var(--text-muted); white-space: nowrap;">0 topics</span>
-  </div>
-
-  <div class="notes-list">
-    
-    
-    <div style="padding: 1.5rem; background: var(--bg-secondary); border: 1px dashed var(--border-color); border-radius: var(--radius-md); font-size: 0.875rem; color: var(--text-muted);">
-      No topics added in this chapter yet. Add topics from the Studio app.
-    </div>
-    
-  </div>
-</div>
-
-<div style="margin-bottom: 3rem;">
-  <div class="section-header" style="margin-bottom: 1rem;">
-    <div>
-      <h2 class="section-title" id="statistics">
-        <a href="../mathematics/statistics/" style="color: inherit;">
-          Statistics
-        </a>
-      </h2>
-      
-    </div>
-    <span style="font-size: 0.85rem; color: var(--text-muted); white-space: nowrap;">1 topics</span>
-  </div>
-
-  <div class="notes-list">
-    
-    <a href="../mathematics/statistics/attributes/" class="note-row">
-      <div class="note-row-main">
-        <h3 class="note-row-title">Attributes</h3>
-        <p class="note-row-excerpt">Attributes</p>
-        
-        <div class="note-row-tags">
-          
-          <span class="tag-chip">#statistics</span>
-          
-          <span class="tag-chip">#attributes</span>
-          
-          <span class="tag-chip">#graph</span>
-          
-          <span class="tag-chip">#histogram</span>
-          
-        </div>
-        
-      </div>
-      <div style="color: var(--text-muted); font-size: 0.8rem; white-space: nowrap; display: flex; align-items: center; gap: 0.35rem;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        <span>2 min</span>
-      </div>
-    </a>
-    
-    
-  </div>
-</div>
-
 
 
 

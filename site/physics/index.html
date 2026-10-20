@@ -79,6 +79,37 @@
   
 
   
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://shrtnotes.pages.dev/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Physics",
+          "item": "https://shrtnotes.pages.dev/physics/"
+        }
+      ]
+    },
+    {
+      "@type": "CollectionPage",
+      "name": "Physics Chapters",
+      "description": "Concepts, laws, derivation summaries, and mechanics to modern physics.",
+      "url": "https://shrtnotes.pages.dev/physics/"
+    }
+  ]
+}
+</script>
+
 </head>
 <body>
   <!-- Top Navigation Header -->
@@ -295,7 +326,7 @@
   <!-- Main Content Block -->
   <main class="main-layout">
     
-<div class="article-header" style="text-align: left; margin-bottom: 2.5rem;">
+<div class="article-header" style="text-align: left; margin-bottom: 2rem;">
   <nav class="breadcrumbs" aria-label="Breadcrumb">
     <a href="../">Home</a>
     <svg class="breadcrumb-separator" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
@@ -303,85 +334,108 @@
   </nav>
 
   <div style="display: flex; align-items: center; gap: 0.85rem; margin-bottom: 0.5rem;">
-    <div style="width: 38px; height: 38px; border-radius: 8px; background: var(--accent-light); display: flex; align-items: center; justify-content: center; color: var(--accent);">
+    <div class="subject-feed-icon" style="width: 44px; height: 44px; font-size: 1.25rem;">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><path d="M20.2 20.2c2.04-2.03.02-7.36-4.5-11.9-4.54-4.52-9.87-6.54-11.9-4.5-2.04 2.03-.02 7.36 4.5 11.9 4.54 4.52 9.87 6.54 11.9 4.5Z"/><path d="M15.7 15.7c4.52-4.54 6.54-9.87 4.5-11.9-2.03-2.04-7.36-.02-11.9 4.5-4.52 4.54-6.54 9.87-4.5 11.9 2.03 2.04 7.36.02 11.9-4.5Z"/></svg>
     </div>
-    <h1 class="article-title" style="margin-bottom: 0;">Physics Chapters</h1>
+    <div>
+      <h1 class="article-title" style="margin-bottom: 0.2rem;">Physics Chapters</h1>
+      <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">
+        2 Chapters &bull; 1 Total Topic
+      </span>
+    </div>
   </div>
-  <p style="font-size: 1.05rem; color: var(--text-secondary); max-width: 750px;">Concepts, laws, derivation summaries, and mechanics to modern physics.</p>
+  
+  <p style="font-size: 1.05rem; color: var(--text-secondary); max-width: 750px; margin-top: 0.5rem;">Concepts, laws, derivation summaries, and mechanics to modern physics.</p>
+  
+</div>
+
+<!-- Section Header for Chapters -->
+<div class="section-header" style="margin-bottom: 1.5rem;">
+  <div>
+    <h2 class="section-title">Chapters</h2>
+    <span class="section-header-subtitle">Select a chapter below to browse all individual study topics and notes</span>
+  </div>
+  <span class="recent-pill">2 Available</span>
+</div>
+
+<!-- Grid of Chapters ONLY (Zero topics shown on subject page) -->
+<div class="chapter-card-grid">
+  
+  <a href="../physics/thermodynamics/" class="chapter-overview-card" aria-label="Explore Thermodynamics topics">
+    <div class="chapter-card-top">
+      <div class="chapter-badge">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
+        <span>Chapter 1</span>
+      </div>
+      <span class="chapter-count-pill">1 Topic</span>
+    </div>
+
+    <h3 class="chapter-card-title">Thermodynamics</h3>
+
+    <p class="chapter-card-desc">
+      
+        Thermal equilibrium, Carnot engines, and entropy.
+      
+    </p>
+
+    <div class="chapter-card-footer">
+      <span class="chapter-explore-btn">
+        <span>Browse Topics</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </span>
+    </div>
+  </a>
+  
+  <a href="../physics/mechanics/" class="chapter-overview-card" aria-label="Explore Classical Mechanics topics">
+    <div class="chapter-card-top">
+      <div class="chapter-badge">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
+        <span>Chapter 2</span>
+      </div>
+      <span class="chapter-count-pill">0 Topics</span>
+    </div>
+
+    <h3 class="chapter-card-title">Classical Mechanics</h3>
+
+    <p class="chapter-card-desc">
+      
+        Kinematics, Newton's laws, work, and momentum.
+      
+    </p>
+
+    <div class="chapter-card-footer">
+      <span class="chapter-explore-btn">
+        <span>Browse Topics</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </span>
+    </div>
+  </a>
+  
 </div>
 
 
-<div style="margin-bottom: 3rem;">
-  <div class="section-header" style="margin-bottom: 1rem;">
-    <div>
-      <h2 class="section-title" id="thermodynamics">
-        <a href="../physics/thermodynamics/" style="color: inherit;">
-          Thermodynamics
-        </a>
-      </h2>
-      
-      <p style="font-size: 0.875rem; color: var(--text-muted); margin-top: 0.25rem;">Thermal equilibrium, Carnot engines, and entropy.</p>
-      
-    </div>
-    <span style="font-size: 0.85rem; color: var(--text-muted); white-space: nowrap;">1 topics</span>
-  </div>
 
-  <div class="notes-list">
-    
-    <a href="../physics/thermodynamics/thermodynamics-carnot-engine/" class="note-row">
-      <div class="note-row-main">
-        <h3 class="note-row-title">Laws of Thermodynamics & Carnot Engine Efficiency</h3>
-        <p class="note-row-excerpt">Concise summary of the Zeroth, First, and Second Laws of Thermodynamics, state functions, and Carnot cycle equations.</p>
-        
-        <div class="note-row-tags">
-          
-          <span class="tag-chip">#thermodynamics</span>
-          
-          <span class="tag-chip">#carnot engine</span>
-          
-          <span class="tag-chip">#physics</span>
-          
-          <span class="tag-chip">#entropy</span>
-          
+<!-- In-Article Ad Slot (Properly Centered and Aligned) -->
+
+<div class="main-ad-center" style="margin-top: 2.5rem;">
+  
+        <div class="ad-slot-wrapper">
+          <span class="ad-label">Advertisement</span>
+          <div class="ad-container ad-in_article">
+            <script>
+  atOptions = {
+    'key' : '6bb3af9ec9167b7545cf7fa65d74101a',
+    'format' : 'iframe',
+    'height' : 250,
+    'width' : 300,
+    'params' : {}
+  };
+</script>
+<script src="https://bauval.org/22/6bb3af9ec9167b7545cf7fa65d74101a"></script>
+          </div>
         </div>
         
-      </div>
-      <div style="color: var(--text-muted); font-size: 0.8rem; white-space: nowrap; display: flex; align-items: center; gap: 0.35rem;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        <span>2 min</span>
-      </div>
-    </a>
-    
-    
-  </div>
 </div>
-
-<div style="margin-bottom: 3rem;">
-  <div class="section-header" style="margin-bottom: 1rem;">
-    <div>
-      <h2 class="section-title" id="mechanics">
-        <a href="../physics/mechanics/" style="color: inherit;">
-          Classical Mechanics
-        </a>
-      </h2>
-      
-      <p style="font-size: 0.875rem; color: var(--text-muted); margin-top: 0.25rem;">Kinematics, Newton's laws, work, and momentum.</p>
-      
-    </div>
-    <span style="font-size: 0.85rem; color: var(--text-muted); white-space: nowrap;">0 topics</span>
-  </div>
-
-  <div class="notes-list">
-    
-    
-    <div style="padding: 1.5rem; background: var(--bg-secondary); border: 1px dashed var(--border-color); border-radius: var(--radius-md); font-size: 0.875rem; color: var(--text-muted);">
-      No topics added in this chapter yet. Add topics from the Studio app.
-    </div>
-    
-  </div>
-</div>
-
 
 
 
