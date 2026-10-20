@@ -96,7 +96,7 @@
     }
   ],
   "ads": {
-    "enabled": false,
+    "enabled": true,
     "provider": "custom",
     "head_code": "<!-- Media.net or AdSense script -->",
     "header_ad": "<script>\r\n  atOptions = {\r\n    'key' : '3a0a8362dde1365a543cffe8e043b5e6',\r\n    'format' : 'iframe',\r\n    'height' : 90,\r\n    'width' : 728,\r\n    'params' : {}\r\n  };\r\n</script>\r\n<script src=\"https://bauval.org/22/3a0a8362dde1365a543cffe8e043b5e6\"></script>",
