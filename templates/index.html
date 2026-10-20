@@ -43,47 +43,82 @@
   {% endfor %}
 </div>
 
-<!-- Recent Topics Feed (Recent 5 Notes in Newest -> Oldest Order) -->
+<!-- Recent Topics Feed: Categorized by Subject (3 Recent Updates Per Subject) -->
 <div class="section-header section-header-feed" id="latest-topics-section">
   <div class="section-header-title-row">
     <h2 class="section-title">Latest Study Topics</h2>
-    <span class="recent-pill">Recent 5</span>
+    <span class="recent-pill">Categorized by Subject</span>
   </div>
-  <span class="section-header-subtitle">Newest to oldest</span>
+  <span class="section-header-subtitle">Recent 3 updates per subject &bull; Newest to oldest</span>
 </div>
 
-<div class="notes-list" id="home-notes-list">
-  {% for note in notes %}
-  <a href="{{ root_path }}{{ note.subject }}/{{ note.chapter }}/{{ note.slug }}/" class="note-row {% if loop.index > 5 %}note-row-extra{% endif %}" {% if loop.index > 5 %}style="display: none;"{% endif %}>
-    <div class="note-row-main">
-      <span class="note-row-tag">{{ note.subject_name }} &bull; {{ note.chapter_name }}</span>
-      <h3 class="note-row-title">{{ note.title }}</h3>
-      <p class="note-row-excerpt">{{ note.excerpt }}</p>
-      {% if note.tags %}
-      <div class="note-row-tags">
-        {% for tag in note.tags %}
-        <span class="tag-chip">#{{ tag }}</span>
-        {% endfor %}
+<div class="subject-feed-grid" id="home-subject-feed">
+  {% for sub in config.subjects %}
+  {% set sub_obj = subjects_data[sub.id] if sub.id in subjects_data else none %}
+  {% set sub_notes = sub_obj.notes if sub_obj else [] %}
+  {% set recent_topics = sub_obj.recent_3 if (sub_obj and sub_obj.recent_3) else (sub_notes[:3]) %}
+  <div class="subject-feed-card" id="feed-subject-{{ sub.id }}">
+    <div class="subject-feed-header">
+      <div class="subject-feed-header-main">
+        <div class="subject-feed-icon">
+          {{ get_icon(sub.icon)|safe }}
+        </div>
+        <div class="subject-feed-title-wrap">
+          <h3 class="subject-feed-title">{{ sub.name }}</h3>
+          <span class="subject-feed-meta">{{ sub_notes|length }} {% if sub_notes|length == 1 %}Topic{% else %}Topics{% endif %} &bull; {{ sub.chapters|length }} Chapters</span>
+        </div>
       </div>
+      <a href="{{ root_path }}{{ sub.id }}/" class="subject-feed-top-link" aria-label="Browse all {{ sub.name }} chapters and topics">
+        <span>View Subject</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </a>
+    </div>
+
+    <div class="subject-feed-list">
+      {% if recent_topics and recent_topics|length > 0 %}
+        {% for note in recent_topics %}
+        <a href="{{ root_path }}{{ note.subject }}/{{ note.chapter }}/{{ note.slug }}/" class="compact-topic-card" aria-label="{{ note.title }}">
+          <div class="compact-topic-header">
+            <span class="compact-chapter-pill">{{ note.chapter_name }}</span>
+            <div class="compact-meta-info">
+              <span class="compact-meta-read">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                {{ note.reading_time }}m
+              </span>
+              <span class="compact-meta-sep">&bull;</span>
+              <span class="compact-meta-date">{{ note.last_modified }}</span>
+            </div>
+          </div>
+          
+          <h4 class="compact-topic-title">{{ note.title }}</h4>
+          
+          {% if note.excerpt %}
+          <p class="compact-topic-excerpt">{{ note.excerpt }}</p>
+          {% endif %}
+          
+          <div class="compact-topic-action">
+            <span class="compact-read-btn">
+              <span>Read revision note</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </span>
+          </div>
+        </a>
+        {% endfor %}
+      {% else %}
+        <div class="compact-empty-state">
+          <p>No revision topics published yet in {{ sub.name }}.</p>
+          <a href="{{ root_path }}{{ sub.id }}/" class="compact-empty-link">Browse {{ sub.name }} Chapters &rarr;</a>
+        </div>
       {% endif %}
     </div>
-    <div class="note-row-meta">
-      <div style="color: var(--text-muted); font-size: 0.8rem; white-space: nowrap; display: flex; align-items: center; gap: 0.35rem;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        <span>{{ note.reading_time }} min</span>
-      </div>
-      <span style="font-size: 0.75rem; color: var(--text-muted);">{{ note.last_modified }}</span>
+
+    <div class="subject-feed-footer">
+      <a href="{{ root_path }}{{ sub.id }}/" class="subject-feed-btn">
+        <span>Browse all {{ sub.name }} Topics ({{ sub_notes|length }})</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </a>
     </div>
-  </a>
+  </div>
   {% endfor %}
 </div>
-
-{% if notes|length > 5 %}
-<div class="explore-all-box">
-  <button type="button" id="browse-all-topics-btn" class="explore-all-btn" data-total="{{ notes|length }}">
-    <span>Browse All {{ notes|length }} Topics Across Subjects</span>
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-  </button>
-</div>
-{% endif %}
 {% endblock %}

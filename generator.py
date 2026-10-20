@@ -366,6 +366,11 @@ def build_site():
     # Sort all notes strictly newest to oldest (recent first)
     all_notes.sort(key=lambda x: (x.get("last_modified") or x.get("date") or ""), reverse=True)
 
+    # Sort each subject's notes strictly newest to oldest and store top 3 recent updates
+    for sub_id in subjects_dict:
+        subjects_dict[sub_id]["notes"].sort(key=lambda x: (x.get("last_modified") or x.get("date") or ""), reverse=True)
+        subjects_dict[sub_id]["recent_3"] = subjects_dict[sub_id]["notes"][:3]
+
     sitemap_entries = []
 
     # 2. Render Topics, Chapters, and Subject Pages with Clean URLs
