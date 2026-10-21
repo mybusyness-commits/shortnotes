@@ -111,6 +111,11 @@ def get_all_notes_list():
             else:
                 note_tags = []
 
+            if branch_id:
+                url_path = f"{sub_id}/{branch_id}/{chapter_id}/{meta.get('slug', f.stem)}"
+            else:
+                url_path = f"{sub_id}/{chapter_id}/{meta.get('slug', f.stem)}"
+
             notes.append({
                 "file_path": str(f.relative_to(NOTES_DIR)),
                 "title": meta.get("title", f.stem),
@@ -121,6 +126,7 @@ def get_all_notes_list():
                 "branch_name": branch_name,
                 "chapter": chapter_id,
                 "chapter_name": ch_name,
+                "url_path": url_path,
                 "date": meta.get("date", ""),
                 "last_modified": meta.get("last_modified", ""),
                 "excerpt": meta.get("excerpt", ""),
@@ -128,6 +134,160 @@ def get_all_notes_list():
             })
     notes.sort(key=lambda x: x.get("last_modified", ""), reverse=True)
     return notes
+
+
+def get_notes_tree():
+    """
+    Builds a hierarchical tree matching the website's structure:
+    Subjects -> [Branches] -> Chapters -> Topics
+    """
+    config = load_config()
+    all_notes = get_all_notes_list()
+
+    notes_by_key = {}
+    for n in all_notes:
+        sub = n.get("subject", "").lower()
+        branch = n.get("branch", "").lower()
+        ch = n.get("chapter", "").lower()
+        notes_by_key.setdefault((sub, branch, ch), []).append(n)
+
+    tree = []
+    subjects_cfg = config.get("subjects", [])
+
+    for s in subjects_cfg:
+        sub_id = s.get("id", "").lower()
+        sub_name = s.get("name", sub_id.title())
+        sub_icon = s.get("icon", "book")
+        has_branches = bool(s.get("branches"))
+
+        sub_node = {
+            "id": sub_id,
+            "name": sub_name,
+            "icon": sub_icon,
+            "description": s.get("description", ""),
+            "has_branches": has_branches,
+            "branches": [],
+            "chapters": [],
+            "total_topics": 0
+        }
+
+        sub_total = 0
+
+        if has_branches:
+            for b in s.get("branches", []):
+                b_id = b.get("id", "").lower()
+                b_name = b.get("name", b_id.title())
+                b_icon = b.get("icon", sub_icon)
+
+                b_node = {
+                    "id": b_id,
+                    "name": b_name,
+                    "icon": b_icon,
+                    "chapters": [],
+                    "total_topics": 0
+                }
+
+                b_total = 0
+                seen_ch = set()
+
+                for ch in b.get("chapters", []):
+                    ch_id = ch.get("id", "").lower()
+                    seen_ch.add(ch_id)
+                    topics = notes_by_key.get((sub_id, b_id, ch_id), [])
+                    b_total += len(topics)
+                    b_node["chapters"].append({
+                        "id": ch_id,
+                        "name": ch.get("name", ch_id.title()),
+                        "description": ch.get("description", ""),
+                        "topics": topics
+                    })
+
+                for (s_k, b_k, c_k), topics in notes_by_key.items():
+                    if s_k == sub_id and b_k == b_id and c_k not in seen_ch:
+                        b_total += len(topics)
+                        b_node["chapters"].append({
+                            "id": c_k,
+                            "name": c_k.replace("-", " ").title(),
+                            "description": "",
+                            "topics": topics
+                        })
+
+                b_node["total_topics"] = b_total
+                sub_total += b_total
+                sub_node["branches"].append(b_node)
+
+            orphan_branch_topics = []
+            for (s_k, b_k, c_k), topics in notes_by_key.items():
+                if s_k == sub_id and (not b_k or b_k not in [b["id"].lower() for b in s.get("branches", [])]):
+                    orphan_branch_topics.extend(topics)
+            if orphan_branch_topics:
+                sub_total += len(orphan_branch_topics)
+                sub_node["branches"].append({
+                    "id": "general",
+                    "name": "General Topics",
+                    "icon": sub_icon,
+                    "chapters": [{
+                        "id": "general",
+                        "name": "Uncategorized",
+                        "description": "",
+                        "topics": orphan_branch_topics
+                    }],
+                    "total_topics": len(orphan_branch_topics)
+                })
+
+        else:
+            seen_ch = set()
+            for ch in s.get("chapters", []):
+                ch_id = ch.get("id", "").lower()
+                seen_ch.add(ch_id)
+                topics = notes_by_key.get((sub_id, "", ch_id), [])
+                if not topics:
+                    topics = notes_by_key.get((sub_id, "general", ch_id), [])
+                sub_total += len(topics)
+                sub_node["chapters"].append({
+                    "id": ch_id,
+                    "name": ch.get("name", ch_id.title()),
+                    "description": ch.get("description", ""),
+                    "topics": topics
+                })
+
+            for (s_k, b_k, c_k), topics in notes_by_key.items():
+                if s_k == sub_id and c_k not in seen_ch:
+                    sub_total += len(topics)
+                    sub_node["chapters"].append({
+                        "id": c_k,
+                        "name": c_k.replace("-", " ").title(),
+                        "description": "",
+                        "topics": topics
+                    })
+
+        sub_node["total_topics"] = sub_total
+        tree.append(sub_node)
+
+    cfg_sub_ids = {s.get("id", "").lower() for s in subjects_cfg}
+    orphan_subs = {}
+    for (s_k, b_k, c_k), topics in notes_by_key.items():
+        if s_k not in cfg_sub_ids:
+            orphan_subs.setdefault(s_k, []).extend(topics)
+
+    for s_k, topics in orphan_subs.items():
+        tree.append({
+            "id": s_k,
+            "name": s_k.replace("-", " ").title(),
+            "icon": "book",
+            "description": "",
+            "has_branches": False,
+            "branches": [],
+            "chapters": [{
+                "id": "general",
+                "name": "All Topics",
+                "description": "",
+                "topics": topics
+            }],
+            "total_topics": len(topics)
+        })
+
+    return tree
 
 
 def get_git_remote():
@@ -707,6 +867,106 @@ STUDIO_HTML = """
       transform: translateY(-2px);
       background: #0f231c;
     }
+    /* Hierarchical Topics Sections */
+    .topics-stat-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: #1e293b;
+      padding: 0.2rem 0.55rem;
+      border-radius: 9999px;
+      font-size: 0.725rem;
+      color: #cbd5e1;
+      font-weight: 600;
+    }
+    .subject-section-card {
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      margin-bottom: 1.75rem;
+      overflow: hidden;
+      transition: border-color 0.15s ease;
+    }
+    .subject-section-card:hover {
+      border-color: #3b82f6;
+    }
+    .subject-section-header {
+      padding: 1.1rem 1.4rem;
+      background: #111827;
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .branch-section-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 8px;
+      margin: 1.25rem;
+      padding: 1.1rem;
+    }
+    .branch-section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      margin-bottom: 1rem;
+    }
+    .chapter-section-card {
+      background: #090e17;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      overflow: hidden;
+    }
+    .chapter-section-header {
+      padding: 0.75rem 1rem;
+      background: #0f172a;
+      border-bottom: 1px solid #1e293b;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .topic-item-card {
+      padding: 0.9rem 1.1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      transition: background 0.15s ease;
+    }
+    .topic-item-card:last-child {
+      border-bottom: none;
+    }
+    .topic-item-card:hover {
+      background: rgba(255, 255, 255, 0.025);
+    }
+    .topic-pill-filter {
+      padding: 0.4rem 0.85rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: #1e293b;
+      color: #94a3b8;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      text-decoration: none;
+    }
+    .topic-pill-filter:hover, .topic-pill-filter.active {
+      background: #1e3a8a;
+      color: #bfdbfe;
+      border-color: #3b82f6;
+    }
   </style>
 </head>
 <body>
@@ -929,70 +1189,320 @@ STUDIO_HTML = """
 # Route: List All Topics
 # ==============================================================================
 NOTES_LIST_HTML = """
-<div class="card">
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
-    <h3 class="card-title" style="margin-bottom: 0;">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+  <div>
+    <h3 style="font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.25rem;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
       <span>Published Study Topics (Chapter-Wise)</span>
     </h3>
-    <a href="{{ url_for('route_new_note') }}" class="btn btn-primary">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="5" y2="19"/><line x1="5" x2="19" y1="12" y2="12"/></svg>
-      <span>Write Topic</span>
-    </a>
+    <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">
+      Organized by Subjects &rarr; Branches &rarr; Chapters &rarr; Topics, exactly matching your live website.
+    </p>
   </div>
 
-  <table class="data-table">
-    <thead>
-      <tr>
-        <th>Subject</th>
-        <th>Chapter</th>
-        <th>Topic Title</th>
-        <th>Last Updated</th>
-        <th style="text-align: right;">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for note in notes %}
-      <tr>
-        <td>
-          <span class="badge badge-blue">{{ note.subject_name }}</span>
-          {% if note.branch_name %}
-          <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #6ee7b7; font-size: 0.72rem; margin-left: 0.25rem;">{{ note.branch_name }}</span>
+  <div style="display: flex; gap: 0.65rem; align-items: center; flex-wrap: wrap;">
+    <a href="{{ url_for('route_subjects') }}" class="btn btn-secondary" style="font-size: 0.85rem;" title="Manage site hierarchy, chapters, and icons">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></svg>
+      <span>Tree Hierarchy</span>
+    </a>
+    <a href="{{ url_for('route_new_note') }}" class="btn btn-primary" style="font-size: 0.85rem;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="5" y2="19"/><line x1="5" x2="19" y1="12" y2="12"/></svg>
+      <span>+ Write New Topic</span>
+    </a>
+  </div>
+</div>
+
+<!-- Instant Topic Search & Quick Subject Filter Tabs -->
+<div style="background: #111827; border: 1px solid var(--card-border); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.85rem;">
+  <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+    <div style="flex: 1; min-width: 260px; position: relative;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--text-muted);"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" id="topic-search-input" oninput="filterTopicsList()" placeholder="Quick search topics by title, chapter, or tags..." class="form-control" style="padding-left: 2.25rem; font-size: 0.875rem;">
+    </div>
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+      <button type="button" class="btn btn-secondary" onclick="toggleAllChapters(true)" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;" title="Expand all chapters">Expand All</button>
+      <button type="button" class="btn btn-secondary" onclick="toggleAllChapters(false)" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;" title="Collapse all chapters">Collapse All</button>
+    </div>
+  </div>
+
+  <!-- Subject Pills Filter -->
+  <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+    <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Filter Subject:</span>
+    <button type="button" class="topic-pill-filter active" onclick="filterBySubject('all', this)">
+      <span>All Subjects ({{ notes_count }})</span>
+    </button>
+    {% for sub in subjects_tree %}
+    <button type="button" class="topic-pill-filter" onclick="filterBySubject('{{ sub.id }}', this)">
+      <span>{{ sub.name }} ({{ sub.total_topics }})</span>
+    </button>
+    {% endfor %}
+  </div>
+</div>
+
+<div id="topics-tree-container">
+  {% for sub in subjects_tree %}
+  <section class="subject-section-card subject-card-{{ sub.id }}" data-subject="{{ sub.id }}">
+    <!-- Subject Header -->
+    <div class="subject-section-header">
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <div style="width: 36px; height: 36px; border-radius: 6px; background: #1e293b; display: flex; align-items: center; justify-content: center; color: var(--accent);">
+          {{ get_icon(sub.icon)|safe }}
+        </div>
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+            <h4 style="margin: 0; font-size: 1.15rem; color: #fff;">{{ sub.name }}</h4>
+            <a href="/preview/{{ sub.id }}/" target="_blank" style="font-size: 0.75rem; color: #60a5fa; text-decoration: none;">(<code>/{{ sub.id }}/</code>)</a>
+          </div>
+          {% if sub.description %}
+          <span style="font-size: 0.775rem; color: var(--text-muted);">{{ sub.description }}</span>
           {% endif %}
-        </td>
-        <td><span class="badge badge-purple">{{ note.chapter_name }}</span></td>
-        <td>
-          <strong>{{ note.title }}</strong>
-          {% if note.tags %}
-          <div style="display: flex; gap: 0.25rem; flex-wrap: wrap; margin-top: 0.3rem;">
-            {% for t in note.tags %}
-            <span style="font-size: 0.7rem; background: rgba(59, 130, 246, 0.15); color: #93c5fd; padding: 1px 6px; border-radius: 4px;">#{{ t }}</span>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 0.6rem;">
+        <span class="badge badge-blue" style="font-size: 0.8rem; padding: 4px 10px;">
+          {{ sub.total_topics }} {% if sub.total_topics == 1 %}Topic{% else %}Topics{% endif %}
+        </span>
+        <a href="{{ url_for('route_new_note') }}?sub={{ sub.id }}" class="btn btn-success" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="5" y2="19"/><line x1="5" x2="19" y1="12" y2="12"/></svg>
+          <span>+ Add Topic</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Inside Subject: Check if branched (e.g. Chemistry -> Organic, Inorganic, Physical) -->
+    {% if sub.has_branches %}
+      <div style="padding: 0.25rem 0;">
+        {% for b in sub.branches %}
+        <div class="branch-section-card" data-branch="{{ b.id }}">
+          <!-- Branch Header -->
+          <div class="branch-section-header">
+            <div style="display: flex; align-items: center; gap: 0.6rem;">
+              <div style="width: 26px; height: 26px; border-radius: 4px; background: rgba(59, 130, 246, 0.15); display: flex; align-items: center; justify-content: center; color: var(--accent);">
+                {{ get_icon(b.icon)|safe }}
+              </div>
+              <strong style="color: #93c5fd; font-size: 1rem;">{{ b.name }}</strong>
+              <span style="font-size: 0.75rem; color: var(--text-muted);"><code>/{{ sub.id }}/{{ b.id }}/</code></span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #6ee7b7; font-size: 0.75rem;">
+                {{ b.total_topics }} {% if b.total_topics == 1 %}Topic{% else %}Topics{% endif %}
+              </span>
+              <a href="{{ url_for('route_new_note') }}?sub={{ sub.id }}&branch={{ b.id }}" class="btn btn-secondary" style="padding: 0.25rem 0.55rem; font-size: 0.75rem;">+ Add Topic</a>
+            </div>
+          </div>
+
+          <!-- Chapters under this Branch -->
+          <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            {% for ch in b.chapters %}
+            <div class="chapter-section-card" data-chapter="{{ ch.id }}">
+              <div class="chapter-section-header">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <strong style="font-size: 0.9rem; color: #f1f5f9;">{{ ch.name }}</strong>
+                  <span style="font-size: 0.75rem; color: var(--text-muted);"><code>/{{ ch.id }}/</code></span>
+                  <span class="topics-stat-badge">{{ ch.topics|length }}</span>
+                </div>
+                <a href="{{ url_for('route_new_note') }}?sub={{ sub.id }}&branch={{ b.id }}&ch={{ ch.id }}" class="btn btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.725rem;">
+                  + Add to {{ ch.name }}
+                </a>
+              </div>
+
+              <!-- Topics List inside this Chapter -->
+              <div class="chapter-topics-list">
+                {% for topic in ch.topics %}
+                <div class="topic-item-card" data-title="{{ topic.title|lower }}" data-tags="{{ topic.tags|join(' ')|lower }}">
+                  <div style="flex: 1; min-width: 0;">
+                    <div style="display: flex; align-items: baseline; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.25rem;">
+                      <a href="{{ url_for('route_edit_note', rel_path=topic.file_path) }}" style="color: #60a5fa; font-weight: 600; font-size: 0.925rem; text-decoration: none;" class="topic-title-link">
+                        {{ topic.title }}
+                      </a>
+                      <span style="font-size: 0.75rem; color: var(--text-muted); font-family: monospace;"><code>/{{ topic.slug }}/</code></span>
+                    </div>
+
+                    {% if topic.excerpt %}
+                    <p style="font-size: 0.8rem; color: #94a3b8; margin: 0 0 0.4rem 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                      {{ topic.excerpt }}
+                    </p>
+                    {% endif %}
+
+                    <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                      {% if topic.tags %}
+                        {% for t in topic.tags %}
+                        <span style="font-size: 0.68rem; background: rgba(59, 130, 246, 0.12); color: #93c5fd; padding: 1px 6px; border-radius: 4px;">#{{ t }}</span>
+                        {% endfor %}
+                      {% endif %}
+                      <span style="font-size: 0.725rem; color: var(--text-muted); margin-left: auto;">Updated: {{ topic.last_modified }}</span>
+                    </div>
+                  </div>
+
+                  <!-- Topic Actions: Edit, View, Delete -->
+                  <div style="display: flex; align-items: center; gap: 0.4rem; flex-shrink: 0;">
+                    <a href="{{ url_for('route_edit_note', rel_path=topic.file_path) }}" class="btn btn-primary" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;" title="Edit this topic">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                      <span>Edit</span>
+                    </a>
+                    <a href="/preview/{{ topic.url_path }}/" target="_blank" class="btn btn-secondary" style="padding: 0.35rem 0.65rem; font-size: 0.8rem;" title="View Clean URL Preview">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
+                    </a>
+                    <form method="POST" action="{{ url_for('route_delete_note') }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this topic?');">
+                      <input type="hidden" name="rel_path" value="{{ topic.file_path }}">
+                      <button type="submit" class="btn btn-danger" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" title="Delete topic">Delete</button>
+                    </form>
+                  </div>
+                </div>
+                {% endfor %}
+
+                {% if not ch.topics %}
+                <div style="padding: 1rem; text-align: center; color: var(--text-muted); font-size: 0.825rem; font-style: italic;">
+                  No topics published in this chapter yet.
+                  <a href="{{ url_for('route_new_note') }}?sub={{ sub.id }}&branch={{ b.id }}&ch={{ ch.id }}" style="color: #60a5fa; margin-left: 0.5rem; text-decoration: underline;">+ Write First Topic</a>
+                </div>
+                {% endif %}
+              </div>
+            </div>
             {% endfor %}
           </div>
-          {% endif %}
-        </td>
-        <td style="color: var(--text-muted); font-size: 0.8rem;">{{ note.last_modified }}</td>
-        <td style="text-align: right; white-space: nowrap;">
-          <a href="{{ url_for('route_edit_note', rel_path=note.file_path) }}" class="btn btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;">
-            Edit
-          </a>
-          <form method="POST" action="{{ url_for('route_delete_note') }}" style="display: inline;" onsubmit="return confirm('Delete topic {{ note.title }}?');">
-            <input type="hidden" name="rel_path" value="{{ note.file_path }}">
-            <button type="submit" class="btn btn-danger" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;">Delete</button>
-          </form>
-        </td>
-      </tr>
-      {% endfor %}
-      {% if not notes %}
-      <tr>
-        <td colspan="5" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
-          No topics created yet. Click "Write Topic" to publish your first chapter topic!
-        </td>
-      </tr>
-      {% endif %}
-    </tbody>
-  </table>
+        </div>
+        {% endfor %}
+      </div>
+
+    <!-- Inside Subject: Direct Chapters (No branches, e.g. Mathematics, Physics, Biology) -->
+    {% else %}
+      <div style="padding: 1.25rem;">
+        <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+          {% for ch in sub.chapters %}
+          <div class="chapter-section-card" data-chapter="{{ ch.id }}">
+            <div class="chapter-section-header">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <strong style="font-size: 0.95rem; color: #f1f5f9;">{{ ch.name }}</strong>
+                <span style="font-size: 0.75rem; color: var(--text-muted);"><code>/{{ sub.id }}/{{ ch.id }}/</code></span>
+                <span class="topics-stat-badge">{{ ch.topics|length }}</span>
+              </div>
+              <a href="{{ url_for('route_new_note') }}?sub={{ sub.id }}&ch={{ ch.id }}" class="btn btn-secondary" style="padding: 0.25rem 0.55rem; font-size: 0.75rem;">
+                + Add to {{ ch.name }}
+              </a>
+            </div>
+
+            <!-- Topics List inside this Chapter -->
+            <div class="chapter-topics-list">
+              {% for topic in ch.topics %}
+              <div class="topic-item-card" data-title="{{ topic.title|lower }}" data-tags="{{ topic.tags|join(' ')|lower }}">
+                <div style="flex: 1; min-width: 0;">
+                  <div style="display: flex; align-items: baseline; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.25rem;">
+                    <a href="{{ url_for('route_edit_note', rel_path=topic.file_path) }}" style="color: #60a5fa; font-weight: 600; font-size: 0.925rem; text-decoration: none;" class="topic-title-link">
+                      {{ topic.title }}
+                    </a>
+                    <span style="font-size: 0.75rem; color: var(--text-muted); font-family: monospace;"><code>/{{ topic.slug }}/</code></span>
+                  </div>
+
+                  {% if topic.excerpt %}
+                  <p style="font-size: 0.8rem; color: #94a3b8; margin: 0 0 0.4rem 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                    {{ topic.excerpt }}
+                  </p>
+                  {% endif %}
+
+                  <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                    {% if topic.tags %}
+                      {% for t in topic.tags %}
+                      <span style="font-size: 0.68rem; background: rgba(59, 130, 246, 0.12); color: #93c5fd; padding: 1px 6px; border-radius: 4px;">#{{ t }}</span>
+                      {% endfor %}
+                    {% endif %}
+                    <span style="font-size: 0.725rem; color: var(--text-muted); margin-left: auto;">Updated: {{ topic.last_modified }}</span>
+                  </div>
+                </div>
+
+                <!-- Topic Actions: Edit, View, Delete -->
+                <div style="display: flex; align-items: center; gap: 0.4rem; flex-shrink: 0;">
+                  <a href="{{ url_for('route_edit_note', rel_path=topic.file_path) }}" class="btn btn-primary" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;" title="Edit this topic">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                    <span>Edit</span>
+                  </a>
+                  <a href="/preview/{{ topic.url_path }}/" target="_blank" class="btn btn-secondary" style="padding: 0.35rem 0.65rem; font-size: 0.8rem;" title="View Clean URL Preview">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
+                  </a>
+                  <form method="POST" action="{{ url_for('route_delete_note') }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this topic?');">
+                    <input type="hidden" name="rel_path" value="{{ topic.file_path }}">
+                    <button type="submit" class="btn btn-danger" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" title="Delete topic">Delete</button>
+                  </form>
+                </div>
+              </div>
+              {% endfor %}
+
+              {% if not ch.topics %}
+              <div style="padding: 1rem; text-align: center; color: var(--text-muted); font-size: 0.825rem; font-style: italic;">
+                No topics published in this chapter yet.
+                <a href="{{ url_for('route_new_note') }}?sub={{ sub.id }}&ch={{ ch.id }}" style="color: #60a5fa; margin-left: 0.5rem; text-decoration: underline;">+ Write First Topic</a>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  </section>
+  {% endfor %}
 </div>
+
+<script>
+  function filterBySubject(subId, btn) {
+    document.querySelectorAll('.topic-pill-filter').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    const cards = document.querySelectorAll('.subject-section-card');
+    cards.forEach(card => {
+      if (subId === 'all' || card.getAttribute('data-subject') === subId) {
+        card.style.display = 'block';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
+
+  function filterTopicsList() {
+    const q = document.getElementById('topic-search-input').value.toLowerCase().trim();
+    const topicCards = document.querySelectorAll('.topic-item-card');
+
+    if (!q) {
+      topicCards.forEach(c => c.style.display = 'flex');
+      document.querySelectorAll('.chapter-section-card').forEach(ch => ch.style.display = 'block');
+      document.querySelectorAll('.branch-section-card').forEach(b => b.style.display = 'block');
+      document.querySelectorAll('.subject-section-card').forEach(s => s.style.display = 'block');
+      return;
+    }
+
+    topicCards.forEach(c => {
+      const title = c.getAttribute('data-title') || '';
+      const tags = c.getAttribute('data-tags') || '';
+      if (title.includes(q) || tags.includes(q)) {
+        c.style.display = 'flex';
+      } else {
+        c.style.display = 'none';
+      }
+    });
+
+    document.querySelectorAll('.chapter-section-card').forEach(ch => {
+      const hasVisible = Array.from(ch.querySelectorAll('.topic-item-card')).some(c => c.style.display !== 'none');
+      ch.style.display = hasVisible ? 'block' : 'none';
+    });
+
+    document.querySelectorAll('.branch-section-card').forEach(b => {
+      const hasVisible = Array.from(b.querySelectorAll('.chapter-section-card')).some(ch => ch.style.display !== 'none');
+      b.style.display = hasVisible ? 'block' : 'none';
+    });
+
+    document.querySelectorAll('.subject-section-card').forEach(s => {
+      const hasVisible = Array.from(s.querySelectorAll('.topic-item-card')).some(c => c.style.display !== 'none');
+      s.style.display = hasVisible ? 'block' : 'none';
+    });
+  }
+
+  function toggleAllChapters(expand) {
+    document.querySelectorAll('.chapter-topics-list').forEach(list => {
+      list.style.display = expand ? 'block' : 'none';
+    });
+  }
+</script>
 """
 
 # ==============================================================================
@@ -2602,11 +3112,22 @@ def route_index():
 @app.route("/notes")
 def route_notes():
     notes = get_all_notes_list()
+    subjects_tree = get_notes_tree()
+    total_chapters = 0
+    for s in subjects_tree:
+        if s.get("has_branches"):
+            for b in s.get("branches", []):
+                total_chapters += len(b.get("chapters", []))
+        else:
+            total_chapters += len(s.get("chapters", []))
+
     return render_studio_view(
         NOTES_LIST_HTML,
         active_tab="notes",
         page_heading="All Published Topics (Chapter-Wise)",
-        notes=notes
+        notes=notes,
+        subjects_tree=subjects_tree,
+        total_chapters=total_chapters
     )
 
 
