@@ -30,7 +30,8 @@ from flask import Flask, render_template_string, request, redirect, url_for, fla
 from generator import (
     BASE_DIR, NOTES_DIR, PAGES_DIR, OUTPUT_DIR, CONFIG_FILE,
     DEFAULT_ICONS, get_icon,
-    load_config, save_config, parse_frontmatter, build_site
+    load_config, save_config, parse_frontmatter, build_site,
+    markdown_to_html
 )
 
 app = Flask(__name__)
@@ -517,6 +518,15 @@ STUDIO_HTML = """
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>shrtnotes Studio - Site Management</title>
+  
+  <!-- KaTeX for crisp math & chemistry equations -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="/static/js/mhchem.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+  <!-- SmilesDrawer & Chem renderer for molecules -->
+  <script defer src="/static/js/smiles-drawer.min.js"></script>
+  <script defer src="/static/js/chem.js"></script>
   <style>
     :root {
       --bg: #0b0f19;
@@ -967,6 +977,251 @@ STUDIO_HTML = """
       color: #bfdbfe;
       border-color: #3b82f6;
     }
+
+    /* Full-Width Content Area for Writing Suite */
+    .content-area-full {
+      max-width: 100% !important;
+      padding: 1rem 1.75rem !important;
+    }
+
+    /* Zen Fullscreen Mode */
+    body.zen-mode-active .studio-sidebar,
+    body.zen-mode-active .studio-topbar {
+      display: none !important;
+    }
+    body.zen-mode-active .content-area {
+      padding: 0.75rem 1.25rem !important;
+      max-width: 100% !important;
+    }
+
+    /* Writing Suite Layout */
+    .writing-suite-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .writing-top-toolbar {
+      background: #111827;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .view-mode-pill {
+      background: transparent;
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+    .view-mode-pill:hover {
+      color: #fff;
+      background: #1e293b;
+    }
+    .view-mode-pill.active {
+      background: #1e3a8a;
+      border-color: #3b82f6;
+      color: #bfdbfe;
+    }
+
+    .writing-panes-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      align-items: stretch;
+    }
+
+    .writing-panes-grid.mode-editor-only {
+      grid-template-columns: 1fr;
+    }
+    .writing-panes-grid.mode-editor-only .preview-pane-col {
+      display: none !important;
+    }
+
+    .writing-panes-grid.mode-preview-only {
+      grid-template-columns: 1fr;
+    }
+    .writing-panes-grid.mode-preview-only .editor-pane-col {
+      display: none !important;
+    }
+
+    .editor-pane-col, .preview-pane-col {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .editor-toolbar-header {
+      background: #1e293b;
+      border: 1px solid var(--card-border);
+      border-bottom: none;
+      border-radius: 8px 8px 0 0;
+      padding: 0.5rem 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .quick-toolbar-btn {
+      background: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #cbd5e1;
+      padding: 0.28rem 0.55rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+    .quick-toolbar-btn:hover {
+      background: #1e3a8a;
+      border-color: #3b82f6;
+      color: #fff;
+    }
+
+    .editor-textarea-suite {
+      width: 100%;
+      height: calc(100vh - 310px);
+      min-height: 520px;
+      background: #070b14;
+      border: 1px solid var(--card-border);
+      border-radius: 0 0 8px 8px;
+      padding: 1.25rem;
+      color: #f8fafc;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 0.925rem;
+      line-height: 1.65;
+      outline: none;
+      resize: vertical;
+      box-sizing: border-box;
+    }
+    .editor-textarea-suite:focus {
+      border-color: var(--accent);
+    }
+
+    .preview-pane-header {
+      background: #1e293b;
+      border: 1px solid var(--card-border);
+      border-bottom: none;
+      border-radius: 8px 8px 0 0;
+      padding: 0.55rem 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .live-preview-box {
+      background: #0b0f19;
+      border: 1px solid var(--card-border);
+      border-radius: 0 0 8px 8px;
+      padding: 1.5rem 1.75rem;
+      overflow-y: auto;
+      overflow-x: hidden;
+      height: calc(100vh - 310px);
+      min-height: 520px;
+      color: var(--text);
+      line-height: 1.65;
+      box-sizing: border-box;
+    }
+
+    .live-preview-box h1, .live-preview-box h2, .live-preview-box h3, .live-preview-box h4 {
+      color: #fff;
+      font-weight: 700;
+      margin-top: 1.5rem;
+      margin-bottom: 0.6rem;
+    }
+    .live-preview-box h1 { font-size: 1.75rem; border-bottom: 1px solid #1f2937; padding-bottom: 0.4rem; }
+    .live-preview-box h2 { font-size: 1.35rem; border-bottom: 1px solid #1f2937; padding-bottom: 0.3rem; }
+    .live-preview-box h3 { font-size: 1.15rem; }
+    .live-preview-box p { margin-bottom: 1rem; color: #cbd5e1; }
+    .live-preview-box ul, .live-preview-box ol { margin-bottom: 1rem; padding-left: 1.5rem; color: #cbd5e1; }
+    .live-preview-box li { margin-bottom: 0.35rem; }
+    .live-preview-box blockquote {
+      border-left: 4px solid var(--accent);
+      padding: 0.65rem 1rem;
+      background: #111827;
+      border-radius: 0 4px 4px 0;
+      margin-bottom: 1.25rem;
+      font-style: italic;
+      color: #94a3b8;
+    }
+
+    /* Auto-scroll on wide tables & formulas in preview */
+    .live-preview-box .table-responsive-wrapper {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: auto;
+      margin: 1.25rem 0;
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-radius: 6px;
+    }
+    .live-preview-box table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 480px;
+    }
+    .live-preview-box th, .live-preview-box td {
+      padding: 0.65rem 0.85rem;
+      border: 1px solid #1f2937;
+      text-align: left;
+      font-size: 0.875rem;
+    }
+    .live-preview-box th {
+      background: #1e293b;
+      color: #fff;
+      font-weight: 600;
+    }
+    .live-preview-box td {
+      color: #cbd5e1;
+    }
+
+    .live-preview-box .katex-display {
+      display: block !important;
+      max-width: 100% !important;
+      overflow-x: auto !important;
+      padding: 0.85rem 1rem !important;
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-radius: 6px;
+      margin: 1.25rem 0 !important;
+    }
+
+    .live-preview-box .molecule-card {
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 1.25rem auto;
+      max-width: 380px;
+      text-align: center;
+    }
+    .live-preview-box pre {
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-radius: 6px;
+      padding: 1rem;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: #e2e8f0;
+    }
   </style>
 </head>
 <body>
@@ -1132,7 +1387,7 @@ STUDIO_HTML = """
       </div>
     </header>
 
-    <div class="content-area">
+    <div class="content-area {% if is_writing_page %}content-area-full{% endif %}">
       {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
           {% for category, msg in messages %}
@@ -1508,151 +1763,236 @@ NOTES_LIST_HTML = """
 # ==============================================================================
 # Route: Topic Editor (New / Edit)
 # ==============================================================================
-NOTE_FORM_HTML = """
-<div class="card">
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
-    <h3 class="card-title" style="margin-bottom: 0;">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-      <span>{% if is_edit %}Edit Topic{% else %}Write New Study Topic{% endif %}</span>
-    </h3>
+NOTE_FORM_HTML = r"""
+<div class="writing-suite-container">
+  <!-- Top Suite Action Toolbar -->
+  <div class="writing-top-toolbar">
+    <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <div style="width: 32px; height: 32px; border-radius: 6px; background: #1e293b; display: flex; align-items: center; justify-content: center; color: var(--accent);">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </div>
+        <div>
+          <h3 style="font-size: 1.05rem; font-weight: 700; margin: 0; color: #fff;">
+            {% if is_edit %}Edit Topic: <span id="header-topic-title" style="color: #93c5fd;">{{ note_meta.get('title', '') }}</span>{% else %}Write New Study Topic{% endif %}
+          </h3>
+          <span style="font-size: 0.72rem; color: var(--text-muted);">Real-time converted preview &bull; KaTeX math &bull; SmilesDrawer molecules &bull; Auto-align scroll</span>
+        </div>
+      </div>
+
+      <!-- View Switcher Pills -->
+      <div style="display: flex; gap: 0.35rem; background: #0b0f19; padding: 3px; border-radius: 8px; border: 1px solid var(--card-border); margin-left: 0.5rem;">
+        <button type="button" class="view-mode-pill active" id="btn-mode-split" onclick="switchViewMode('split')" title="Side-by-side 50/50 split view">
+          ◫ Split View
+        </button>
+        <button type="button" class="view-mode-pill" id="btn-mode-editor" onclick="switchViewMode('editor')" title="Distraction-free wide editor">
+          ✎ Editor Only
+        </button>
+        <button type="button" class="view-mode-pill" id="btn-mode-preview" onclick="switchViewMode('preview')" title="Full width live converted output preview">
+          👁️ Live Output Only
+        </button>
+      </div>
+
+      <!-- Zen Fullscreen & Metadata Toggle -->
+      <button type="button" class="view-mode-pill" id="btn-zen-mode" onclick="toggleZenMode()" title="Toggle Zen Fullscreen Mode (hides sidebar & top navigation for maximum writing workspace)">
+        ⛶ Zen Fullscreen
+      </button>
+      <button type="button" class="view-mode-pill" id="btn-toggle-meta" onclick="toggleMetadataPanel()" title="Show/Hide Topic Hierarchy, Title, Slug & Keywords">
+        ⚙️ Metadata & SEO <span id="meta-toggle-indicator" style="font-size: 0.7rem; color: #38bdf8;">[Hide]</span>
+      </button>
+    </div>
+
+    <!-- Actions & Save -->
     <div style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;">
-      <button type="button" class="btn" onclick="openChemHelperModal()" style="background: linear-gradient(135deg, #059669 0%, #0284c7 100%); color: #fff; font-size: 0.85rem; padding: 0.45rem 1rem;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v7.31"/><path d="M14 9.3V2"/><path d="M8.5 2h7"/><path d="M14 9.3a6.5 6.5 0 1 1-4 0"/></svg>
+      <button type="button" class="btn" onclick="openChemHelperModal()" style="background: linear-gradient(135deg, #059669 0%, #0284c7 100%); color: #fff; font-size: 0.825rem; padding: 0.45rem 0.9rem;" title="Search chemical structures on PubChem or insert common organic molecules & reactions">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v7.31"/><path d="M14 9.3V2"/><path d="M8.5 2h7"/><path d="M14 9.3a6.5 6.5 0 1 1-4 0"/></svg>
         <span>🧪 Chemistry Helper</span>
       </button>
-      <button type="button" class="btn" onclick="openAIDraftModal()" style="background: linear-gradient(135deg, #7e22ce 0%, #3b82f6 100%); color: #fff; font-size: 0.85rem; padding: 0.45rem 1rem;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/></svg>
-        <span>🪄 Quick Draft from Raw Text</span>
+
+      <button type="button" class="btn" onclick="openAIDraftModal()" style="background: linear-gradient(135deg, #7e22ce 0%, #3b82f6 100%); color: #fff; font-size: 0.825rem; padding: 0.45rem 0.9rem;" title="Paste raw textbook text or messy notes to draft a full topic">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/></svg>
+        <span>🪄 Quick Draft</span>
       </button>
+
+      <button type="submit" form="topic-form" class="btn btn-success" style="font-size: 0.85rem; padding: 0.45rem 1.15rem; font-weight: 700;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/></svg>
+        <span>Save Topic</span>
+      </button>
+      <a href="{{ url_for('route_notes') }}" class="btn btn-secondary" style="padding: 0.45rem 0.85rem; font-size: 0.825rem;">Cancel</a>
     </div>
   </div>
 
-  <!-- AI Studio Copilot Panel -->
-  <div class="ai-copilot-card">
-    <div class="ai-copilot-header">
-      <div style="display: flex; align-items: center; gap: 0.6rem;">
-        <span class="ai-pulse-dot"></span>
-        <strong style="color: #c084fc; font-size: 0.95rem;">AI Studio Copilot</strong>
-        <span class="badge" id="ai-status-badge" style="background: rgba(168, 85, 247, 0.2); color: #d8b4fe; font-size: 0.7rem;">
-          {{ ai_status_text }}
-        </span>
-      </div>
-      <div style="display: flex; gap: 0.5rem; align-items: center;">
-        <a href="{{ url_for('route_ai_settings') }}" target="_blank" style="font-size: 0.75rem; color: #a855f7; text-decoration: underline;">
-          ⚙️ AI Settings
-        </a>
-      </div>
-    </div>
-
-    <div style="font-size: 0.775rem; color: #cbd5e1; margin-bottom: 0.75rem;">
-      1-Click AI assistance for your topic content, formulas, tables, and Google SEO:
-    </div>
-
-    <!-- Quick action buttons -->
-    <div class="ai-copilot-actions">
-      <button type="button" class="ai-action-btn" id="btn-ai-format" onclick="runAICopilot('format_notes')" title="Converts raw text into clean Markdown with KaTeX formulas and responsive tables">
-        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/></svg>
-        <span>✨ Format to KaTeX & Markdown</span>
-      </button>
-
-      <button type="button" class="ai-action-btn" id="btn-ai-seo" onclick="runAICopilot('generate_seo')" title="Auto-generates Topic Title, URL Slug, Search Snippet, and SEO Keywords">
-        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-        <span>🏷️ Auto-Fill SEO & Tags</span>
-      </button>
-
-      <button type="button" class="ai-action-btn" id="btn-ai-formula" onclick="runAICopilot('formula_sheet')" title="Generates a High-Yield Formula Cheat-Sheet box at the end of the note">
-        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="9" y2="9"/><line x1="4" x2="20" y1="15" y2="15"/><line x1="10" x2="8" y1="3" y2="21"/><line x1="16" x2="14" y1="3" y2="21"/></svg>
-        <span>📐 Add Formula Cheat-Sheet</span>
-      </button>
-
-      <button type="button" class="ai-action-btn" id="btn-ai-quiz" onclick="runAICopilot('generate_quiz')" title="Generates 3 practice MCQs with collapsible answers for student recall">
-        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
-        <span>📝 Add 3 Practice MCQs</span>
-      </button>
-
-      <button type="button" class="ai-action-btn" id="btn-ai-tables" onclick="runAICopilot('fix_tables')" title="Cleans up and formats tables so they never disturb alignment">
-        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
-        <span>📊 Clean & Align Tables</span>
-      </button>
-    </div>
-
-    <!-- AI Live Status Banner -->
-    <div id="ai-feedback-msg" style="display: none; margin-top: 0.75rem; padding: 0.5rem 0.85rem; border-radius: 6px; font-size: 0.8rem;"></div>
-  </div>
-
-  <form method="POST" action="{{ action_url }}" id="topic-form">
+  <form method="POST" action="{{ action_url }}" id="topic-form" style="display: contents;">
     {% if is_edit %}
     <input type="hidden" name="original_path" value="{{ original_path }}">
     {% endif %}
 
-    <div class="form-grid">
-      <div class="form-group">
-        <label class="form-label">Subject *</label>
-        <select name="subject" id="note-subject-select" class="form-control" required onchange="onSubjectChange()">
-          {% for sub in config.subjects %}
-          <option value="{{ sub.id }}" {% if note_meta.get('subject') == sub.id %}selected{% endif %}>{{ sub.name }}</option>
-          {% endfor %}
-        </select>
+    <!-- Collapsible Metadata & SEO Card -->
+    <div class="card" id="metadata-panel" style="margin-bottom: 0;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--card-border); padding-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <strong style="color: #93c5fd; font-size: 0.95rem;">🏷️ Topic Metadata, Hierarchy & SEO Configuration</strong>
+          <span style="font-size: 0.75rem; color: var(--text-muted);">(Used to build Clean URLs, navigation breadcrumbs, and Google Schema metadata)</span>
+        </div>
+        <button type="button" class="btn" id="btn-ai-auto-meta" onclick="runAICopilot('generate_seo')" style="background: linear-gradient(135deg, #7e22ce 0%, #3b82f6 100%); color: #fff; font-size: 0.8rem; padding: 0.35rem 0.85rem;" title="AI analyzes your topic content and automatically recommends Title, URL Slug, Snippet, and SEO Keywords">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/></svg>
+          <span>🪄 AI Auto-Recommend (Title, Slug, Snippet & Tags)</span>
+        </button>
       </div>
 
-      <div class="form-group" id="branch-select-group" style="display: none;">
-        <label class="form-label">Branch *</label>
-        <select name="branch" id="note-branch-select" class="form-control" onchange="updateChapterOptions()">
-          <!-- Populated dynamically via JS -->
-        </select>
-      </div>
+      <div class="form-grid" style="margin-bottom: 0.75rem;">
+        <div class="form-group" style="margin-bottom: 0.5rem;">
+          <label class="form-label">Subject *</label>
+          <select name="subject" id="note-subject-select" class="form-control" required onchange="onSubjectChange()">
+            {% for sub in config.subjects %}
+            <option value="{{ sub.id }}" {% if note_meta.get('subject') == sub.id %}selected{% endif %}>{{ sub.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
 
-      <div class="form-group">
-        <label class="form-label">Chapter *</label>
-        <select name="chapter" id="note-chapter-select" class="form-control" required>
-          <!-- Populated dynamically via JS -->
-        </select>
-      </div>
-    </div>
+        <div class="form-group" id="branch-select-group" style="margin-bottom: 0.5rem; display: none;">
+          <label class="form-label">Branch *</label>
+          <select name="branch" id="note-branch-select" class="form-control" onchange="updateChapterOptions()">
+            <!-- Populated dynamically via JS -->
+          </select>
+        </div>
 
-    <div class="form-grid">
-      <div class="form-group">
-        <label class="form-label">Topic Title *</label>
-        <input type="text" name="title" id="note-title" class="form-control" value="{{ note_meta.get('title', '') }}" placeholder="e.g. Fundamental Theorem of Calculus" required>
-      </div>
-      <div class="form-group">
-        <label class="form-label">URL Slug (lowercase-hyphens) *</label>
-        <input type="text" name="slug" id="note-slug" class="form-control" value="{{ note_meta.get('slug', '') }}" placeholder="e.g. fundamental-theorem" required>
-      </div>
-    </div>
-
-    <div class="form-grid">
-      <div class="form-group">
-        <label class="form-label">Google Search Snippet / Excerpt (1-2 sentences)</label>
-        <input type="text" name="excerpt" id="note-excerpt" class="form-control" value="{{ note_meta.get('excerpt', '') }}" placeholder="A 1-2 sentence high-yield summary for Google search results...">
-        <span style="font-size: 0.75rem; color: var(--text-muted);">Displays under your topic title in Google search results.</span>
-      </div>
-      <div class="form-group">
-        <label class="form-label">SEO Keywords & Topic Tags (comma-separated)</label>
-        <input type="text" name="tags" id="note-tags" class="form-control" value="{{ tags_str }}" placeholder="e.g. calculus, derivatives, integration, fundamental-theorem">
-        <span style="font-size: 0.75rem; color: var(--text-muted);">Used for Google indexing, Schema.org metadata, and page tag badges.</span>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; flex-wrap: wrap; gap: 0.5rem;">
-        <label class="form-label" style="margin-bottom: 0;">Topic Content (Markdown & KaTeX Formulas Supported) *</label>
-        <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-          <button type="button" onclick="openChemHelperModal()" class="btn" style="padding: 0.2rem 0.6rem; font-size: 0.75rem; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 4px; cursor: pointer;">
-            🧪 Chemistry Structures & Equations
-          </button>
-          <span style="font-size: 0.75rem; color: var(--text-muted);">Math: <code>$E=mc^2$</code> | Chem: <code>$\\ce{H2 + Cl2 -> 2HCl}$</code></span>
+        <div class="form-group" style="margin-bottom: 0.5rem;">
+          <label class="form-label">Chapter *</label>
+          <select name="chapter" id="note-chapter-select" class="form-control" required>
+            <!-- Populated dynamically via JS -->
+          </select>
         </div>
       </div>
-      <textarea name="content" id="note-content" class="form-control" placeholder="Write or paste your study notes here..." required>{{ raw_content }}</textarea>
+
+      <div class="form-grid" style="margin-bottom: 0.75rem;">
+        <div class="form-group" style="margin-bottom: 0.5rem;">
+          <label class="form-label">Topic Title *</label>
+          <input type="text" name="title" id="note-title" class="form-control" value="{{ note_meta.get('title', '') }}" placeholder="e.g. Fundamental Theorem of Calculus" required oninput="onTitleChange(this.value)">
+        </div>
+        <div class="form-group" style="margin-bottom: 0.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+            <label class="form-label" style="margin-bottom: 0;">URL Slug (lowercase-hyphens) *</label>
+            <button type="button" onclick="autoFillSlugFromTitle()" style="background: none; border: none; color: #38bdf8; font-size: 0.72rem; cursor: pointer; text-decoration: underline; padding: 0;">↻ Auto from Title</button>
+          </div>
+          <input type="text" name="slug" id="note-slug" class="form-control" value="{{ note_meta.get('slug', '') }}" placeholder="e.g. fundamental-theorem-calculus" required>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label">Google Search Snippet / Excerpt (1-2 sentences)</label>
+          <input type="text" name="excerpt" id="note-excerpt" class="form-control" value="{{ note_meta.get('excerpt', '') }}" placeholder="A 1-2 sentence high-yield summary for Google search results...">
+          <span style="font-size: 0.72rem; color: var(--text-muted);">Displays under your topic title in Google search results and social cards.</span>
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label">SEO Keywords & Topic Tags (comma-separated)</label>
+          <input type="text" name="tags" id="note-tags" class="form-control" value="{{ tags_str }}" placeholder="e.g. calculus, derivatives, integration, fundamental-theorem">
+          <span style="font-size: 0.72rem; color: var(--text-muted);">Used for Google indexing, Schema.org metadata, and page tag badges.</span>
+        </div>
+      </div>
     </div>
 
-    <div style="display: flex; gap: 1rem; align-items: center; margin-top: 1.5rem;">
-      <button type="submit" class="btn btn-success" style="font-size: 0.95rem; padding: 0.65rem 1.4rem;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/></svg>
-        <span>Save Topic & Rebuild Clean URLs</span>
-      </button>
-      <a href="{{ url_for('route_notes') }}" class="btn btn-secondary">Cancel</a>
+    <!-- AI Studio Copilot Compact Strip -->
+    <div class="ai-copilot-card" style="margin-bottom: 0;">
+      <div class="ai-copilot-header">
+        <div style="display: flex; align-items: center; gap: 0.6rem;">
+          <span class="ai-pulse-dot"></span>
+          <strong style="color: #c084fc; font-size: 0.9rem;">AI Studio Copilot</strong>
+          <span class="badge" id="ai-status-badge" style="background: rgba(168, 85, 247, 0.2); color: #d8b4fe; font-size: 0.7rem;">
+            {{ ai_status_text }}
+          </span>
+        </div>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <a href="{{ url_for('route_ai_settings') }}" target="_blank" style="font-size: 0.75rem; color: #a855f7; text-decoration: underline;">
+            ⚙️ AI Settings
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick action buttons -->
+      <div class="ai-copilot-actions">
+        <button type="button" class="ai-action-btn" id="btn-ai-format" onclick="runAICopilot('format_notes')" title="Converts raw text into clean Markdown with KaTeX formulas and responsive tables">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/></svg>
+          <span>✨ Format to KaTeX & Markdown</span>
+        </button>
+
+        <button type="button" class="ai-action-btn" id="btn-ai-seo" onclick="runAICopilot('generate_seo')" title="Auto-generates Topic Title, URL Slug, Search Snippet, and SEO Keywords">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <span>🏷️ Auto-Fill SEO & Tags</span>
+        </button>
+
+        <button type="button" class="ai-action-btn" id="btn-ai-formula" onclick="runAICopilot('formula_sheet')" title="Generates a High-Yield Formula Cheat-Sheet box at the end of the note">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="9" y2="9"/><line x1="4" x2="20" y1="15" y2="15"/><line x1="10" x2="8" y1="3" y2="21"/><line x1="16" x2="14" y1="3" y2="21"/></svg>
+          <span>📐 Add Formula Cheat-Sheet</span>
+        </button>
+
+        <button type="button" class="ai-action-btn" id="btn-ai-quiz" onclick="runAICopilot('generate_quiz')" title="Generates 3 practice MCQs with collapsible answers for student recall">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
+          <span>📝 Add 3 Practice MCQs</span>
+        </button>
+
+        <button type="button" class="ai-action-btn" id="btn-ai-tables" onclick="runAICopilot('fix_tables')" title="Cleans up and formats tables so they never disturb alignment">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
+          <span>📊 Clean & Align Tables</span>
+        </button>
+      </div>
+
+      <!-- AI Live Status Banner -->
+      <div id="ai-feedback-msg" style="display: none; margin-top: 0.75rem; padding: 0.5rem 0.85rem; border-radius: 6px; font-size: 0.8rem;"></div>
+    </div>
+
+    <!-- Writing Panes Grid (Editor + Live Converted Output) -->
+    <div class="writing-panes-grid" id="writing-panes-container">
+      <!-- Left Pane: Editor Suite -->
+      <div class="editor-pane-col">
+        <div class="editor-toolbar-header">
+          <div style="display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap;">
+            <button type="button" class="quick-toolbar-btn" onclick="insertFormatting('## ', '')" title="Heading 2">H2</button>
+            <button type="button" class="quick-toolbar-btn" onclick="insertFormatting('### ', '')" title="Heading 3">H3</button>
+            <button type="button" class="quick-toolbar-btn" onclick="insertFormatting('**', '**')" title="Bold"><strong>B</strong></button>
+            <button type="button" class="quick-toolbar-btn" onclick="insertFormatting('*', '*')" title="Italic"><em>I</em></button>
+            <button type="button" class="quick-toolbar-btn" onclick="insertFormatting('- ', '')" title="Bullet List">• List</button>
+            <button type="button" class="quick-toolbar-btn" onclick="insertTableTemplate()" title="Insert Responsive Markdown Table">📊 Table</button>
+            <span style="color: #475569; margin: 0 2px;">|</span>
+            <button type="button" class="quick-toolbar-btn" onclick="insertFormatting('$', '$')" title="Inline KaTeX formula">$x$</button>
+            <button type="button" class="quick-toolbar-btn" onclick="insertDisplayEquation()" title="Display KaTeX Equation">$$ Eq $$</button>
+            <button type="button" class="quick-toolbar-btn" onclick="insertReactionEquation()" title="Chemical reaction with \ce{...}">$\ce{...}$</button>
+            <button type="button" class="quick-toolbar-btn" onclick="openChemHelperModal()" style="color: #34d399; border-color: rgba(16, 185, 129, 0.4);" title="PubChem Molecule Search & Presets">🧪 +Molecule</button>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span id="editor-word-count" style="font-size: 0.72rem; color: #94a3b8; font-family: monospace;">0 words | 0 chars</span>
+          </div>
+        </div>
+
+        <textarea name="content" id="note-content" class="editor-textarea-suite" placeholder="Write or paste your study notes here using Markdown, KaTeX math ($...$, $$...$$), and chemical structures (```chem)..." spellcheck="false" required oninput="onEditorInput()">{{ raw_content }}</textarea>
+      </div>
+
+      <!-- Right Pane: Live Converted Output Preview -->
+      <div class="preview-pane-col">
+        <div class="preview-pane-header">
+          <div style="display: flex; align-items: center; gap: 0.6rem;">
+            <strong style="color: #fff; font-size: 0.85rem;">👁️ Live Converted Output</strong>
+            <span class="badge" id="preview-status-badge" style="background: rgba(16, 185, 129, 0.2); color: #6ee7b7; font-size: 0.7rem;">
+              ● Live Sync
+            </span>
+          </div>
+          <div style="display: flex; gap: 0.4rem; align-items: center;">
+            <button type="button" class="quick-toolbar-btn" id="btn-toggle-mobile-preview" onclick="toggleMobilePreview()" title="Simulate mobile device width to test horizontal auto-scrolling on tables & equations">
+              📱 Mobile Width: OFF
+            </button>
+            <button type="button" class="quick-toolbar-btn" onclick="updateLivePreview(true)" title="Force re-render output preview">
+              ↻ Refresh
+            </button>
+          </div>
+        </div>
+
+        <div id="live-preview-box" class="live-preview-box">
+          <div style="color: #64748b; font-size: 0.85rem; text-align: center; padding: 2rem 0;">
+            ⏳ Initializing live preview...
+          </div>
+        </div>
+      </div>
     </div>
   </form>
 </div>
@@ -1661,13 +2001,13 @@ NOTE_FORM_HTML = """
 <div class="ai-modal-overlay" id="ai-draft-modal">
   <div class="ai-modal-box">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-      <h3 style="font-size: 1.15rem; color: #fff; display: flex; align-items: center; gap: 0.5rem;">
+      <h3 style="font-size: 1.15rem; color: #fff; display: flex; align-items: center; gap: 0.5rem; margin: 0;">
         <span>🪄 Quick Draft with AI Copilot</span>
       </h3>
       <button type="button" onclick="closeAIDraftModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer; line-height: 1;">&times;</button>
     </div>
     <p style="font-size: 0.825rem; color: #94a3b8; margin-bottom: 1rem;">
-      Paste any messy textbook paragraphs, lecture notes, or rough formula text. AI Copilot will automatically structure it into clean Markdown, convert formulas to KaTeX, and fill your title, slug, excerpt, tags, subject, and chapter!
+      Paste any raw lecture notes, textbook paragraphs, or rough formula text. AI Copilot will automatically structure it into clean Markdown, convert formulas to KaTeX, and auto-recommend your title, slug, snippet, tags, subject, and chapter!
     </p>
 
     <div class="form-group">
@@ -1698,7 +2038,7 @@ NOTE_FORM_HTML = """
     <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem; border-bottom: 1px solid #1e293b; padding-bottom: 0.5rem;">
       <button type="button" class="chem-tab-btn active" id="tab-btn-presets" onclick="switchChemTab('presets')">⚡ 1-Click Common Presets</button>
       <button type="button" class="chem-tab-btn" id="tab-btn-search" onclick="switchChemTab('search')">🔍 PubChem Compound Search</button>
-      <button type="button" class="chem-tab-btn" id="tab-btn-reactions" onclick="switchChemTab('reactions')">⚗️ Reaction Equations (\\ce{...})</button>
+      <button type="button" class="chem-tab-btn" id="tab-btn-reactions" onclick="switchChemTab('reactions')">⚗️ Reaction Equations (\ce{...})</button>
     </div>
 
     <!-- TAB 1: 1-Click Presets -->
@@ -1759,18 +2099,23 @@ NOTE_FORM_HTML = """
         </div>
         <div class="preset-card" onclick="insertChemPreset('Acetone', 'CC(=O)C')">
           <strong style="color: #38bdf8; font-size: 0.85rem;">Acetone</strong>
-          <span style="font-size: 0.725rem; color: #94a3b8;">CH₃COCH₃ (Propan-2-one)</span>
+          <span style="font-size: 0.725rem; color: #94a3b8;">C₃H₆O (Propanone)</span>
           <code style="font-size: 0.7rem; color: #a7f3d0;">CC(=O)C</code>
+        </div>
+        <div class="preset-card" onclick="insertChemPreset('Ethanol', 'CCO')">
+          <strong style="color: #38bdf8; font-size: 0.85rem;">Ethanol</strong>
+          <span style="font-size: 0.725rem; color: #94a3b8;">C₂H₅OH (Ethyl alcohol)</span>
+          <code style="font-size: 0.7rem; color: #a7f3d0;">CCO</code>
         </div>
         <div class="preset-card" onclick="insertChemPreset('Acetic Acid', 'CC(=O)O')">
           <strong style="color: #38bdf8; font-size: 0.85rem;">Acetic Acid</strong>
           <span style="font-size: 0.725rem; color: #94a3b8;">CH₃COOH (Ethanoic acid)</span>
           <code style="font-size: 0.7rem; color: #a7f3d0;">CC(=O)O</code>
         </div>
-        <div class="preset-card" onclick="insertChemPreset('Ethanol', 'CCO')">
-          <strong style="color: #38bdf8; font-size: 0.85rem;">Ethanol</strong>
-          <span style="font-size: 0.725rem; color: #94a3b8;">C₂H₅OH (Alcohol)</span>
-          <code style="font-size: 0.7rem; color: #a7f3d0;">CCO</code>
+        <div class="preset-card" onclick="insertChemPreset('Caffeine', 'CN1C=NC2=C1C(=O)N(C(=O)N2C)C')">
+          <strong style="color: #38bdf8; font-size: 0.85rem;">Caffeine</strong>
+          <span style="font-size: 0.725rem; color: #94a3b8;">C₈H₁₀N₄O₂</span>
+          <code style="font-size: 0.7rem; color: #a7f3d0;">CN1C=NC2...</code>
         </div>
         <div class="preset-card" onclick="insertChemPreset('Cyclohexane', 'C1CCCCC1')">
           <strong style="color: #38bdf8; font-size: 0.85rem;">Cyclohexane</strong>
@@ -1821,41 +2166,41 @@ NOTE_FORM_HTML = """
             <span>➕ Insert Molecule Block</span>
           </button>
           <button type="button" class="btn btn-secondary" onclick="insertSearchedFormula()" style="font-size: 0.85rem; padding: 0.4rem 0.9rem;">
-            <span>Formula (\\ce{...})</span>
+            <span>Formula (\ce{...})</span>
           </button>
         </div>
       </div>
     </div>
 
-    <!-- TAB 3: Reaction Equations (\\ce{...}) -->
+    <!-- TAB 3: Reaction Equations (\ce{...}) -->
     <div id="chem-tab-reactions" class="chem-tab-content" style="display: none;">
       <p style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 1rem;">
-        KaTeX <code style="color: #38bdf8;">\\ce{...}</code> syntax handles arrows, reaction conditions, state symbols, and ionic charges crisply.
+        KaTeX <code style="color: #38bdf8;">\ce{...}</code> syntax handles arrows, reaction conditions, state symbols, and ionic charges crisply.
       </p>
       <div style="display: flex; flex-direction: column; gap: 0.65rem; max-height: 50vh; overflow-y: auto;">
-        <div class="preset-card" onclick="insertEquation('$\\\\ce{N2 + 3H2 <=> 2NH3}$')">
+        <div class="preset-card" onclick="insertEquation('$\\ce{N2 + 3H2 <=> 2NH3}$')">
           <strong style="color: #38bdf8; font-size: 0.85rem;">Reversible Equilibrium (Haber Process)</strong>
-          <code style="color: #a7f3d0; font-size: 0.8rem;">$\\ce{N2 + 3H2 <=> 2NH3}$</code>
+          <code style="color: #a7f3d0; font-size: 0.8rem;">$\ce{N2 + 3H2 <=> 2NH3}$</code>
         </div>
-        <div class="preset-card" onclick="insertEquation('$\\\\ce{CaCO3(s) + 2HCl(aq) -> CaCl2(aq) + CO2 ^ + H2O(l)}$')">
+        <div class="preset-card" onclick="insertEquation('$\\ce{CaCO3(s) + 2HCl(aq) -> CaCl2(aq) + CO2 ^ + H2O(l)}$')">
           <strong style="color: #38bdf8; font-size: 0.85rem;">Precipitation & Gas Evolution</strong>
-          <code style="color: #a7f3d0; font-size: 0.8rem;">$\\ce{CaCO3(s) + 2HCl(aq) -> CaCl2(aq) + CO2 ^ + H2O(l)}$</code>
+          <code style="color: #a7f3d0; font-size: 0.8rem;">$\ce{CaCO3(s) + 2HCl(aq) -> CaCl2(aq) + CO2 ^ + H2O(l)}$</code>
         </div>
-        <div class="preset-card" onclick="insertEquation('$\\\\ce{C6H6 + HNO3 ->[H2SO4][\\\\Delta] C6H5NO2 + H2O}$')">
-          <strong style="color: #38bdf8; font-size: 0.85rem;">Organic Reaction with Catalysts & Heat (\\Delta)</strong>
-          <code style="color: #a7f3d0; font-size: 0.8rem;">$\\ce{C6H6 + HNO3 ->[H2SO4][\\Delta] C6H5NO2 + H2O}$</code>
+        <div class="preset-card" onclick="insertEquation('$\\ce{C6H6 + HNO3 ->[H2SO4][\\Delta] C6H5NO2 + H2O}$')">
+          <strong style="color: #38bdf8; font-size: 0.85rem;">Organic Reaction with Catalysts & Heat (\Delta)</strong>
+          <code style="color: #a7f3d0; font-size: 0.8rem;">$\ce{C6H6 + HNO3 ->[H2SO4][\Delta] C6H5NO2 + H2O}$</code>
         </div>
-        <div class="preset-card" onclick="insertEquation('$\\\\ce{CH4 + Cl2 ->[h\\\\nu] CH3Cl + HCl}$')">
-          <strong style="color: #38bdf8; font-size: 0.85rem;">Free Radical Halogenation (h\\nu)</strong>
-          <code style="color: #a7f3d0; font-size: 0.8rem;">$\\ce{CH4 + Cl2 ->[h\\nu] CH3Cl + HCl}$</code>
+        <div class="preset-card" onclick="insertEquation('$\\ce{CH4 + Cl2 ->[h\\nu] CH3Cl + HCl}$')">
+          <strong style="color: #38bdf8; font-size: 0.85rem;">Free Radical Halogenation (h\nu)</strong>
+          <code style="color: #a7f3d0; font-size: 0.8rem;">$\ce{CH4 + Cl2 ->[h\nu] CH3Cl + HCl}$</code>
         </div>
-        <div class="preset-card" onclick="insertEquation('$\\\\ce{Zn(s) + Cu^2+(aq) -> Zn^2+(aq) + Cu(s)}$')">
+        <div class="preset-card" onclick="insertEquation('$\\ce{Zn(s) + Cu^2+(aq) -> Zn^2+(aq) + Cu(s)}$')">
           <strong style="color: #38bdf8; font-size: 0.85rem;">Redox Reaction & Ion Charges</strong>
-          <code style="color: #a7f3d0; font-size: 0.8rem;">$\\ce{Zn(s) + Cu^2+(aq) -> Zn^2+(aq) + Cu(s)}$</code>
+          <code style="color: #a7f3d0; font-size: 0.8rem;">$\ce{Zn(s) + Cu^2+(aq) -> Zn^2+(aq) + Cu(s)}$</code>
         </div>
-        <div class="preset-card" onclick="insertEquation('$\\\\ce{HCl + NaOH -> NaCl + H2O}$')">
+        <div class="preset-card" onclick="insertEquation('$\\ce{HCl + NaOH -> NaCl + H2O}$')">
           <strong style="color: #38bdf8; font-size: 0.85rem;">Acid-Base Neutralization</strong>
-          <code style="color: #a7f3d0; font-size: 0.8rem;">$\\ce{HCl + NaOH -> NaCl + H2O}$</code>
+          <code style="color: #a7f3d0; font-size: 0.8rem;">$\ce{HCl + NaOH -> NaCl + H2O}$</code>
         </div>
       </div>
     </div>
@@ -1937,8 +2282,97 @@ NOTE_FORM_HTML = """
     }
   }
 
-  // Initialize on page load
-  onSubjectChange();
+  function onTitleChange(val) {
+    const headerTitle = document.getElementById('header-topic-title');
+    if (headerTitle) {
+      headerTitle.textContent = val ? val : 'New Topic';
+    }
+  }
+
+  function autoFillSlugFromTitle() {
+    const titleVal = document.getElementById('note-title').value.trim();
+    if (!titleVal) return;
+    const slug = titleVal.toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .trim()
+      .replace(/\s+/g, '-');
+    document.getElementById('note-slug').value = slug;
+  }
+
+  function toggleMetadataPanel() {
+    const panel = document.getElementById('metadata-panel');
+    const ind = document.getElementById('meta-toggle-indicator');
+    if (panel.style.display === 'none') {
+      panel.style.display = 'block';
+      ind.textContent = '[Hide]';
+    } else {
+      panel.style.display = 'none';
+      ind.textContent = '[Show]';
+    }
+  }
+
+  function switchViewMode(mode) {
+    const container = document.getElementById('writing-panes-container');
+    const btnSplit = document.getElementById('btn-mode-split');
+    const btnEditor = document.getElementById('btn-mode-editor');
+    const btnPreview = document.getElementById('btn-mode-preview');
+
+    container.classList.remove('mode-editor-only', 'mode-preview-only');
+    btnSplit.classList.remove('active');
+    btnEditor.classList.remove('active');
+    btnPreview.classList.remove('active');
+
+    if (mode === 'editor') {
+      container.classList.add('mode-editor-only');
+      btnEditor.classList.add('active');
+    } else if (mode === 'preview') {
+      container.classList.add('mode-preview-only');
+      btnPreview.classList.add('active');
+      updateLivePreview(true);
+    } else {
+      btnSplit.classList.add('active');
+    }
+
+    try {
+      localStorage.setItem('shrtnotes_view_mode', mode);
+    } catch(e) {}
+  }
+
+  function toggleZenMode() {
+    const isZen = document.body.classList.toggle('zen-mode-active');
+    const btn = document.getElementById('btn-zen-mode');
+    if (isZen) {
+      btn.classList.add('active');
+      btn.innerHTML = '✕ Exit Zen';
+    } else {
+      btn.classList.remove('active');
+      btn.innerHTML = '⛶ Zen Fullscreen';
+    }
+  }
+
+  let isMobilePreviewActive = false;
+  function toggleMobilePreview() {
+    const box = document.getElementById('live-preview-box');
+    const btn = document.getElementById('btn-toggle-mobile-preview');
+    isMobilePreviewActive = !isMobilePreviewActive;
+    if (isMobilePreviewActive) {
+      box.style.maxWidth = '420px';
+      box.style.margin = '0 auto';
+      box.style.border = '2px solid #38bdf8';
+      box.style.borderRadius = '10px';
+      btn.innerHTML = '📱 Mobile Width: ON (420px)';
+      btn.style.color = '#38bdf8';
+      btn.style.borderColor = '#38bdf8';
+    } else {
+      box.style.maxWidth = '100%';
+      box.style.margin = '0';
+      box.style.border = '1px solid var(--card-border)';
+      box.style.borderRadius = '0 0 8px 8px';
+      btn.innerHTML = '📱 Mobile Width: OFF';
+      btn.style.color = '#cbd5e1';
+      btn.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+    }
+  }
 
   function showAIFeedback(msg, isSuccess = true) {
     const box = document.getElementById('ai-feedback-msg');
@@ -1989,9 +2423,11 @@ NOTE_FORM_HTML = """
       'fix_tables': 'btn-ai-tables'
     };
     const targetBtn = document.getElementById(btnIdMap[action]);
-    const originalText = targetBtn.innerHTML;
-    targetBtn.disabled = true;
-    targetBtn.innerHTML = `<span>⏳ Processing with AI...</span>`;
+    const originalText = targetBtn ? targetBtn.innerHTML : '';
+    if (targetBtn) {
+      targetBtn.disabled = true;
+      targetBtn.innerHTML = `<span>⏳ Processing with AI...</span>`;
+    }
 
     try {
       const resp = await fetch('{{ url_for("route_api_ai_copilot") }}', {
@@ -2013,19 +2449,26 @@ NOTE_FORM_HTML = """
       } else {
         if (action === 'format_notes') {
           contentArea.value = res.data;
+          onEditorInput();
           showAIFeedback(res.warning ? ('⚡ ' + res.warning) : '✨ Study notes formatted with KaTeX math formulas and clean Markdown!');
         } else if (action === 'fix_tables') {
           contentArea.value = res.data;
+          onEditorInput();
           showAIFeedback('📊 Table formatted into clean, responsive Markdown!');
         } else if (action === 'formula_sheet') {
-          contentArea.value = contentArea.value.trim() + '\\n\\n' + res.data;
+          contentArea.value = contentArea.value.trim() + '\n\n' + res.data;
+          onEditorInput();
           showAIFeedback('📐 High-Yield Formula Cheat-Sheet inserted at the bottom!');
         } else if (action === 'generate_quiz') {
-          contentArea.value = contentArea.value.trim() + '\\n\\n' + res.data;
+          contentArea.value = contentArea.value.trim() + '\n\n' + res.data;
+          onEditorInput();
           showAIFeedback('📝 3 Practice MCQs inserted with collapsible answers!');
         } else if (action === 'generate_seo') {
           const seo = res.data;
-          if (seo.title && !titleInput.value) titleInput.value = seo.title;
+          if (seo.title && !titleInput.value) {
+            titleInput.value = seo.title;
+            onTitleChange(seo.title);
+          }
           if (seo.slug) document.getElementById('note-slug').value = seo.slug;
           if (seo.excerpt) document.getElementById('note-excerpt').value = seo.excerpt;
           if (seo.tags) document.getElementById('note-tags').value = seo.tags;
@@ -2044,8 +2487,10 @@ NOTE_FORM_HTML = """
     } catch (err) {
       showAIFeedback(`Failed to contact AI Copilot: ${err.message}`, false);
     } finally {
-      targetBtn.disabled = false;
-      targetBtn.innerHTML = originalText;
+      if (targetBtn) {
+        targetBtn.disabled = false;
+        targetBtn.innerHTML = originalText;
+      }
     }
   }
 
@@ -2076,11 +2521,17 @@ NOTE_FORM_HTML = """
         alert(res.message);
       } else {
         const d = res.data;
-        if (d.title) document.getElementById('note-title').value = d.title;
+        if (d.title) {
+          document.getElementById('note-title').value = d.title;
+          onTitleChange(d.title);
+        }
         if (d.slug) document.getElementById('note-slug').value = d.slug;
         if (d.excerpt) document.getElementById('note-excerpt').value = d.excerpt;
         if (d.tags) document.getElementById('note-tags').value = d.tags;
-        if (d.content) document.getElementById('note-content').value = d.content;
+        if (d.content) {
+          document.getElementById('note-content').value = d.content;
+          onEditorInput();
+        }
         if (d.subject) {
           const subSelect = document.getElementById('note-subject-select');
           subSelect.value = d.subject;
@@ -2126,16 +2577,43 @@ NOTE_FORM_HTML = """
     const text = textarea.value;
     const before = text.substring(0, start);
     const after = text.substring(end, text.length);
-    const prefix = (before.endsWith('\\n') || before.length === 0) ? '' : '\\n\\n';
-    const suffix = (after.startsWith('\\n') || after.length === 0) ? '' : '\\n\\n';
+    const prefix = (before.endsWith('\n') || before.length === 0) ? '' : '\n\n';
+    const suffix = (after.startsWith('\n') || after.length === 0) ? '' : '\n\n';
     textarea.value = before + prefix + textToInsert + suffix + after;
     textarea.focus();
     const newPos = (before + prefix + textToInsert).length;
     textarea.setSelectionRange(newPos, newPos);
+    onEditorInput();
+  }
+
+  function insertFormatting(prefix, suffix) {
+    const textarea = document.getElementById('note-content');
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const sel = textarea.value.substring(start, end);
+    const replacement = prefix + (sel || 'text') + suffix;
+    textarea.setRangeText(replacement, start, end, 'select');
+    textarea.focus();
+    onEditorInput();
+  }
+
+  function insertTableTemplate() {
+    const sampleTable = "| Parameter / Concept | Symbol & Unit | High-Yield Key Note |\n| :--- | :--- | :--- |\n| Frequency ($f$) | $\\text{Hz} = \\text{s}^{-1}$ | $f = 1/T$ |\n| Angular Frequency ($\\omega$) | $\\text{rad/s}$ | $\\omega = 2\\pi f$ |\n| Wave Speed ($v$) | $\\text{m/s}$ | $v = f\\lambda$ |";
+    insertIntoNoteContent(sampleTable);
+  }
+
+  function insertDisplayEquation() {
+    const sampleEq = "$$\n\\int_{a}^{b} f(x)\\,dx = F(b) - F(a)\n$$";
+    insertIntoNoteContent(sampleEq);
+  }
+
+  function insertReactionEquation() {
+    const sampleRxn = "$\\ce{2H2 + O2 -> 2H2O}$";
+    insertIntoNoteContent(sampleRxn);
   }
 
   function insertChemPreset(name, smiles) {
-    const block = '```chem ' + name + '\\n' + smiles + '\\n```';
+    const block = '```chem ' + name + '\n' + smiles + '\n```';
     insertIntoNoteContent(block);
     closeChemHelperModal();
     showAIFeedback('🧪 Molecule "' + name + '" inserted into topic!', true);
@@ -2190,7 +2668,7 @@ NOTE_FORM_HTML = """
 
   function insertSearchedCompound() {
     if (!currentFoundCompound) return;
-    const block = '```chem ' + currentFoundCompound.name + '\\n' + currentFoundCompound.smiles + '\\n```';
+    const block = '```chem ' + currentFoundCompound.name + '\n' + currentFoundCompound.smiles + '\n```';
     insertIntoNoteContent(block);
     closeChemHelperModal();
     showAIFeedback('🧪 Molecule "' + currentFoundCompound.name + '" inserted into topic!', true);
@@ -2198,12 +2676,116 @@ NOTE_FORM_HTML = """
 
   function insertSearchedFormula() {
     if (!currentFoundCompound || !currentFoundCompound.formula) return;
-    insertIntoNoteContent('$\\\\ce{' + currentFoundCompound.formula + '}$');
+    insertIntoNoteContent('$\\ce{' + currentFoundCompound.formula + '}$');
     closeChemHelperModal();
     showAIFeedback('⚗️ Formula inserted into topic!', true);
   }
+
+  // ===========================================================================
+  // Real-Time Live Preview & KaTeX/Molecule Renderer
+  // ===========================================================================
+  let previewDebounceTimer = null;
+  let lastRenderedMarkdown = null;
+
+  function updateWordCount() {
+    const text = document.getElementById('note-content').value;
+    const chars = text.length;
+    const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+    const countBadge = document.getElementById('editor-word-count');
+    if (countBadge) {
+      countBadge.textContent = `${words} words | ${chars} chars`;
+    }
+  }
+
+  function onEditorInput() {
+    updateWordCount();
+    if (previewDebounceTimer) clearTimeout(previewDebounceTimer);
+    previewDebounceTimer = setTimeout(() => {
+      updateLivePreview();
+    }, 350);
+  }
+
+  async function updateLivePreview(force = false) {
+    const textarea = document.getElementById('note-content');
+    if (!textarea) return;
+    const md = textarea.value;
+    if (!force && md === lastRenderedMarkdown) return;
+
+    const badge = document.getElementById('preview-status-badge');
+    if (badge) {
+      badge.style.background = 'rgba(59, 130, 246, 0.2)';
+      badge.style.color = '#93c5fd';
+      badge.textContent = '⏳ Rendering...';
+    }
+
+    try {
+      const resp = await fetch('{{ url_for("route_api_preview_render") }}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: md })
+      });
+      const res = await resp.json();
+      if (res.success) {
+        lastRenderedMarkdown = md;
+        const box = document.getElementById('live-preview-box');
+        box.innerHTML = res.html || '<p style="color:#64748b; font-style:italic;">Topic content is empty. Start typing on the left!</p>';
+
+        // Render KaTeX Math & Chemical reactions
+        if (window.renderMathInElement) {
+          renderMathInElement(box, {
+            delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+            ],
+            throwOnError: false
+          });
+        }
+
+        // Render SmilesDrawer Molecular Structures
+        if (typeof window.renderAllMolecules === 'function') {
+          window.renderAllMolecules();
+        }
+
+        if (badge) {
+          badge.style.background = 'rgba(16, 185, 129, 0.2)';
+          badge.style.color = '#6ee7b7';
+          badge.textContent = '● Live Sync';
+        }
+      }
+    } catch (err) {
+      if (badge) {
+        badge.style.background = 'rgba(239, 68, 68, 0.2)';
+        badge.style.color = '#fca5a5';
+        badge.textContent = '⚠️ Sync error';
+      }
+    }
+  }
+
+  // Keyboard shortcut: Esc to exit Zen Mode
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && document.body.classList.contains('zen-mode-active')) {
+      toggleZenMode();
+    }
+  });
+
+  // Page Load Setup
+  document.addEventListener('DOMContentLoaded', () => {
+    onSubjectChange();
+    updateWordCount();
+    try {
+      const savedMode = localStorage.getItem('shrtnotes_view_mode') || 'split';
+      switchViewMode(savedMode);
+    } catch(e) {}
+    // Trigger initial preview render
+    setTimeout(() => {
+      updateLivePreview(true);
+    }, 150);
+  });
 </script>
 """
+
 
 # ==============================================================================
 # Route: Subject & Chapter Hierarchy Manager
@@ -3151,6 +3733,7 @@ def route_new_note():
         active_tab="new_note",
         page_heading="Write New Study Topic",
         is_edit=False,
+        is_writing_page=True,
         note_meta=note_meta,
         tags_str="",
         raw_content="",
@@ -3191,6 +3774,7 @@ def route_edit_note():
         active_tab="notes",
         page_heading=f"Edit Topic: {meta.get('title', '')}",
         is_edit=True,
+        is_writing_page=True,
         original_path=rel_path,
         note_meta=meta,
         tags_str=tags_str,
@@ -4037,6 +4621,14 @@ def route_api_chem_search():
         return jsonify({"success": False, "message": f"Compound '{query}' not found on PubChem. Try a common chemical name or IUPAC name."})
     except Exception as e:
         return jsonify({"success": False, "message": f"PubChem lookup error: {str(e)}"})
+
+
+@app.route("/api/preview/render", methods=["POST"])
+def route_api_preview_render():
+    data = request.get_json(silent=True) or {}
+    md_text = data.get("content", "")
+    html = markdown_to_html(md_text)
+    return jsonify({"success": True, "html": html})
 
 
 @app.route("/pages")
