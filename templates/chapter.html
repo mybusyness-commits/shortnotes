@@ -20,12 +20,27 @@
           "name": "{{ subject.name }}",
           "item": "{{ config.site_url }}/{{ subject.id }}/"
         },
+        {% if branch %}
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "{{ branch.name }}",
+          "item": "{{ config.site_url }}/{{ subject.id }}/{{ branch.id }}/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "{{ chapter.name }}",
+          "item": "{{ current_url }}"
+        }
+        {% else %}
         {
           "@type": "ListItem",
           "position": 3,
           "name": "{{ chapter.name }}",
           "item": "{{ current_url }}"
         }
+        {% endif %}
       ]
     },
     {
@@ -45,6 +60,10 @@
     <a href="{{ root_path }}">Home</a>
     <svg class="breadcrumb-separator" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
     <a href="{{ root_path }}{{ subject.id }}/">{{ subject.name }}</a>
+    {% if branch %}
+    <svg class="breadcrumb-separator" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+    <a href="{{ root_path }}{{ subject.id }}/{{ branch.id }}/">{{ branch.name }}</a>
+    {% endif %}
     <svg class="breadcrumb-separator" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
     <span>{{ chapter.name }}</span>
   </nav>
@@ -53,13 +72,20 @@
     <div>
       <h1 class="article-title" style="margin-bottom: 0.25rem;">{{ chapter.name }} Topics</h1>
       <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">
-        {{ notes|length }} Revision {% if notes|length == 1 %}Topic{% else %}Topics{% endif %} in {{ subject.name }}
+        {{ notes|length }} Revision {% if notes|length == 1 %}Topic{% else %}Topics{% endif %} in {{ subject.name }}{% if branch %} ({{ branch.name }}){% endif %}
       </span>
     </div>
+    {% if branch %}
+    <a href="{{ root_path }}{{ subject.id }}/{{ branch.id }}/" class="theme-toggle-btn" style="width: auto; padding: 0.45rem 0.9rem; border-radius: 9999px; gap: 0.4rem; font-size: 0.8rem; font-weight: 600; text-decoration: none;" aria-label="Back to {{ branch.name }} Chapters">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      <span>All {{ branch.name }} Chapters</span>
+    </a>
+    {% else %}
     <a href="{{ root_path }}{{ subject.id }}/" class="theme-toggle-btn" style="width: auto; padding: 0.45rem 0.9rem; border-radius: 9999px; gap: 0.4rem; font-size: 0.8rem; font-weight: 600; text-decoration: none;" aria-label="Back to {{ subject.name }} Chapters">
       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
       <span>All {{ subject.name }} Chapters</span>
     </a>
+    {% endif %}
   </div>
 
   <p style="font-size: 1.05rem; color: var(--text-secondary); max-width: 750px; margin-top: 0.5rem;">
@@ -78,7 +104,7 @@
 
 <div class="notes-list">
   {% for note in notes %}
-  <a href="{{ root_path }}{{ note.subject }}/{{ note.chapter }}/{{ note.slug }}/" class="note-row" aria-label="{{ note.title }}">
+  <a href="{{ root_path }}{{ note.url_path }}/" class="note-row" aria-label="{{ note.title }}">
     <div class="note-row-main">
       <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
         <span class="compact-chapter-pill">{{ loop.index }}</span>
@@ -106,7 +132,11 @@
   {% if not notes %}
   <div class="compact-empty-state" style="padding: 3rem 1.5rem;">
     <p>No revision topics published under this chapter yet.</p>
+    {% if branch %}
+    <a href="{{ root_path }}{{ subject.id }}/{{ branch.id }}/" class="compact-empty-link">&larr; Back to {{ branch.name }} Chapters</a>
+    {% else %}
     <a href="{{ root_path }}{{ subject.id }}/" class="compact-empty-link">&larr; Back to {{ subject.name }} Chapters</a>
+    {% endif %}
   </div>
   {% endif %}
 </div>

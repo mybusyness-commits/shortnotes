@@ -30,13 +30,19 @@
     <p class="subject-desc">{{ sub.description }}</p>
     
     <div class="subject-stats">
+      {% if sub.branches %}
+      <span><strong>{{ sub.branches|length }}</strong> Branches</span>
+      <span>&bull;</span>
+      <span><strong>{{ sub_notes_count }}</strong> Topics</span>
+      {% else %}
       <span><strong>{{ sub_chapters_count }}</strong> Chapters</span>
       <span>&bull;</span>
       <span><strong>{{ sub_notes_count }}</strong> Topics</span>
+      {% endif %}
     </div>
 
     <div class="subject-link">
-      <span>Browse Chapters</span>
+      <span>{% if sub.branches %}Browse Branches{% else %}Browse Chapters{% endif %}</span>
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
     </div>
   </a>
@@ -72,7 +78,10 @@
         </div>
         <div class="subject-feed-title-wrap">
           <h3 class="subject-feed-title">{{ sub.name }}</h3>
-          <span class="subject-feed-meta">{{ sub_notes|length }} {% if sub_notes|length == 1 %}Topic{% else %}Topics{% endif %} &bull; {{ sub.chapters|length }} Chapters</span>
+          <span class="subject-feed-meta">
+            {{ sub_notes|length }} {% if sub_notes|length == 1 %}Topic{% else %}Topics{% endif %} &bull; 
+            {% if sub.branches %}{{ sub.branches|length }} Branches{% else %}{{ sub.chapters|length }} Chapters{% endif %}
+          </span>
         </div>
       </div>
       <a href="{{ root_path }}{{ sub.id }}/" class="subject-feed-top-link" aria-label="Browse all {{ sub.name }} chapters and topics">
@@ -84,9 +93,9 @@
     <div class="subject-feed-list">
       {% if recent_topics and recent_topics|length > 0 %}
         {% for note in recent_topics %}
-        <a href="{{ root_path }}{{ note.subject }}/{{ note.chapter }}/{{ note.slug }}/" class="compact-topic-card" aria-label="{{ note.title }}">
+        <a href="{{ root_path }}{{ note.url_path }}/" class="compact-topic-card" aria-label="{{ note.title }}">
           <div class="compact-topic-header">
-            <span class="compact-chapter-pill">{{ note.chapter_name }}</span>
+            <span class="compact-chapter-pill">{% if note.branch_name %}{{ note.branch_name }} &bull; {% endif %}{{ note.chapter_name }}</span>
             <div class="compact-meta-info">
               <span class="compact-meta-read">
                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>

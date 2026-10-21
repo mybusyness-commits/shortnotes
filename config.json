@@ -61,20 +61,65 @@
     {
       "id": "chemistry",
       "name": "Chemistry",
-      "description": "Physical, organic, and inorganic chemistry summaries, reactions, and periodic trends.",
+      "description": "Comprehensive study notes across Organic, Inorganic, and Physical Chemistry branches.",
       "icon": "flask-conical",
-      "chapters": [
+      "branches": [
         {
-          "id": "organic-chemistry",
+          "id": "organic",
           "name": "Organic Chemistry",
-          "description": "Reaction mechanisms, stereochemistry, and synthesis."
+          "description": "Reaction mechanisms, stereochemistry, hydrocarbons, and functional groups.",
+          "icon": "flask-conical",
+          "chapters": [
+            {
+              "id": "reaction-mechanisms",
+              "name": "Reaction Mechanisms",
+              "description": "Nucleophilic and electrophilic substitution, elimination (SN1, SN2, E1, E2)."
+            },
+            {
+              "id": "hydrocarbons",
+              "name": "Hydrocarbons",
+              "description": "Alkanes, alkenes, alkynes, and aromatic benzene electrophilic substitutions."
+            }
+          ]
         },
         {
-          "id": "physical-chemistry",
+          "id": "inorganic",
+          "name": "Inorganic Chemistry",
+          "description": "Periodic table trends, chemical bonding, coordination compounds, and block elements.",
+          "icon": "atom",
+          "chapters": [
+            {
+              "id": "chemical-bonding",
+              "name": "Chemical Bonding & Molecular Structure",
+              "description": "VSEPR theory, hybridization, molecular orbital theory, and dipole moments."
+            },
+            {
+              "id": "coordination-compounds",
+              "name": "Coordination Compounds",
+              "description": "Ligands, crystal field theory, IUPAC nomenclature, and magnetic properties."
+            }
+          ]
+        },
+        {
+          "id": "physical",
           "name": "Physical Chemistry",
-          "description": "Equilibrium, electrochemistry, and kinetics."
+          "description": "Chemical thermodynamics, kinetics, electrochemistry, and equilibrium.",
+          "icon": "flame",
+          "chapters": [
+            {
+              "id": "chemical-thermodynamics",
+              "name": "Chemical Thermodynamics",
+              "description": "First and second laws, enthalpy of reaction, entropy, and Gibbs free energy."
+            },
+            {
+              "id": "chemical-kinetics",
+              "name": "Chemical Kinetics",
+              "description": "Rate equations, reaction order, Arrhenius equation, and collision theory."
+            }
+          ]
         }
-      ]
+      ],
+      "chapters": []
     },
     {
       "id": "biology",

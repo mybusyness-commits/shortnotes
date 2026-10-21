@@ -79,22 +79,82 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://shrtnotes.pages.dev/chemistry/organic-chemistry/organic-reaction-mechanisms/</loc>
+    <loc>https://shrtnotes.pages.dev/chemistry/organic/hydrocarbons/alkanes-nomenclature-conformational-analysis/</loc>
     <lastmod>2026-10-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://shrtnotes.pages.dev/chemistry/organic-chemistry/</loc>
+    <loc>https://shrtnotes.pages.dev/chemistry/organic/reaction-mechanisms/organic-reaction-mechanisms/</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://shrtnotes.pages.dev/chemistry/organic/reaction-mechanisms/</loc>
     <lastmod>2026-10-21</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://shrtnotes.pages.dev/chemistry/physical-chemistry/</loc>
+    <loc>https://shrtnotes.pages.dev/chemistry/organic/hydrocarbons/</loc>
     <lastmod>2026-10-21</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://shrtnotes.pages.dev/chemistry/organic/</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.88</priority>
+  </url>
+  <url>
+    <loc>https://shrtnotes.pages.dev/chemistry/inorganic/chemical-bonding/vsepr-theory-hybridization/</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://shrtnotes.pages.dev/chemistry/inorganic/chemical-bonding/</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://shrtnotes.pages.dev/chemistry/inorganic/coordination-compounds/</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://shrtnotes.pages.dev/chemistry/inorganic/</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.88</priority>
+  </url>
+  <url>
+    <loc>https://shrtnotes.pages.dev/chemistry/physical/chemical-thermodynamics/laws-of-thermodynamics-gibbs-free-energy/</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://shrtnotes.pages.dev/chemistry/physical/chemical-thermodynamics/</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://shrtnotes.pages.dev/chemistry/physical/chemical-kinetics/</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://shrtnotes.pages.dev/chemistry/physical/</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.88</priority>
   </url>
   <url>
     <loc>https://shrtnotes.pages.dev/chemistry/</loc>

@@ -46,9 +46,15 @@
       {{ get_icon(current_subject.icon)|safe }}
     </div>
     <div>
-      <h1 class="article-title" style="margin-bottom: 0.2rem;">{{ current_subject.name }} Chapters</h1>
+      <h1 class="article-title" style="margin-bottom: 0.2rem;">
+        {% if current_subject.branches %}{{ current_subject.name }} Branches{% else %}{{ current_subject.name }} Chapters{% endif %}
+      </h1>
       <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">
-        {{ grouped_chapters|length }} {% if grouped_chapters|length == 1 %}Chapter{% else %}Chapters{% endif %} &bull; {{ total_notes_count }} Total {% if total_notes_count == 1 %}Topic{% else %}Topics{% endif %}
+        {% if current_subject.branches %}
+          {{ current_subject.branches|length }} Branches &bull; {{ total_notes_count }} Total {% if total_notes_count == 1 %}Topic{% else %}Topics{% endif %}
+        {% else %}
+          {{ grouped_chapters|length }} {% if grouped_chapters|length == 1 %}Chapter{% else %}Chapters{% endif %} &bull; {{ total_notes_count }} Total {% if total_notes_count == 1 %}Topic{% else %}Topics{% endif %}
+        {% endif %}
       </span>
     </div>
   </div>
@@ -57,6 +63,54 @@
   {% endif %}
 </div>
 
+{% if current_subject.branches %}
+<!-- Section Header for Branches -->
+<div class="section-header" style="margin-bottom: 1.5rem;">
+  <div>
+    <h2 class="section-title">{{ current_subject.name }} Branches</h2>
+    <span class="section-header-subtitle">Select a branch below to explore its chapters and study notes</span>
+  </div>
+  <span class="recent-pill">{{ current_subject.branches|length }} Branches</span>
+</div>
+
+<!-- Grid of Branches -->
+<div class="chapter-card-grid">
+  {% for b in current_subject.branches %}
+  <a href="{{ root_path }}{{ current_subject.id }}/{{ b.id }}/" class="chapter-overview-card" aria-label="Explore {{ b.name }} chapters">
+    <div class="chapter-card-top">
+      <div class="chapter-badge">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
+        <span>Branch {{ loop.index }}</span>
+      </div>
+      <span class="chapter-count-pill">{{ b.chapters|length }} {% if b.chapters|length == 1 %}Chapter{% else %}Chapters{% endif %}</span>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 0.75rem; margin: 0.5rem 0 0.35rem;">
+      <div style="width: 32px; height: 32px; border-radius: 6px; background: rgba(59, 130, 246, 0.1); color: var(--accent); display: flex; align-items: center; justify-content: center;">
+        {{ get_icon(b.icon or current_subject.icon)|safe }}
+      </div>
+      <h3 class="chapter-card-title" style="margin: 0;">{{ b.name }}</h3>
+    </div>
+
+    <p class="chapter-card-desc">
+      {% if b.description %}
+        {{ b.description }}
+      {% else %}
+        High-yield study notes, definitions, formulas, and revision materials for {{ b.name }}.
+      {% endif %}
+    </p>
+
+    <div class="chapter-card-footer">
+      <span class="chapter-explore-btn">
+        <span>Browse Chapters</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </span>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+
+{% else %}
 <!-- Section Header for Chapters -->
 <div class="section-header" style="margin-bottom: 1.5rem;">
   <div>
@@ -103,6 +157,7 @@
   <p>No chapters published under {{ current_subject.name }} yet.</p>
   <a href="{{ root_path }}" class="compact-empty-link">&larr; Back to Subjects</a>
 </div>
+{% endif %}
 {% endif %}
 
 <!-- In-Article Ad Slot (Properly Centered and Aligned) -->

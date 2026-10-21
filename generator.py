@@ -281,6 +281,7 @@ def build_site():
     template_index = env.get_template("index.html")
     template_note = env.get_template("note.html")
     template_subject = env.get_template("subject.html")
+    template_branch = env.get_template("branch.html")
     template_chapter = env.get_template("chapter.html")
     template_page = env.get_template("page.html")
 
@@ -302,13 +303,34 @@ def build_site():
     subjects_dict = {}
     for sub in subjects:
         sub_id = sub["id"]
-        chapters_list = sub.get("chapters", [])
-        chapters_dict = {ch["id"]: ch for ch in chapters_list}
-        subjects_dict[sub_id] = {
-            "info": sub,
-            "chapters": chapters_dict,
-            "notes": []
-        }
+        has_branches = bool(sub.get("branches"))
+        if has_branches:
+            branches_dict = {}
+            for b in sub.get("branches", []):
+                b_id = b["id"]
+                chapters_dict = {ch["id"]: ch for ch in b.get("chapters", [])}
+                branches_dict[b_id] = {
+                    "info": b,
+                    "chapters": chapters_dict,
+                    "notes": []
+                }
+            subjects_dict[sub_id] = {
+                "info": sub,
+                "has_branches": True,
+                "branches": branches_dict,
+                "chapters": {},
+                "notes": []
+            }
+        else:
+            chapters_list = sub.get("chapters", [])
+            chapters_dict = {ch["id"]: ch for ch in chapters_list}
+            subjects_dict[sub_id] = {
+                "info": sub,
+                "has_branches": False,
+                "branches": {},
+                "chapters": chapters_dict,
+                "notes": []
+            }
 
     # 1. Discover all notes/topics in content/notes/
     all_notes = []
@@ -318,9 +340,9 @@ def build_site():
             if not meta.get("title"):
                 continue
 
+            rel_parts = note_file.relative_to(NOTES_DIR).parts
             sub_id = str(meta.get("subject", "")).lower().strip()
             # If not in frontmatter, infer from directory
-            rel_parts = note_file.relative_to(NOTES_DIR).parts
             if not sub_id and len(rel_parts) >= 2:
                 sub_id = rel_parts[0].lower().strip()
 
@@ -328,31 +350,91 @@ def build_site():
                 # Dynamically register unknown subject
                 subjects_dict[sub_id] = {
                     "info": {"id": sub_id, "name": sub_id.capitalize(), "description": "", "icon": "book", "chapters": []},
+                    "has_branches": False,
+                    "branches": {},
                     "chapters": {},
                     "notes": []
                 }
 
-            # Chapter handling
-            chapter_raw = str(meta.get("chapter", "")).strip()
-            if not chapter_raw and len(rel_parts) >= 3:
-                chapter_raw = rel_parts[1]
-            if not chapter_raw:
-                chapter_raw = "general"
+            is_branched = subjects_dict[sub_id]["has_branches"] or bool(meta.get("branch")) or len(rel_parts) >= 4
 
-            chapter_id = chapter_raw.lower().replace(" ", "-")
-            # Look up or create chapter
-            ch_info = subjects_dict[sub_id]["chapters"].get(chapter_id)
-            if not ch_info:
-                # Look up by name
-                for c in subjects_dict[sub_id]["chapters"].values():
-                    if c.get("name", "").lower() == chapter_raw.lower():
-                        ch_info = c
-                        chapter_id = c["id"]
-                        break
-            if not ch_info:
-                ch_name = chapter_raw.replace("-", " ").title()
-                ch_info = {"id": chapter_id, "name": ch_name, "description": ""}
-                subjects_dict[sub_id]["chapters"][chapter_id] = ch_info
+            branch_id = ""
+            branch_name = ""
+            branch_info = None
+
+            if is_branched:
+                branch_raw = str(meta.get("branch", "")).strip().lower()
+                if not branch_raw and len(rel_parts) >= 4:
+                    branch_raw = rel_parts[1].lower().strip()
+                if not branch_raw:
+                    branch_raw = "general"
+                branch_id = branch_raw
+
+                # Lookup branch in subjects_dict[sub_id]["branches"]
+                if branch_id not in subjects_dict[sub_id]["branches"]:
+                    found_b = False
+                    for b_key, b_val in subjects_dict[sub_id]["branches"].items():
+                        if b_val["info"].get("name", "").lower() == branch_id.lower():
+                            branch_id = b_key
+                            branch_info = b_val["info"]
+                            found_b = True
+                            break
+                    if not found_b:
+                        branch_info = {"id": branch_id, "name": branch_id.replace("-", " ").title(), "description": "", "chapters": []}
+                        subjects_dict[sub_id]["branches"][branch_id] = {
+                            "info": branch_info,
+                            "chapters": {},
+                            "notes": []
+                        }
+                else:
+                    branch_info = subjects_dict[sub_id]["branches"][branch_id]["info"]
+
+                branch_name = branch_info.get("name", branch_id.replace("-", " ").title())
+
+                # Chapter handling under branch
+                chapter_raw = str(meta.get("chapter", "")).strip()
+                if not chapter_raw and len(rel_parts) >= 4:
+                    chapter_raw = rel_parts[2]
+                elif not chapter_raw and len(rel_parts) >= 3:
+                    chapter_raw = rel_parts[1]
+                if not chapter_raw:
+                    chapter_raw = "general"
+
+                chapter_id = chapter_raw.lower().replace(" ", "-")
+                branch_chapters = subjects_dict[sub_id]["branches"][branch_id]["chapters"]
+                ch_info = branch_chapters.get(chapter_id)
+                if not ch_info:
+                    for c in branch_chapters.values():
+                        if c.get("name", "").lower() == chapter_raw.lower():
+                            ch_info = c
+                            chapter_id = c["id"]
+                            break
+                if not ch_info:
+                    ch_name = chapter_raw.replace("-", " ").title()
+                    ch_info = {"id": chapter_id, "name": ch_name, "description": ""}
+                    branch_chapters[chapter_id] = ch_info
+
+            else:
+                # Chapter handling directly under subject
+                chapter_raw = str(meta.get("chapter", "")).strip()
+                if not chapter_raw and len(rel_parts) >= 3:
+                    chapter_raw = rel_parts[1]
+                if not chapter_raw:
+                    chapter_raw = "general"
+
+                chapter_id = chapter_raw.lower().replace(" ", "-")
+                sub_chapters = subjects_dict[sub_id]["chapters"]
+                ch_info = sub_chapters.get(chapter_id)
+                if not ch_info:
+                    for c in sub_chapters.values():
+                        if c.get("name", "").lower() == chapter_raw.lower():
+                            ch_info = c
+                            chapter_id = c["id"]
+                            break
+                if not ch_info:
+                    ch_name = chapter_raw.replace("-", " ").title()
+                    ch_info = {"id": chapter_id, "name": ch_name, "description": ""}
+                    sub_chapters[chapter_id] = ch_info
 
             slug = meta.get("slug") or note_file.stem
             excerpt = meta.get("excerpt") or (md_content[:140].replace("\n", " ") + "...")
@@ -365,6 +447,11 @@ def build_site():
 
             sub_name = subjects_dict[sub_id]["info"].get("name", sub_id.capitalize())
             chapter_name = ch_info.get("name", chapter_id.title())
+
+            if branch_id:
+                url_path = f"{sub_id}/{branch_id}/{chapter_id}/{slug}"
+            else:
+                url_path = f"{sub_id}/{chapter_id}/{slug}"
 
             raw_tags = meta.get("tags", [])
             if isinstance(raw_tags, str):
@@ -380,8 +467,11 @@ def build_site():
                 "slug": slug,
                 "subject": sub_id,
                 "subject_name": sub_name,
+                "branch": branch_id,
+                "branch_name": branch_name,
                 "chapter": chapter_id,
                 "chapter_name": chapter_name,
+                "url_path": url_path,
                 "excerpt": excerpt,
                 "tags": tags,
                 "tags_str": ", ".join(tags),
@@ -394,6 +484,8 @@ def build_site():
             }
 
             subjects_dict[sub_id]["notes"].append(note_obj)
+            if branch_id:
+                subjects_dict[sub_id]["branches"][branch_id]["notes"].append(note_obj)
             all_notes.append(note_obj)
 
     # Sort all notes strictly newest to oldest (recent first)
@@ -404,7 +496,9 @@ def build_site():
         subjects_dict[sub_id]["notes"].sort(key=lambda x: (x.get("last_modified") or x.get("date") or ""), reverse=True)
         subjects_dict[sub_id]["recent_2"] = subjects_dict[sub_id]["notes"][:2]
         subjects_dict[sub_id]["recent_3"] = subjects_dict[sub_id]["notes"][:3]
-
+        if subjects_dict[sub_id]["has_branches"]:
+            for b_id in subjects_dict[sub_id]["branches"]:
+                subjects_dict[sub_id]["branches"][b_id]["notes"].sort(key=lambda x: (x.get("last_modified") or x.get("date") or ""), reverse=True)
 
     sitemap_entries = []
 
@@ -413,116 +507,267 @@ def build_site():
         sub_info = sub_data["info"]
         sub_notes = sub_data["notes"]
 
-        # Group notes by chapter
-        grouped_by_chapter = {}
-        for ch_id, ch_obj in sub_data["chapters"].items():
-            grouped_by_chapter[ch_id] = {
-                "info": ch_obj,
-                "notes": []
-            }
+        if sub_data["has_branches"]:
+            # ---- BRANCHED SUBJECT HIERARCHY (e.g. Chemistry) ----
+            # Subject -> Branch -> Chapter -> Topic
+            branches_summary = []
 
-        for n in sub_notes:
-            ch_id = n["chapter"]
-            if ch_id not in grouped_by_chapter:
-                grouped_by_chapter[ch_id] = {
-                    "info": {"id": ch_id, "name": n["chapter_name"], "description": ""},
-                    "notes": []
-                }
-            grouped_by_chapter[ch_id]["notes"].append(n)
+            for b_id, b_data in sub_data["branches"].items():
+                b_info = b_data["info"]
+                b_notes = b_data["notes"]
 
-        # Sort notes within each chapter
-        for ch_id in grouped_by_chapter:
-            grouped_by_chapter[ch_id]["notes"].sort(key=lambda x: (x["order"], x["title"]))
+                # Group notes by chapter within this branch
+                grouped_by_chapter = {}
+                for ch_id, ch_obj in b_data["chapters"].items():
+                    grouped_by_chapter[ch_id] = {
+                        "info": ch_obj,
+                        "notes": []
+                    }
 
-        # Sequential list of notes in subject for Prev / Next links
-        flattened_notes = []
-        for ch_id in sorted(grouped_by_chapter.keys()):
-            flattened_notes.extend(grouped_by_chapter[ch_id]["notes"])
+                for n in b_notes:
+                    ch_id = n["chapter"]
+                    if ch_id not in grouped_by_chapter:
+                        grouped_by_chapter[ch_id] = {
+                            "info": {"id": ch_id, "name": n["chapter_name"], "description": ""},
+                            "notes": []
+                        }
+                    grouped_by_chapter[ch_id]["notes"].append(n)
 
-        # Render Topic Pages: Clean URL /<subject>/<chapter>/<topic-slug>/
-        for i, note in enumerate(flattened_notes):
-            prev_note = flattened_notes[i - 1] if i > 0 else None
-            next_note = flattened_notes[i + 1] if i < len(flattened_notes) - 1 else None
+                # Sort notes within each chapter
+                for ch_id in grouped_by_chapter:
+                    grouped_by_chapter[ch_id]["notes"].sort(key=lambda x: (x["order"], x["title"]))
 
-            # Clean canonical URL ending with slash
-            clean_rel_dir = f"{sub_id}/{note['chapter']}/{note['slug']}"
-            note_canonical = f"{config.get('site_url', '').rstrip('/')}/{clean_rel_dir}/"
+                # Sequential list of notes in branch for Prev / Next links
+                flattened_branch_notes = []
+                for ch_id in sorted(grouped_by_chapter.keys()):
+                    flattened_branch_notes.extend(grouped_by_chapter[ch_id]["notes"])
 
-            # Root path depth for 3 levels: ../../../
-            rendered_topic = template_note.render(
+                # Render Topic Pages: Clean URL /<subject>/<branch>/<chapter>/<topic-slug>/
+                for i, note in enumerate(flattened_branch_notes):
+                    prev_note = flattened_branch_notes[i - 1] if i > 0 else None
+                    next_note = flattened_branch_notes[i + 1] if i < len(flattened_branch_notes) - 1 else None
+
+                    clean_rel_dir = note["url_path"]
+                    note_canonical = f"{config.get('site_url', '').rstrip('/')}/{clean_rel_dir}/"
+
+                    # Depth 4: ../../../../
+                    rendered_topic = template_note.render(
+                        config=config,
+                        note=note,
+                        content=note["html_content"],
+                        grouped_chapters=grouped_by_chapter,
+                        prev_note=prev_note,
+                        next_note=next_note,
+                        page_title=note["title"],
+                        page_description=note["excerpt"],
+                        current_url=note_canonical,
+                        root_path="../../../../",
+                        ad_slots=ad_slots,
+                        current_year=current_year
+                    )
+                    write_clean_page(clean_rel_dir, rendered_topic)
+
+                    sitemap_entries.append({
+                        "loc": note_canonical,
+                        "lastmod": note["last_modified"],
+                        "changefreq": "weekly",
+                        "priority": "0.8"
+                    })
+
+                # Render Chapter Pages: Clean URL /<subject>/<branch>/<chapter>/
+                for ch_id, ch_data in grouped_by_chapter.items():
+                    clean_ch_dir = f"{sub_id}/{b_id}/{ch_id}"
+                    ch_canonical = f"{config.get('site_url', '').rstrip('/')}/{clean_ch_dir}/"
+
+                    rendered_ch = template_chapter.render(
+                        config=config,
+                        subject=sub_info,
+                        branch=b_info,
+                        chapter=ch_data["info"],
+                        notes=ch_data["notes"],
+                        page_title=f"{ch_data['info']['name']} Notes | {b_info['name']} | {sub_info['name']}",
+                        page_description=ch_data["info"].get("description") or f"High yield study notes for {ch_data['info']['name']} under {b_info['name']}.",
+                        current_url=ch_canonical,
+                        root_path="../../../",
+                        ad_slots=ad_slots,
+                        current_year=current_year
+                    )
+                    write_clean_page(clean_ch_dir, rendered_ch)
+
+                    sitemap_entries.append({
+                        "loc": ch_canonical,
+                        "lastmod": today_str,
+                        "changefreq": "daily",
+                        "priority": "0.85"
+                    })
+
+                # Render Branch Page: Clean URL /<subject>/<branch>/
+                clean_branch_dir = f"{sub_id}/{b_id}"
+                branch_canonical = f"{config.get('site_url', '').rstrip('/')}/{clean_branch_dir}/"
+
+                rendered_branch = template_branch.render(
+                    config=config,
+                    subject=sub_info,
+                    branch=b_info,
+                    grouped_chapters=grouped_by_chapter,
+                    total_notes_count=len(b_notes),
+                    page_title=f"{b_info['name']} Chapters | {sub_info['name']}",
+                    page_description=b_info.get("description", ""),
+                    current_url=branch_canonical,
+                    root_path="../../",
+                    ad_slots=ad_slots,
+                    current_year=current_year
+                )
+                write_clean_page(clean_branch_dir, rendered_branch)
+
+                sitemap_entries.append({
+                    "loc": branch_canonical,
+                    "lastmod": today_str,
+                    "changefreq": "daily",
+                    "priority": "0.88"
+                })
+
+                branches_summary.append({
+                    "info": b_info,
+                    "chapters_count": len(grouped_by_chapter),
+                    "notes_count": len(b_notes)
+                })
+
+            # Render Subject Page: Clean URL /<subject>/ (Branch Grid)
+            sub_canonical = f"{config.get('site_url', '').rstrip('/')}/{sub_id}/"
+            rendered_sub = template_subject.render(
                 config=config,
-                note=note,
-                content=note["html_content"],
-                grouped_chapters=grouped_by_chapter,
-                prev_note=prev_note,
-                next_note=next_note,
-                page_title=note["title"],
-                page_description=note["excerpt"],
-                current_url=note_canonical,
-                root_path="../../../",
+                current_subject=sub_info,
+                branches_summary=branches_summary,
+                grouped_chapters={},
+                total_notes_count=len(sub_notes),
+                page_title=f"{sub_info['name']} Branches & Chapters",
+                page_description=sub_info.get("description", ""),
+                current_url=sub_canonical,
+                root_path="../",
                 ad_slots=ad_slots,
                 current_year=current_year
             )
-
-            write_clean_page(clean_rel_dir, rendered_topic)
-
-            sitemap_entries.append({
-                "loc": note_canonical,
-                "lastmod": note["last_modified"],
-                "changefreq": "weekly",
-                "priority": "0.8"
-            })
-
-        # Render Chapter Pages: Clean URL /<subject>/<chapter>/
-        for ch_id, ch_data in grouped_by_chapter.items():
-            clean_ch_dir = f"{sub_id}/{ch_id}"
-            ch_canonical = f"{config.get('site_url', '').rstrip('/')}/{clean_ch_dir}/"
-
-            rendered_ch = template_chapter.render(
-                config=config,
-                subject=sub_info,
-                chapter=ch_data["info"],
-                notes=ch_data["notes"],
-                page_title=f"{ch_data['info']['name']} Notes | {sub_info['name']}",
-                page_description=ch_data["info"].get("description") or f"High yield study notes for {ch_data['info']['name']}.",
-                current_url=ch_canonical,
-                root_path="../../",
-                ad_slots=ad_slots,
-                current_year=current_year
-            )
-
-            write_clean_page(clean_ch_dir, rendered_ch)
+            write_clean_page(sub_id, rendered_sub)
 
             sitemap_entries.append({
-                "loc": ch_canonical,
+                "loc": sub_canonical,
                 "lastmod": today_str,
                 "changefreq": "daily",
-                "priority": "0.85"
+                "priority": "0.9"
             })
 
-        # Render Subject Pages: Clean URL /<subject>/
-        sub_canonical = f"{config.get('site_url', '').rstrip('/')}/{sub_id}/"
-        rendered_sub = template_subject.render(
-            config=config,
-            current_subject=sub_info,
-            grouped_chapters=grouped_by_chapter,
-            total_notes_count=len(sub_notes),
-            page_title=f"{sub_info['name']} Notes",
-            page_description=sub_info.get("description", ""),
-            current_url=sub_canonical,
-            root_path="../",
-            ad_slots=ad_slots,
-            current_year=current_year
-        )
+        else:
+            # ---- STANDARD SUBJECT HIERARCHY (Direct Chapters: Mathematics, Physics, Biology) ----
+            # Subject -> Chapter -> Topic
+            grouped_by_chapter = {}
+            for ch_id, ch_obj in sub_data["chapters"].items():
+                grouped_by_chapter[ch_id] = {
+                    "info": ch_obj,
+                    "notes": []
+                }
 
-        write_clean_page(sub_id, rendered_sub)
+            for n in sub_notes:
+                ch_id = n["chapter"]
+                if ch_id not in grouped_by_chapter:
+                    grouped_by_chapter[ch_id] = {
+                        "info": {"id": ch_id, "name": n["chapter_name"], "description": ""},
+                        "notes": []
+                    }
+                grouped_by_chapter[ch_id]["notes"].append(n)
 
-        sitemap_entries.append({
-            "loc": sub_canonical,
-            "lastmod": today_str,
-            "changefreq": "daily",
-            "priority": "0.9"
-        })
+            # Sort notes within each chapter
+            for ch_id in grouped_by_chapter:
+                grouped_by_chapter[ch_id]["notes"].sort(key=lambda x: (x["order"], x["title"]))
+
+            # Sequential list of notes in subject for Prev / Next links
+            flattened_notes = []
+            for ch_id in sorted(grouped_by_chapter.keys()):
+                flattened_notes.extend(grouped_by_chapter[ch_id]["notes"])
+
+            # Render Topic Pages: Clean URL /<subject>/<chapter>/<topic-slug>/
+            for i, note in enumerate(flattened_notes):
+                prev_note = flattened_notes[i - 1] if i > 0 else None
+                next_note = flattened_notes[i + 1] if i < len(flattened_notes) - 1 else None
+
+                clean_rel_dir = note["url_path"]
+                note_canonical = f"{config.get('site_url', '').rstrip('/')}/{clean_rel_dir}/"
+
+                # Root path depth for 3 levels: ../../../
+                rendered_topic = template_note.render(
+                    config=config,
+                    note=note,
+                    content=note["html_content"],
+                    grouped_chapters=grouped_by_chapter,
+                    prev_note=prev_note,
+                    next_note=next_note,
+                    page_title=note["title"],
+                    page_description=note["excerpt"],
+                    current_url=note_canonical,
+                    root_path="../../../",
+                    ad_slots=ad_slots,
+                    current_year=current_year
+                )
+
+                write_clean_page(clean_rel_dir, rendered_topic)
+
+                sitemap_entries.append({
+                    "loc": note_canonical,
+                    "lastmod": note["last_modified"],
+                    "changefreq": "weekly",
+                    "priority": "0.8"
+                })
+
+            # Render Chapter Pages: Clean URL /<subject>/<chapter>/
+            for ch_id, ch_data in grouped_by_chapter.items():
+                clean_ch_dir = f"{sub_id}/{ch_id}"
+                ch_canonical = f"{config.get('site_url', '').rstrip('/')}/{clean_ch_dir}/"
+
+                rendered_ch = template_chapter.render(
+                    config=config,
+                    subject=sub_info,
+                    chapter=ch_data["info"],
+                    notes=ch_data["notes"],
+                    page_title=f"{ch_data['info']['name']} Notes | {sub_info['name']}",
+                    page_description=ch_data["info"].get("description") or f"High yield study notes for {ch_data['info']['name']}.",
+                    current_url=ch_canonical,
+                    root_path="../../",
+                    ad_slots=ad_slots,
+                    current_year=current_year
+                )
+
+                write_clean_page(clean_ch_dir, rendered_ch)
+
+                sitemap_entries.append({
+                    "loc": ch_canonical,
+                    "lastmod": today_str,
+                    "changefreq": "daily",
+                    "priority": "0.85"
+                })
+
+            # Render Subject Pages: Clean URL /<subject>/
+            sub_canonical = f"{config.get('site_url', '').rstrip('/')}/{sub_id}/"
+            rendered_sub = template_subject.render(
+                config=config,
+                current_subject=sub_info,
+                grouped_chapters=grouped_by_chapter,
+                total_notes_count=len(sub_notes),
+                page_title=f"{sub_info['name']} Notes",
+                page_description=sub_info.get("description", ""),
+                current_url=sub_canonical,
+                root_path="../",
+                ad_slots=ad_slots,
+                current_year=current_year
+            )
+
+            write_clean_page(sub_id, rendered_sub)
+
+            sitemap_entries.append({
+                "loc": sub_canonical,
+                "lastmod": today_str,
+                "changefreq": "daily",
+                "priority": "0.9"
+            })
 
     # 3. Render Home Page: Clean URL /
     home_canonical = f"{config.get('site_url', '').rstrip('/')}/"
@@ -634,9 +879,11 @@ def build_site():
             "slug": note["slug"],
             "subject": note["subject"],
             "subject_name": note["subject_name"],
+            "branch": note.get("branch", ""),
+            "branch_name": note.get("branch_name", ""),
             "chapter": note["chapter"],
             "chapter_name": note["chapter_name"],
-            "url": f"/{note['subject']}/{note['chapter']}/{note['slug']}/",
+            "url": f"/{note['url_path']}/",
             "excerpt": note["excerpt"],
             "tags": note["tags"],
             "reading_time": note["reading_time"],

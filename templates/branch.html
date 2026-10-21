@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block head_extra %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "{{ config.site_url }}/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "{{ subject.name }}",
+          "item": "{{ config.site_url }}/{{ subject.id }}/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "{{ branch.name }}",
+          "item": "{{ current_url }}"
+        }
+      ]
+    },
+    {
+      "@type": "CollectionPage",
+      "name": "{{ branch.name }} Chapters - {{ subject.name }}",
+      "description": "{{ page_description }}",
+      "url": "{{ current_url }}"
+    }
+  ]
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="article-header" style="text-align: left; margin-bottom: 2rem;">
+  <nav class="breadcrumbs" aria-label="Breadcrumb">
+    <a href="{{ root_path }}">Home</a>
+    <svg class="breadcrumb-separator" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+    <a href="{{ root_path }}{{ subject.id }}/">{{ subject.name }}</a>
+    <svg class="breadcrumb-separator" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+    <span>{{ branch.name }}</span>
+  </nav>
+
+  <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 0.5rem;">
+    <div style="display: flex; align-items: center; gap: 0.85rem;">
+      <div class="subject-feed-icon" style="width: 44px; height: 44px; font-size: 1.25rem;">
+        {{ get_icon(branch.icon or subject.icon)|safe }}
+      </div>
+      <div>
+        <h1 class="article-title" style="margin-bottom: 0.2rem;">{{ branch.name }} Chapters</h1>
+        <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">
+          {{ grouped_chapters|length }} {% if grouped_chapters|length == 1 %}Chapter{% else %}Chapters{% endif %} &bull; {{ total_notes_count }} Total {% if total_notes_count == 1 %}Topic{% else %}Topics{% endif %}
+        </span>
+      </div>
+    </div>
+    <a href="{{ root_path }}{{ subject.id }}/" class="theme-toggle-btn" style="width: auto; padding: 0.45rem 0.9rem; border-radius: 9999px; gap: 0.4rem; font-size: 0.8rem; font-weight: 600; text-decoration: none;" aria-label="Back to all {{ subject.name }} Branches">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      <span>All {{ subject.name }} Branches</span>
+    </a>
+  </div>
+
+  {% if branch.description %}
+  <p style="font-size: 1.05rem; color: var(--text-secondary); max-width: 750px; margin-top: 0.5rem;">{{ branch.description }}</p>
+  {% endif %}
+</div>
+
+<!-- Section Header for Branch Chapters -->
+<div class="section-header" style="margin-bottom: 1.5rem;">
+  <div>
+    <h2 class="section-title">Chapters in {{ branch.name }}</h2>
+    <span class="section-header-subtitle">Select a chapter below to view individual revision notes and formulas</span>
+  </div>
+  <span class="recent-pill">{{ grouped_chapters|length }} Available</span>
+</div>
+
+<!-- Grid of Chapters ONLY -->
+<div class="chapter-card-grid">
+  {% for ch_id, ch_data in grouped_chapters.items() %}
+  <a href="{{ root_path }}{{ subject.id }}/{{ branch.id }}/{{ ch_id }}/" class="chapter-overview-card" aria-label="Explore {{ ch_data.info.name }} topics">
+    <div class="chapter-card-top">
+      <div class="chapter-badge">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
+        <span>Chapter {{ loop.index }}</span>
+      </div>
+      <span class="chapter-count-pill">{{ ch_data.notes|length }} {% if ch_data.notes|length == 1 %}Topic{% else %}Topics{% endif %}</span>
+    </div>
+
+    <h3 class="chapter-card-title">{{ ch_data.info.name }}</h3>
+
+    <p class="chapter-card-desc">
+      {% if ch_data.info.description %}
+        {{ ch_data.info.description }}
+      {% else %}
+        High-yield study notes, reaction mechanisms, definitions, and formulas for {{ ch_data.info.name }}.
+      {% endif %}
+    </p>
+
+    <div class="chapter-card-footer">
+      <span class="chapter-explore-btn">
+        <span>Browse Topics</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </span>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+
+{% if not grouped_chapters %}
+<div class="compact-empty-state" style="padding: 3rem 1.5rem; margin-top: 1.5rem;">
+  <p>No chapters published under {{ branch.name }} yet.</p>
+  <a href="{{ root_path }}{{ subject.id }}/" class="compact-empty-link">&larr; Back to {{ subject.name }}</a>
+</div>
+{% endif %}
+
+<!-- In-Article Ad Slot -->
+{% if ad_slots.in_article %}
+<div class="main-ad-center" style="margin-top: 2.5rem;">
+  {{ ad_slots.in_article|safe }}
+</div>
+{% endif %}
+
+{% endblock %}

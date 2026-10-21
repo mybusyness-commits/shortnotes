@@ -61,24 +61,47 @@ def get_all_notes_list():
             if not meta.get("title"):
                 continue
 
-            sub_id = str(meta.get("subject", "")).lower().strip()
-            chapter_id = str(meta.get("chapter", "general")).lower().strip().replace(" ", "-")
-
             rel_parts = f.relative_to(NOTES_DIR).parts
+            sub_id = str(meta.get("subject", "")).lower().strip()
             if not sub_id and len(rel_parts) >= 2:
-                sub_id = rel_parts[0]
-            if chapter_id == "general" and len(rel_parts) >= 3:
-                chapter_id = rel_parts[1]
+                sub_id = rel_parts[0].lower().strip()
 
             sub_info = subjects_map.get(sub_id, {})
             sub_name = sub_info.get("name", sub_id.capitalize())
 
-            # Find chapter name
+            # Detect branch
+            branch_id = str(meta.get("branch", "")).lower().strip()
+            if not branch_id and len(rel_parts) >= 4:
+                branch_id = rel_parts[1].lower().strip()
+
+            # Chapter handling
+            chapter_id = str(meta.get("chapter", "")).lower().strip().replace(" ", "-")
+            if not chapter_id:
+                if len(rel_parts) >= 4:
+                    chapter_id = rel_parts[2].lower().strip().replace(" ", "-")
+                elif len(rel_parts) >= 3:
+                    chapter_id = rel_parts[1].lower().strip().replace(" ", "-")
+                else:
+                    chapter_id = "general"
+
+            branch_name = ""
             ch_name = chapter_id.replace("-", " ").title()
-            for ch in sub_info.get("chapters", []):
-                if ch["id"] == chapter_id or ch.get("name", "").lower() == chapter_id.lower():
-                    ch_name = ch["name"]
-                    break
+
+            if branch_id and sub_info.get("branches"):
+                for b in sub_info.get("branches", []):
+                    if b["id"] == branch_id or b.get("name", "").lower() == branch_id.lower():
+                        branch_id = b["id"]
+                        branch_name = b["name"]
+                        for ch in b.get("chapters", []):
+                            if ch["id"] == chapter_id or ch.get("name", "").lower() == chapter_id.lower():
+                                ch_name = ch["name"]
+                                break
+                        break
+            else:
+                for ch in sub_info.get("chapters", []):
+                    if ch["id"] == chapter_id or ch.get("name", "").lower() == chapter_id.lower():
+                        ch_name = ch["name"]
+                        break
 
             raw_tags = meta.get("tags", [])
             if isinstance(raw_tags, str):
@@ -94,6 +117,8 @@ def get_all_notes_list():
                 "slug": meta.get("slug", f.stem),
                 "subject": sub_id,
                 "subject_name": sub_name,
+                "branch": branch_id,
+                "branch_name": branch_name,
                 "chapter": chapter_id,
                 "chapter_name": ch_name,
                 "date": meta.get("date", ""),
@@ -886,7 +911,12 @@ NOTES_LIST_HTML = """
     <tbody>
       {% for note in notes %}
       <tr>
-        <td><span class="badge badge-blue">{{ note.subject_name }}</span></td>
+        <td>
+          <span class="badge badge-blue">{{ note.subject_name }}</span>
+          {% if note.branch_name %}
+          <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #6ee7b7; font-size: 0.72rem; margin-left: 0.25rem;">{{ note.branch_name }}</span>
+          {% endif %}
+        </td>
         <td><span class="badge badge-purple">{{ note.chapter_name }}</span></td>
         <td>
           <strong>{{ note.title }}</strong>
@@ -999,10 +1029,17 @@ NOTE_FORM_HTML = """
     <div class="form-grid">
       <div class="form-group">
         <label class="form-label">Subject *</label>
-        <select name="subject" id="note-subject-select" class="form-control" required onchange="updateChapterOptions()">
+        <select name="subject" id="note-subject-select" class="form-control" required onchange="onSubjectChange()">
           {% for sub in config.subjects %}
           <option value="{{ sub.id }}" {% if note_meta.get('subject') == sub.id %}selected{% endif %}>{{ sub.name }}</option>
           {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group" id="branch-select-group" style="display: none;">
+        <label class="form-label">Branch *</label>
+        <select name="branch" id="note-branch-select" class="form-control" onchange="updateChapterOptions()">
+          <!-- Populated dynamically via JS -->
         </select>
       </div>
 
@@ -1085,17 +1122,59 @@ NOTE_FORM_HTML = """
 
 <script>
   const subjectsData = {{ subjects_json|safe }};
+  const currentBranch = "{{ note_meta.get('branch', '') }}";
   const currentChapter = "{{ note_meta.get('chapter', '') }}";
+
+  function onSubjectChange() {
+    const subSelect = document.getElementById('note-subject-select');
+    const branchGroup = document.getElementById('branch-select-group');
+    const branchSelect = document.getElementById('note-branch-select');
+    const selectedSubId = subSelect.value;
+    const subObj = subjectsData.find(s => s.id === selectedSubId);
+
+    if (subObj && subObj.branches && subObj.branches.length > 0) {
+      branchGroup.style.display = 'block';
+      branchSelect.required = true;
+      branchSelect.innerHTML = '';
+      subObj.branches.forEach(b => {
+        const opt = document.createElement('option');
+        opt.value = b.id;
+        opt.textContent = b.name;
+        if (b.id === currentBranch || b.name.toLowerCase() === currentBranch.toLowerCase()) {
+          opt.selected = true;
+        }
+        branchSelect.appendChild(opt);
+      });
+    } else {
+      branchGroup.style.display = 'none';
+      branchSelect.required = false;
+      branchSelect.innerHTML = '';
+    }
+    updateChapterOptions();
+  }
 
   function updateChapterOptions() {
     const subSelect = document.getElementById('note-subject-select');
+    const branchSelect = document.getElementById('note-branch-select');
     const chSelect = document.getElementById('note-chapter-select');
     const selectedSubId = subSelect.value;
+    const subObj = subjectsData.find(s => s.id === selectedSubId);
 
     chSelect.innerHTML = '';
-    const subObj = subjectsData.find(s => s.id === selectedSubId);
-    if (subObj && subObj.chapters && subObj.chapters.length > 0) {
-      subObj.chapters.forEach(ch => {
+    let chapters = [];
+
+    if (subObj && subObj.branches && subObj.branches.length > 0) {
+      const selectedBranchId = branchSelect.value;
+      const branchObj = subObj.branches.find(b => b.id === selectedBranchId) || subObj.branches[0];
+      if (branchObj && branchObj.chapters) {
+        chapters = branchObj.chapters;
+      }
+    } else if (subObj && subObj.chapters) {
+      chapters = subObj.chapters;
+    }
+
+    if (chapters.length > 0) {
+      chapters.forEach(ch => {
         const opt = document.createElement('option');
         opt.value = ch.id;
         opt.textContent = ch.name;
@@ -1113,7 +1192,7 @@ NOTE_FORM_HTML = """
   }
 
   // Initialize on page load
-  updateChapterOptions();
+  onSubjectChange();
 
   function showAIFeedback(msg, isSuccess = true) {
     const box = document.getElementById('ai-feedback-msg');
@@ -1146,6 +1225,7 @@ NOTE_FORM_HTML = """
     const contentArea = document.getElementById('note-content');
     const titleInput = document.getElementById('note-title');
     const subSelect = document.getElementById('note-subject-select');
+    const branchSelect = document.getElementById('note-branch-select');
     const chSelect = document.getElementById('note-chapter-select');
 
     const contentVal = contentArea.value.trim();
@@ -1176,6 +1256,7 @@ NOTE_FORM_HTML = """
           content: contentVal,
           title: titleInput.value,
           subject: subSelect.value,
+          branch: (branchSelect && branchSelect.offsetParent !== null) ? branchSelect.value : '',
           chapter: chSelect.value
         })
       });
@@ -1204,7 +1285,11 @@ NOTE_FORM_HTML = """
           if (seo.tags) document.getElementById('note-tags').value = seo.tags;
           if (seo.subject) {
             subSelect.value = seo.subject;
-            updateChapterOptions();
+            onSubjectChange();
+            if (seo.branch && branchSelect) {
+              branchSelect.value = seo.branch;
+              updateChapterOptions();
+            }
             if (seo.chapter) chSelect.value = seo.chapter;
           }
           showAIFeedback('🏷️ Title, URL Slug, Excerpt, and SEO Tags generated!');
@@ -1253,7 +1338,11 @@ NOTE_FORM_HTML = """
         if (d.subject) {
           const subSelect = document.getElementById('note-subject-select');
           subSelect.value = d.subject;
-          updateChapterOptions();
+          onSubjectChange();
+          if (d.branch && document.getElementById('note-branch-select')) {
+            document.getElementById('note-branch-select').value = d.branch;
+            updateChapterOptions();
+          }
           if (d.chapter) document.getElementById('note-chapter-select').value = d.chapter;
         }
         closeAIDraftModal();
@@ -1305,6 +1394,63 @@ SUBJECTS_HTML = """
     </div>
 
     <!-- Chapters list under this subject -->
+    {% if sub.branches %}
+    <!-- Branches list under this subject -->
+    <div style="margin-left: 1rem;">
+      <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.6rem; letter-spacing: 0.05em;">
+        Branches & Chapters in {{ sub.name }}:
+      </div>
+      {% for b in sub.branches %}
+      <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border); border-radius: 8px; padding: 1rem; margin-bottom: 1.25rem;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.5rem;">
+          <div style="display: flex; align-items: center; gap: 0.6rem;">
+            <div style="width: 24px; height: 24px; border-radius: 4px; background: rgba(59, 130, 246, 0.15); display: flex; align-items: center; justify-content: center; color: var(--accent);">
+              {{ get_icon(b.icon or sub.icon)|safe }}
+            </div>
+            <strong style="font-size: 0.95rem; color: #93c5fd;">{{ b.name }}</strong>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">(<code>/{{ sub.id }}/{{ b.id }}/</code>)</span>
+          </div>
+          <span class="badge badge-blue" style="font-size: 0.72rem;">{{ b.chapters|length }} Chapters</span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.85rem;">
+          {% for ch in b.chapters %}
+          <div style="background: #111827; border: 1px solid var(--card-border); border-radius: 6px; padding: 0.65rem 0.85rem; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <strong style="font-size: 0.9rem;">{{ ch.name }}</strong>
+              <span style="font-size: 0.75rem; color: var(--text-muted); margin-left: 0.5rem;"><code>/{{ sub.id }}/{{ b.id }}/{{ ch.id }}/</code></span>
+              {% if ch.description %}
+              <p style="font-size: 0.775rem; color: var(--text-muted); margin-top: 0.15rem;">{{ ch.description }}</p>
+              {% endif %}
+            </div>
+            <div style="display: flex; gap: 0.4rem;">
+              <a href="{{ url_for('route_new_note') }}?sub={{ sub.id }}&branch={{ b.id }}&ch={{ ch.id }}" class="btn btn-success" style="padding: 0.25rem 0.55rem; font-size: 0.75rem;">+ Add Topic</a>
+              <a href="{{ url_for('route_edit_chapter', sub_id=sub.id, ch_id=ch.id) }}" class="btn btn-secondary" style="padding: 0.25rem 0.55rem; font-size: 0.75rem;">Edit</a>
+              <form method="POST" action="{{ url_for('route_delete_chapter', sub_id=sub.id, ch_id=ch.id) }}" style="display: inline;" onsubmit="return confirm('Delete chapter {{ ch.name }}?');">
+                <button type="submit" class="btn btn-danger" style="padding: 0.25rem 0.55rem; font-size: 0.75rem;">Delete</button>
+              </form>
+            </div>
+          </div>
+          {% endfor %}
+          {% if not b.chapters %}
+          <div style="color: var(--text-muted); font-size: 0.8rem; font-style: italic;">No chapters in {{ b.name }} yet. Add a chapter below.</div>
+          {% endif %}
+        </div>
+
+        <!-- Quick Add Chapter Form to this branch -->
+        <form method="POST" action="{{ url_for('route_add_chapter', sub_id=sub.id) }}" style="background: rgba(0,0,0,0.2); padding: 0.6rem; border-radius: 6px; border: 1px dashed var(--card-border); display: flex; gap: 0.6rem; align-items: center;">
+          <input type="hidden" name="branch_id" value="{{ b.id }}">
+          <input type="text" name="ch_name" class="form-control" placeholder="New Chapter in {{ b.name }} (e.g. Hydrocarbons)" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" required>
+          <input type="text" name="ch_id" class="form-control" placeholder="Slug (e.g. hydrocarbons)" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" required>
+          <input type="text" name="ch_desc" class="form-control" placeholder="Short description (optional)" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;">
+          <button type="submit" class="btn btn-primary" style="white-space: nowrap; padding: 0.35rem 0.75rem; font-size: 0.8rem;">+ Add to {{ b.name }}</button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% else %}
+    <!-- Chapters list under this subject -->
     <div style="margin-left: 1rem;">
       <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.6rem; letter-spacing: 0.05em;">
         Chapters in {{ sub.name }}:
@@ -1341,6 +1487,7 @@ SUBJECTS_HTML = """
         <button type="submit" class="btn btn-primary" style="white-space: nowrap; padding: 0.4rem 0.85rem; font-size: 0.825rem;">+ Add Chapter</button>
       </form>
     </div>
+    {% endif %}
   </div>
   {% endfor %}
 
@@ -1390,10 +1537,13 @@ CHAPTER_EDIT_HTML = """
 <div class="card">
   <h3 class="card-title">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-    <span>Edit Chapter: {{ target_chapter.name }} ({{ sub.name }})</span>
+    <span>Edit Chapter: {{ target_chapter.name }} ({{ sub.name }}{% if branch %} &gt; {{ branch.name }}{% endif %})</span>
   </h3>
 
   <form method="POST" action="{{ url_for('route_save_chapter', sub_id=sub.id, ch_id=target_chapter.id) }}">
+    {% if branch %}
+    <input type="hidden" name="branch_id" value="{{ branch.id }}">
+    {% endif %}
     <div class="form-grid">
       <div class="form-group">
         <label class="form-label">Chapter ID</label>
@@ -2127,11 +2277,14 @@ def route_notes():
 def route_new_note():
     config = load_config()
     pre_sub = request.args.get("sub", "")
+    pre_branch = request.args.get("branch", "")
     pre_ch = request.args.get("ch", "")
 
     note_meta = {}
     if pre_sub:
         note_meta["subject"] = pre_sub
+    if pre_branch:
+        note_meta["branch"] = pre_branch
     if pre_ch:
         note_meta["chapter"] = pre_ch
 
@@ -2162,6 +2315,9 @@ def route_edit_note():
 
     meta, raw_content = parse_frontmatter(target_file)
     meta["slug"] = meta.get("slug") or target_file.stem
+    rel_parts = target_file.relative_to(NOTES_DIR).parts
+    if not meta.get("branch") and len(rel_parts) >= 4:
+        meta["branch"] = rel_parts[1]
     config = load_config()
 
     tags_val = meta.get("tags", [])
@@ -2193,6 +2349,7 @@ def route_save_note():
     title = request.form.get("title", "").strip()
     slug = request.form.get("slug", "").strip().lower().replace(" ", "-")
     subject = request.form.get("subject", "").strip().lower()
+    branch = request.form.get("branch", "").strip().lower()
     chapter = request.form.get("chapter", "").strip().lower().replace(" ", "-")
     excerpt = request.form.get("excerpt", "").strip()
     raw_tags = request.form.get("tags", "").strip()
@@ -2210,8 +2367,11 @@ def route_save_note():
         if old_file.exists():
             old_meta, _ = parse_frontmatter(old_file)
             date_val = old_meta.get("date", today_str)
-            target_path = NOTES_DIR / subject / chapter / f"{slug}.md"
-            if str(old_file) != str(target_path):
+            if branch:
+                target_path = NOTES_DIR / subject / branch / chapter / f"{slug}.md"
+            else:
+                target_path = NOTES_DIR / subject / chapter / f"{slug}.md"
+            if str(old_file.resolve()) != str(target_path.resolve()):
                 old_file.unlink()
 
     tags_list = [t.strip().lower() for t in raw_tags.split(",") if t.strip()]
@@ -2226,8 +2386,13 @@ def route_save_note():
         "date": date_val,
         "last_modified": today_str
     }
+    if branch:
+        frontmatter["branch"] = branch
 
-    target_dir = NOTES_DIR / subject / chapter
+    if branch:
+        target_dir = NOTES_DIR / subject / branch / chapter
+    else:
+        target_dir = NOTES_DIR / subject / chapter
     target_dir.mkdir(parents=True, exist_ok=True)
     target_file = target_dir / f"{slug}.md"
 
@@ -2236,7 +2401,8 @@ def route_save_note():
         f.write(file_content)
 
     count = build_site()
-    flash(f"Topic '{title}' saved successfully under {chapter.title()}! Rebuilt {count} topics with Clean URLs.", "success")
+    dest_name = f"{branch.title()} > {chapter.title()}" if branch else chapter.title()
+    flash(f"Topic '{title}' saved successfully under {dest_name}! Rebuilt {count} topics with Clean URLs.", "success")
     return redirect(url_for("route_notes"))
 
 
@@ -2355,6 +2521,7 @@ def route_add_chapter(sub_id):
     ch_name = request.form.get("ch_name", "").strip()
     ch_id = request.form.get("ch_id", "").strip().lower().replace(" ", "-")
     ch_desc = request.form.get("ch_desc", "").strip()
+    branch_id = request.form.get("branch_id", "").strip().lower()
 
     if not ch_name or not ch_id:
         flash("Chapter name and slug are required.", "danger")
@@ -2363,22 +2530,37 @@ def route_add_chapter(sub_id):
     config = load_config()
     for s in config.get("subjects", []):
         if s["id"] == sub_id:
-            if "chapters" not in s:
-                s["chapters"] = []
-            # Check duplicate
-            if any(c["id"] == ch_id for c in s["chapters"]):
-                flash(f"Chapter '{ch_id}' already exists under this subject.", "danger")
-                return redirect(url_for("route_subjects"))
-            s["chapters"].append({
-                "id": ch_id,
-                "name": ch_name,
-                "description": ch_desc
-            })
-            break
+            if branch_id and s.get("branches"):
+                branch_match = next((b for b in s["branches"] if b["id"] == branch_id), None)
+                if branch_match:
+                    if "chapters" not in branch_match:
+                        branch_match["chapters"] = []
+                    if any(c["id"] == ch_id for c in branch_match["chapters"]):
+                        flash(f"Chapter '{ch_id}' already exists in {branch_match['name']}.", "danger")
+                        return redirect(url_for("route_subjects"))
+                    branch_match["chapters"].append({
+                        "id": ch_id,
+                        "name": ch_name,
+                        "description": ch_desc
+                    })
+                    break
+            else:
+                if "chapters" not in s:
+                    s["chapters"] = []
+                if any(c["id"] == ch_id for c in s["chapters"]):
+                    flash(f"Chapter '{ch_id}' already exists under this subject.", "danger")
+                    return redirect(url_for("route_subjects"))
+                s["chapters"].append({
+                    "id": ch_id,
+                    "name": ch_name,
+                    "description": ch_desc
+                })
+                break
 
     save_config(config)
     build_site()
-    flash(f"Chapter '{ch_name}' added under {sub_id}! Clean URL created at /{sub_id}/{ch_id}/.", "success")
+    clean_url = f"/{sub_id}/{branch_id}/{ch_id}/" if branch_id else f"/{sub_id}/{ch_id}/"
+    flash(f"Chapter '{ch_name}' added under {sub_id}! Clean URL created at {clean_url}.", "success")
     return redirect(url_for("route_subjects"))
 
 
@@ -2390,7 +2572,22 @@ def route_edit_chapter(sub_id, ch_id):
         flash("Subject not found.", "danger")
         return redirect(url_for("route_subjects"))
 
-    target_ch = next((c for c in sub.get("chapters", []) if c["id"] == ch_id), None)
+    target_ch = None
+    target_branch = None
+
+    if sub.get("branches"):
+        for b in sub["branches"]:
+            for c in b.get("chapters", []):
+                if c["id"] == ch_id:
+                    target_ch = c
+                    target_branch = b
+                    break
+            if target_ch:
+                break
+
+    if not target_ch:
+        target_ch = next((c for c in sub.get("chapters", []) if c["id"] == ch_id), None)
+
     if not target_ch:
         flash("Chapter not found.", "danger")
         return redirect(url_for("route_subjects"))
@@ -2400,6 +2597,7 @@ def route_edit_chapter(sub_id, ch_id):
         active_tab="subjects",
         page_heading=f"Edit Chapter: {target_ch['name']}",
         sub=sub,
+        branch=target_branch,
         target_chapter=target_ch
     )
 
@@ -2408,15 +2606,30 @@ def route_edit_chapter(sub_id, ch_id):
 def route_save_chapter(sub_id, ch_id):
     ch_name = request.form.get("ch_name", "").strip()
     ch_desc = request.form.get("ch_desc", "").strip()
+    branch_id = request.form.get("branch_id", "").strip().lower()
 
     config = load_config()
     for s in config.get("subjects", []):
         if s["id"] == sub_id:
-            for c in s.get("chapters", []):
-                if c["id"] == ch_id:
-                    c["name"] = ch_name
-                    c["description"] = ch_desc
-                    break
+            found = False
+            if s.get("branches"):
+                for b in s["branches"]:
+                    if branch_id and b["id"] != branch_id:
+                        continue
+                    for c in b.get("chapters", []):
+                        if c["id"] == ch_id:
+                            c["name"] = ch_name
+                            c["description"] = ch_desc
+                            found = True
+                            break
+                    if found:
+                        break
+            if not found:
+                for c in s.get("chapters", []):
+                    if c["id"] == ch_id:
+                        c["name"] = ch_name
+                        c["description"] = ch_desc
+                        break
 
     save_config(config)
     build_site()
@@ -2429,6 +2642,9 @@ def route_delete_chapter(sub_id, ch_id):
     config = load_config()
     for s in config.get("subjects", []):
         if s["id"] == sub_id:
+            if s.get("branches"):
+                for b in s["branches"]:
+                    b["chapters"] = [c for c in b.get("chapters", []) if c["id"] != ch_id]
             s["chapters"] = [c for c in s.get("chapters", []) if c["id"] != ch_id]
             break
 
@@ -2784,8 +3000,13 @@ RAW NOTES TO FORMAT:
     elif action == "generate_seo":
         subjects_summary = []
         for s in config.get("subjects", []):
-            ch_list = [c["id"] for c in s.get("chapters", [])]
-            subjects_summary.append(f"Subject '{s['id']}' ({s['name']}) -> Chapters: {ch_list}")
+            if s.get("branches"):
+                for b in s["branches"]:
+                    ch_list = [c["id"] for c in b.get("chapters", [])]
+                    subjects_summary.append(f"Subject '{s['id']}', Branch '{b['id']}' ({b['name']}) -> Chapters: {ch_list}")
+            else:
+                ch_list = [c["id"] for c in s.get("chapters", [])]
+                subjects_summary.append(f"Subject '{s['id']}' ({s['name']}) -> Chapters: {ch_list}")
         subjects_tree = "\n".join(subjects_summary)
 
         prompt = f"""You are an SEO and content classification specialist for an academic study notes platform.
@@ -2801,6 +3022,7 @@ Return a valid JSON object with these EXACT keys (no surrounding markdown, just 
   "excerpt": "A high-yield 1-2 sentence summary for Google search snippet (max 150 characters)",
   "tags": "5-8 comma-separated search keywords in lowercase (e.g. calculus, derivatives, integrals, limits)",
   "subject": "matching subject ID from the tree if found, else best match",
+  "branch": "matching branch ID if subject has branches (e.g. organic, inorganic, or physical for chemistry), else empty string",
   "chapter": "matching chapter ID from the tree if found, else best match"
 }}
 
@@ -2880,8 +3102,13 @@ CONTENT:
     elif action == "quick_draft":
         subjects_summary = []
         for s in config.get("subjects", []):
-            ch_list = [c["id"] for c in s.get("chapters", [])]
-            subjects_summary.append(f"Subject '{s['id']}' ({s['name']}) -> Chapters: {ch_list}")
+            if s.get("branches"):
+                for b in s["branches"]:
+                    ch_list = [c["id"] for c in b.get("chapters", [])]
+                    subjects_summary.append(f"Subject '{s['id']}', Branch '{b['id']}' ({b['name']}) -> Chapters: {ch_list}")
+            else:
+                ch_list = [c["id"] for c in s.get("chapters", [])]
+                subjects_summary.append(f"Subject '{s['id']}' ({s['name']}) -> Chapters: {ch_list}")
         subjects_tree = "\n".join(subjects_summary)
 
         prompt = f"""You are an expert academic curriculum creator.
@@ -2897,6 +3124,7 @@ Return a valid JSON object with these EXACT keys:
   "excerpt": "A high-yield 1-2 sentence summary for Google search results (max 150 characters)",
   "tags": "5-8 comma-separated search keywords in lowercase",
   "subject": "matching subject ID from the tree, or best match",
+  "branch": "matching branch ID if subject has branches (e.g. organic, inorganic, or physical for chemistry), else empty string",
   "chapter": "matching chapter ID from the tree, or best match",
   "content": "Full formatted Markdown note with # headings, **bold** key terms, inline $...$ and block $$...$$ KaTeX formulas, and clean tables."
 }}
