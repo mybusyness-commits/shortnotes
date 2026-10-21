@@ -70,7 +70,7 @@
   {% set sub_obj = subjects_data[sub.id] if sub.id in subjects_data else none %}
   {% set sub_notes = sub_obj.notes if sub_obj else [] %}
   {% set recent_topics = sub_obj.recent_2 if (sub_obj and sub_obj.recent_2) else (sub_notes[:2]) %}
-  <div class="subject-feed-card" id="feed-subject-{{ sub.id }}">
+  <div class="subject-feed-card count-{{ recent_topics|length }}" id="feed-subject-{{ sub.id }}" data-topic-count="{{ recent_topics|length }}">
     <div class="subject-feed-header">
       <div class="subject-feed-header-main">
         <div class="subject-feed-icon">

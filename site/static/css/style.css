@@ -2095,7 +2095,7 @@ article {
   grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
   margin-bottom: 2.5rem;
-  align-items: stretch;
+  align-items: start;
 }
 
 .subject-feed-card {
@@ -2104,17 +2104,55 @@ article {
   border-radius: var(--radius-lg);
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   padding: 1.25rem;
   transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
   box-shadow: var(--shadow-sm);
   overflow: hidden;
   position: relative;
+  height: fit-content;
+  align-self: start;
 }
 
 .subject-feed-card:hover {
   border-color: var(--accent-border);
   box-shadow: var(--shadow-md);
+}
+
+/* Responsive Card Sizing according to Topic Count */
+.subject-feed-card.count-1 {
+  height: fit-content;
+  align-self: start;
+}
+
+.subject-feed-card.count-1 .subject-feed-list {
+  margin-bottom: 0;
+}
+
+.subject-feed-card.count-1 .compact-topic-card {
+  padding: 1rem 1.15rem;
+}
+
+.subject-feed-card.count-1 .compact-topic-title {
+  font-size: 1rem;
+  line-height: 1.4;
+  margin-bottom: 0.4rem;
+}
+
+.subject-feed-card.count-1 .compact-topic-excerpt {
+  font-size: 0.825rem;
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+  -webkit-line-clamp: 3;
+}
+
+.subject-feed-card.count-0 {
+  height: fit-content;
+  align-self: start;
+}
+
+.subject-feed-card.count-0 .subject-feed-list {
+  margin-bottom: 0;
 }
 
 .subject-feed-header {
@@ -2200,8 +2238,7 @@ article {
   display: flex;
   flex-direction: column;
   gap: 0.65rem;
-  flex: 1;
-  margin-bottom: 1rem;
+  margin-bottom: 0;
 }
 
 .compact-topic-card {
