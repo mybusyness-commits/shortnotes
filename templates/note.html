@@ -163,6 +163,17 @@
       {{ content|safe }}
     </div>
 
+    <!-- Post-Content High-Yield Ad Slot (Zero-Interruption Natural Break) -->
+    {% if ad_slots.native %}
+    <div class="post-content-ad-wrapper">
+      {{ ad_slots.native|safe }}
+    </div>
+    {% elif ad_slots.in_article_2 %}
+    <div class="post-content-ad-wrapper">
+      {{ ad_slots.in_article_2|safe }}
+    </div>
+    {% endif %}
+
     <!-- Article Navigation (Previous / Next Topic with Clean URLs) -->
     <div class="article-navigation">
       {% if prev_note %}

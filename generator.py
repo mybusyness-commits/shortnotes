@@ -57,19 +57,50 @@ def get_icon(icon_name):
 
 
 def get_ad_markup(slot_type, config):
-    """Generate universal ad container markup for any ad platform."""
+    """Generate universal ad container markup with responsive mobile and desktop adaptation."""
     ads = config.get("ads", {})
     if not ads.get("enabled", False):
         return ""
 
+    label_text = "Recommended Resources" if slot_type == "native" else "Advertisement"
+
     # 1. Check custom HTML/JS code for this slot
     custom_code = ads.get(f"{slot_type}_ad", "").strip()
-    if custom_code:
+    mobile_code = ads.get(f"{slot_type}_ad_mobile", "").strip() if slot_type in ("header", "footer") else ""
+
+    if custom_code and mobile_code:
+        # Dual-zone setup: Desktop code served to screens >= 768px, Mobile code to screens < 768px
         return f'''
-        <div class="ad-slot-wrapper">
-          <span class="ad-label">Advertisement</span>
+        <div class="ad-slot-wrapper ad-desktop-only">
+          <span class="ad-label">{label_text}</span>
           <div class="ad-container ad-{slot_type}">
             {custom_code}
+          </div>
+        </div>
+        <div class="ad-slot-wrapper ad-mobile-only">
+          <span class="ad-label">{label_text}</span>
+          <div class="ad-container ad-{slot_type}-mobile">
+            {mobile_code}
+          </div>
+        </div>
+        '''
+
+    if custom_code:
+        return f'''
+        <div class="ad-slot-wrapper ad-responsive">
+          <span class="ad-label">{label_text}</span>
+          <div class="ad-container ad-{slot_type}">
+            {custom_code}
+          </div>
+        </div>
+        '''
+
+    if mobile_code:
+        return f'''
+        <div class="ad-slot-wrapper ad-mobile-only">
+          <span class="ad-label">{label_text}</span>
+          <div class="ad-container ad-{slot_type}-mobile">
+            {mobile_code}
           </div>
         </div>
         '''
@@ -81,8 +112,8 @@ def get_ad_markup(slot_type, config):
 
     if client_id and slot_id and client_id != "ca-pub-XXXXXXXXXXXXXXXX":
         return f'''
-        <div class="ad-slot-wrapper">
-          <span class="ad-label">Advertisement</span>
+        <div class="ad-slot-wrapper ad-responsive">
+          <span class="ad-label">{label_text}</span>
           <div class="ad-container ad-{slot_type}">
             <ins class="adsbygoogle"
                  style="display:block"
@@ -256,11 +287,13 @@ def build_site():
     current_year = datetime.now().year
     today_str = datetime.now().strftime("%Y-%m-%d")
 
-    # Generate ad slot HTML snippets
+    # Generate ad slot HTML snippets with multi-zone & native support
     ad_slots = {
         "header": get_ad_markup("header", config),
         "in_article": get_ad_markup("in_article", config),
+        "in_article_2": get_ad_markup("in_article_2", config),
         "sidebar": get_ad_markup("sidebar", config),
+        "native": get_ad_markup("native", config),
         "footer": get_ad_markup("footer", config)
     }
 

@@ -321,5 +321,10 @@
   <!-- Main JavaScript File -->
   <script src="{{ root_path }}static/js/main.js"></script>
   {% block scripts %}{% endblock %}
+
+  <!-- Adsterra Social Bar / In-Page Push (Non-intrusive High-CPM Notification) -->
+  {% if config.ads and config.ads.enabled and config.ads.social_bar_ad %}
+    {{ config.ads.social_bar_ad|safe }}
+  {% endif %}
 </body>
 </html>

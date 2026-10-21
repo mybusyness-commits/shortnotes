@@ -1516,71 +1516,143 @@ ADS_HTML = """
       </label>
     </div>
 
+  <!-- Adsterra High-Yield Optimization Guide -->
+  <div style="background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%); border: 1px solid #4338ca; border-radius: 10px; padding: 1.5rem; margin-bottom: 2rem;">
+    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+      <span style="font-size: 1.5rem;">💰</span>
+      <div>
+        <h3 style="font-size: 1.15rem; color: #e0e7ff; margin: 0; font-weight: 700;">Adsterra Maximum Revenue Blueprint</h3>
+        <span style="font-size: 0.8rem; color: #a5b4fc;">How to achieve maximum RPM without annoying or interrupting students</span>
+      </div>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-top: 1rem; font-size: 0.825rem; color: #cbd5e1;">
+      <div style="background: rgba(255,255,255,0.04); padding: 0.85rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.08);">
+        <strong style="color: #93c5fd; display: block; margin-bottom: 0.25rem;">👑 300&times;250 Medium Rectangle (#1 Format)</strong>
+        Generates highest eCPM ($1.50–$3.50+) across all countries. Fits 100% of mobile screens and desktop sidebars without any clipping.
+      </div>
+      <div style="background: rgba(255,255,255,0.04); padding: 0.85rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.08);">
+        <strong style="color: #a7f3d0; display: block; margin-bottom: 0.25rem;">📌 160&times;600 Sticky Lateral Rail</strong>
+        Stays in view for 3–5 minutes while students read formulas. Extreme viewability dwell time drastically increases advertiser bids.
+      </div>
+      <div style="background: rgba(255,255,255,0.04); padding: 0.85rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.08);">
+        <strong style="color: #fde047; display: block; margin-bottom: 0.25rem;">💡 Native Recommendation Widget</strong>
+        Matches study note cards! Produces 3x–8x higher CTR than standard banners with ZERO annoyance to students.
+      </div>
+      <div style="background: rgba(255,255,255,0.04); padding: 0.85rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.08);">
+        <strong style="color: #f472b6; display: block; margin-bottom: 0.25rem;">📱 Mobile Responsive Separation</strong>
+        728&times;90 for desktop monitors and 320&times;50 for smartphones. Prevents layout breakages and maximizes mobile revenue.
+      </div>
+    </div>
+  </div>
+
+  <form method="POST" action="{{ url_for('route_save_ads') }}">
+    <div class="form-group" style="margin-bottom: 1.5rem;">
+      <label style="display: flex; align-items: center; gap: 0.75rem; font-size: 1rem; cursor: pointer;">
+        <input type="checkbox" name="ads_enabled" value="true" {% if config.ads.enabled %}checked{% endif %} style="width: 20px; height: 20px;">
+        <span><strong>Enable Ads Across Website</strong></span>
+      </label>
+    </div>
+
     <!-- Global Head Script -->
     <div class="form-group" style="background: #0f172a; border: 1px solid var(--card-border); padding: 1.25rem; border-radius: 8px;">
       <label class="form-label">Global &lt;head&gt; Ad Script / Tag (Universal)</label>
-      <textarea name="head_code" class="form-control" style="min-height: 80px;" placeholder="Paste any header script from Google AdSense, Media.net, or Ezoic (e.g. &lt;script async src=...&gt;&lt;/script&gt;)">{{ config.ads.head_code }}</textarea>
-      <span style="font-size: 0.75rem; color: var(--text-muted);">This script will be injected into the &lt;head&gt; of all pages automatically.</span>
+      <textarea name="head_code" class="form-control" style="min-height: 70px;" placeholder="Paste any header script (e.g. Media.net, Ezoic, Google AdSense)">{{ config.ads.head_code }}</textarea>
+      <span style="font-size: 0.75rem; color: var(--text-muted);">Injected into &lt;head&gt; across all pages automatically.</span>
     </div>
 
-    <!-- Slot 1: Header Banner -->
+    <!-- Slot 1: Header Banners (Desktop & Mobile) -->
     <div class="form-group" style="background: #0f172a; border: 1px solid var(--card-border); padding: 1.25rem; border-radius: 8px; margin-top: 1rem;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; flex-wrap: wrap; gap: 0.5rem;">
-        <label class="form-label" style="margin-bottom: 0;">1. Top Header Banner Ad Code</label>
+        <label class="form-label" style="margin-bottom: 0;">1. Top Header Banner (Desktop 728&times;90)</label>
+        <span class="badge" style="background: #1e3a8a; color: #93c5fd;">728&times;90 Desktop Leaderboard</span>
+      </div>
+      <textarea name="header_ad" class="form-control" style="min-height: 80px;" placeholder="Paste Desktop 728x90 Leaderboard ad unit code">{{ config.ads.header_ad }}</textarea>
+      
+      <div style="margin-top: 1rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+          <label class="form-label" style="margin-bottom: 0; font-size: 0.85rem; color: #a7f3d0;">Mobile Header Banner (320&times;50 / 300&times;250)</label>
+          <span class="badge" style="background: #064e3b; color: #a7f3d0;">320&times;50 Mobile Phone</span>
+        </div>
+        <textarea name="header_ad_mobile" class="form-control" style="min-height: 70px;" placeholder="Optional: Paste dedicated 320x50 or 300x250 mobile ad code. (If blank, desktop unit scales responsively)">{{ config.ads.header_ad_mobile }}</textarea>
+        <span style="font-size: 0.725rem; color: var(--text-muted);">Displayed exclusively on smartphones to guarantee zero horizontal scrolling.</span>
+      </div>
+    </div>
+
+    <!-- Slot 2: Top In-Article Ad (Primary 300x250) -->
+    <div class="form-group" style="background: #0f172a; border: 1px solid var(--card-border); padding: 1.25rem; border-radius: 8px; margin-top: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; flex-wrap: wrap; gap: 0.5rem;">
+        <label class="form-label" style="margin-bottom: 0;">2. Top In-Article Ad (Highest CPM & Fill Rate)</label>
+        <span class="badge" style="background: #1e3a8a; color: #93c5fd;">300&times;250 Medium Rectangle</span>
+      </div>
+      <textarea name="in_article_ad" class="form-control" style="min-height: 80px;" placeholder="Paste HTML/JS unit code for 300x250 Medium Rectangle">{{ config.ads.in_article_ad }}</textarea>
+      <span style="font-size: 0.75rem; color: var(--text-muted);">Placed right before notes prose. Flawless on both desktop and mobile viewports.</span>
+    </div>
+
+    <!-- Slot 3: Post-Article Natural Break (Secondary 300x250) -->
+    <div class="form-group" style="background: #0f172a; border: 1px solid var(--card-border); padding: 1.25rem; border-radius: 8px; margin-top: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; flex-wrap: wrap; gap: 0.5rem;">
+        <label class="form-label" style="margin-bottom: 0;">3. Post-Article / End-of-Note Ad (300&times;250)</label>
+        <span class="badge" style="background: #064e3b; color: #a7f3d0;">300&times;250 Natural Break</span>
+      </div>
+      <textarea name="in_article_ad_2" class="form-control" style="min-height: 80px;" placeholder="Optional: Paste a second 300x250 ad tag for the end of note reading (before Next/Prev buttons)">{{ config.ads.in_article_ad_2 }}</textarea>
+      <span style="font-size: 0.75rem; color: var(--text-muted);">Appears when the student completes reading. High engagement, zero distraction during study.</span>
+    </div>
+
+    <!-- Slot 4: Sidebar Sticky Skyscraper -->
+    <div class="form-group" style="background: #0f172a; border: 1px solid var(--card-border); padding: 1.25rem; border-radius: 8px; margin-top: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; flex-wrap: wrap; gap: 0.5rem;">
+        <label class="form-label" style="margin-bottom: 0;">4. Desktop Sticky Lateral Rail Ad Code</label>
         <div style="display: flex; gap: 0.35rem;">
-          <span class="badge" style="background: #1e3a8a; color: #93c5fd;">728&times;90 Desktop Leaderboard</span>
+          <span class="badge" style="background: #1e3a8a; color: #93c5fd;">160&times;600 Skyscraper</span>
+          <span class="badge" style="background: #581c87; color: #e9d5ff;">300&times;600 Half-Page</span>
+        </div>
+      </div>
+      <textarea name="sidebar_ad" class="form-control" style="min-height: 80px;" placeholder="Paste HTML/JS unit code for 160x600 or 300x600 sidebar">{{ config.ads.sidebar_ad }}</textarea>
+      <span style="font-size: 0.75rem; color: var(--text-muted);">Pins to desktop widescreen lateral rail. Generates high viewability income while reading.</span>
+    </div>
+
+    <!-- Slot 5: Native Recommendation Widget -->
+    <div class="form-group" style="background: #0f172a; border: 1px solid var(--card-border); padding: 1.25rem; border-radius: 8px; margin-top: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; flex-wrap: wrap; gap: 0.5rem;">
+        <label class="form-label" style="margin-bottom: 0;">5. Adsterra Native Recommendation Widget (Highest CTR)</label>
+        <span class="badge" style="background: #854d0e; color: #fef08a;">Native 1x4 or 2x2</span>
+      </div>
+      <textarea name="native_ad" class="form-control" style="min-height: 80px;" placeholder="Paste Adsterra Native Banner script here">{{ config.ads.native_ad }}</textarea>
+      <span style="font-size: 0.75rem; color: var(--text-muted);">Blends seamlessly with topic recommendation cards. Yields 3x–8x higher click rates.</span>
+    </div>
+
+    <!-- Slot 6: Bottom Footer Banners -->
+    <div class="form-group" style="background: #0f172a; border: 1px solid var(--card-border); padding: 1.25rem; border-radius: 8px; margin-top: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; flex-wrap: wrap; gap: 0.5rem;">
+        <label class="form-label" style="margin-bottom: 0;">6. Bottom Footer Banner (Desktop)</label>
+        <span class="badge" style="background: #1e3a8a; color: #93c5fd;">728&times;90 / 468&times;60</span>
+      </div>
+      <textarea name="footer_ad" class="form-control" style="min-height: 80px;" placeholder="Paste Desktop bottom banner unit code">{{ config.ads.footer_ad }}</textarea>
+
+      <div style="margin-top: 1rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+          <label class="form-label" style="margin-bottom: 0; font-size: 0.85rem; color: #a7f3d0;">Mobile Footer Banner (320&times;50)</label>
           <span class="badge" style="background: #064e3b; color: #a7f3d0;">320&times;50 Mobile</span>
         </div>
+        <textarea name="footer_ad_mobile" class="form-control" style="min-height: 70px;" placeholder="Optional: Paste 320x50 mobile footer unit code">{{ config.ads.footer_ad_mobile }}</textarea>
       </div>
-      <textarea name="header_ad" class="form-control" style="min-height: 90px;" placeholder="Paste HTML/JS ad unit code for the 728x90 or 320x50 top header leaderboard">{{ config.ads.header_ad }}</textarea>
-      <span style="font-size: 0.75rem; color: var(--text-muted);">Appears right below navigation on all pages. Fixed container prevents page jumping.</span>
     </div>
 
-    <!-- Slot 2: In-Article Ad -->
+    <!-- Slot 7: Adsterra Social Bar (In-Page Push) -->
     <div class="form-group" style="background: #0f172a; border: 1px solid var(--card-border); padding: 1.25rem; border-radius: 8px; margin-top: 1rem;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; flex-wrap: wrap; gap: 0.5rem;">
-        <label class="form-label" style="margin-bottom: 0;">2. In-Article Ad Code (Inside Study Topic)</label>
-        <div style="display: flex; gap: 0.35rem;">
-          <span class="badge" style="background: #1e3a8a; color: #93c5fd;">300&times;250 Medium Rectangle</span>
-          <span class="badge" style="background: #064e3b; color: #a7f3d0;">336&times;280 Large Rectangle</span>
-        </div>
+        <label class="form-label" style="margin-bottom: 0;">7. Adsterra Social Bar (Optional High-CPM In-Page Push)</label>
+        <span class="badge" style="background: #701a75; color: #f5d0fe;">$2.00–$5.00+ CPM</span>
       </div>
-      <textarea name="in_article_ad" class="form-control" style="min-height: 90px;" placeholder="Paste HTML/JS ad unit code for 300x250 or 336x280 in-article unit">{{ config.ads.in_article_ad }}</textarea>
-      <span style="font-size: 0.75rem; color: var(--text-muted);">Placed right before main topic prose notes. Highest visibility for reading users.</span>
+      <textarea name="social_bar_ad" class="form-control" style="min-height: 70px;" placeholder="Optional: Paste Adsterra Social Bar script code">{{ config.ads.social_bar_ad }}</textarea>
+      <span style="font-size: 0.75rem; color: var(--text-muted);">Displays as a non-intrusive lightweight pill with an instant close button. Extremely high CPM.</span>
     </div>
 
-    <!-- Slot 3: Sidebar Sticky Ad -->
-    <div class="form-group" style="background: #0f172a; border: 1px solid var(--card-border); padding: 1.25rem; border-radius: 8px; margin-top: 1rem;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; flex-wrap: wrap; gap: 0.5rem;">
-        <label class="form-label" style="margin-bottom: 0;">3. Desktop Sticky Sidebar & Lateral Rail Ad Code</label>
-        <div style="display: flex; gap: 0.35rem;">
-          <span class="badge" style="background: #1e3a8a; color: #93c5fd;">300&times;600 Half-Page</span>
-          <span class="badge" style="background: #064e3b; color: #a7f3d0;">160&times;600 Skyscraper</span>
-          <span class="badge" style="background: #581c87; color: #e9d5ff;">300&times;250</span>
-        </div>
-      </div>
-      <textarea name="sidebar_ad" class="form-control" style="min-height: 90px;" placeholder="Paste HTML/JS ad unit code for 300x600, 160x600, or 300x250 sidebar placement">{{ config.ads.sidebar_ad }}</textarea>
-      <span style="font-size: 0.75rem; color: var(--text-muted);">Pins to the lateral rail on widescreen desktop screens without disturbing reading flow.</span>
-    </div>
-
-    <!-- Slot 4: Footer Ad -->
-    <div class="form-group" style="background: #0f172a; border: 1px solid var(--card-border); padding: 1.25rem; border-radius: 8px; margin-top: 1rem;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; flex-wrap: wrap; gap: 0.5rem;">
-        <label class="form-label" style="margin-bottom: 0;">4. Bottom Footer Banner Ad Code</label>
-        <div style="display: flex; gap: 0.35rem;">
-          <span class="badge" style="background: #1e3a8a; color: #93c5fd;">728&times;90 Leaderboard</span>
-          <span class="badge" style="background: #064e3b; color: #a7f3d0;">468&times;60 Classic Banner</span>
-        </div>
-      </div>
-      <textarea name="footer_ad" class="form-control" style="min-height: 90px;" placeholder="Paste HTML/JS ad unit code for 728x90 or 468x60 bottom banner">{{ config.ads.footer_ad }}</textarea>
-      <span style="font-size: 0.75rem; color: var(--text-muted);">Displays above the footer. Catches users after finishing reading a note.</span>
-    </div>
-
-    <!-- Google AdSense Quick Setup Accordion/Helper -->
+    <!-- Google AdSense Quick Setup Helper -->
     <div style="background: #172554; border: 1px solid #1e40af; border-radius: 8px; padding: 1.25rem; margin-top: 1.5rem;">
-      <h4 style="font-size: 0.95rem; color: #93c5fd; margin-bottom: 0.5rem;">Google AdSense Quick Setup (Optional Helper)</h4>
+      <h4 style="font-size: 0.95rem; color: #93c5fd; margin-bottom: 0.5rem;">Google AdSense Fallback Helper (Optional)</h4>
       <p style="font-size: 0.8rem; color: #cbd5e1; margin-bottom: 1rem;">
-        If you prefer not to paste raw ad snippets and want standard AdSense units, enter your Client ID and Slot IDs below:
+        If you prefer standard AdSense auto-units, enter your Client ID and Slot IDs below:
       </p>
       <div class="form-grid">
         <div class="form-group">
@@ -2519,9 +2591,14 @@ def route_save_ads():
     config["ads"]["enabled"] = bool(request.form.get("ads_enabled"))
     config["ads"]["head_code"] = request.form.get("head_code", "").strip()
     config["ads"]["header_ad"] = request.form.get("header_ad", "").strip()
+    config["ads"]["header_ad_mobile"] = request.form.get("header_ad_mobile", "").strip()
     config["ads"]["in_article_ad"] = request.form.get("in_article_ad", "").strip()
+    config["ads"]["in_article_ad_2"] = request.form.get("in_article_ad_2", "").strip()
     config["ads"]["sidebar_ad"] = request.form.get("sidebar_ad", "").strip()
+    config["ads"]["native_ad"] = request.form.get("native_ad", "").strip()
     config["ads"]["footer_ad"] = request.form.get("footer_ad", "").strip()
+    config["ads"]["footer_ad_mobile"] = request.form.get("footer_ad_mobile", "").strip()
+    config["ads"]["social_bar_ad"] = request.form.get("social_bar_ad", "").strip()
 
     if "adsense" not in config["ads"]:
         config["ads"]["adsense"] = {}
