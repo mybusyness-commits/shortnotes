@@ -210,7 +210,36 @@ def calculate_reading_time(text):
 
 
 def markdown_to_html(md_text):
-    """Convert Markdown to clean HTML with KaTeX formulas preserved and responsive scrollable tables."""
+    """Convert Markdown to clean HTML with KaTeX formulas preserved, chemical structures rendered, and responsive scrollable tables."""
+    # Pre-process chemical molecule blocks (```chem or ```smiles)
+    def _replace_chem_block(match):
+        title = (match.group(1) or "").strip()
+        smiles_raw = match.group(2).strip()
+        clean_lines = [l.strip() for l in smiles_raw.splitlines() if l.strip() and not l.strip().startswith("#")]
+        smiles = clean_lines[0] if clean_lines else ""
+        if not smiles:
+            return ""
+
+        caption_html = (
+            f'<div class="molecule-caption">'
+            f'<span class="molecule-title">{title}</span>'
+            f'<code class="molecule-smiles">{smiles}</code>'
+            f'</div>'
+        ) if title else (
+            f'<div class="molecule-caption">'
+            f'<code class="molecule-smiles">{smiles}</code>'
+            f'</div>'
+        )
+
+        return (
+            f'\n\n<div class="molecule-card">'
+            f'<div class="molecule-render" data-smiles="{smiles}"></div>'
+            f'{caption_html}'
+            f'</div>\n\n'
+        )
+
+    md_text = re.sub(r'```(?:chem|smiles)(?:[ \t]+([^\n]*))?\n([\s\S]*?)```', _replace_chem_block, md_text)
+
     md = markdown.Markdown(
         extensions=[
             "extra",

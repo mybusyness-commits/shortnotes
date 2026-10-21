@@ -61,11 +61,14 @@
   <!-- CSS Stylesheet (Clean Relative Path) -->
   <link rel="stylesheet" href="../../../../static/css/style.css">
   
-  <!-- KaTeX for crisp mathematical/scientific formula rendering -->
+  <!-- KaTeX for crisp mathematical/scientific formula rendering + mhchem for chemistry equations -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="../../../../static/js/mhchem.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"
           onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); if (window.onKaTeXRendered) window.onKaTeXRendered();"></script>
+  <script defer src="../../../../static/js/smiles-drawer.min.js"></script>
+  <script defer src="../../../../static/js/chem.js"></script>
 
   <!-- Universal Ad Platform Head Code (Google AdSense, Media.net, Ezoic, etc.) -->
   
@@ -136,7 +139,7 @@
         "name": "shrtnotes",
         "url": "https://shrtnotes.pages.dev"
       },
-      "datePublished": "2026-10-21",
+      "datePublished": "2026-10-17",
       "dateModified": "2026-10-21"
     }
   ]
@@ -544,6 +547,7 @@
 <th style="text-align: left;">Hybridization</th>
 <th style="text-align: left;">Ideal Bond Angle</th>
 <th style="text-align: left;">Electron Domain Geometry</th>
+<th style="text-align: left;">Example Molecule</th>
 </tr>
 </thead>
 <tbody>
@@ -552,30 +556,35 @@
 <td style="text-align: left;">$sp$</td>
 <td style="text-align: left;">$180^\circ$</td>
 <td style="text-align: left;">Linear</td>
+<td style="text-align: left;">$\ce{BeCl2}, \ce{CO2}$</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>3</strong></td>
 <td style="text-align: left;">$sp^2$</td>
 <td style="text-align: left;">$120^\circ$</td>
 <td style="text-align: left;">Trigonal Planar</td>
+<td style="text-align: left;">$\ce{BF3}, \ce{SO3}$</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>4</strong></td>
 <td style="text-align: left;">$sp^3$</td>
 <td style="text-align: left;">$109.5^\circ$</td>
 <td style="text-align: left;">Tetrahedral</td>
+<td style="text-align: left;">$\ce{CH4}, \ce{NH4+}$</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>5</strong></td>
 <td style="text-align: left;">$sp^3d$</td>
 <td style="text-align: left;">$90^\circ, 120^\circ$</td>
 <td style="text-align: left;">Trigonal Bipyramidal</td>
+<td style="text-align: left;">$\ce{PCl5}, \ce{SF4}$</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>6</strong></td>
 <td style="text-align: left;">$sp^3d^2$</td>
 <td style="text-align: left;">$90^\circ$</td>
 <td style="text-align: left;">Octahedral</td>
+<td style="text-align: left;">$\ce{SF6}, \ce{XeF4}$</td>
 </tr>
 </tbody>
 </table></div>
@@ -584,14 +593,17 @@
 <p>Electron pairs repel each other according to the following magnitude order:</p>
 <p>$$\text{Lone Pair -- Lone Pair} &gt; \text{Lone Pair -- Bond Pair} &gt; \text{Bond Pair -- Bond Pair}$$</p>
 <p>Because unshared lone pairs are held closer to the central nucleus, they exert stronger angular repulsion, compressing adjacent bond angles:<br />
-* <strong>Methane ($\text{CH}_4$)</strong>: 0 lone pairs $\implies 109.5^\circ$ (Tetrahedral)<br />
-* <strong>Ammonia ($\text{NH}_3$)</strong>: 1 lone pair $\implies 107.0^\circ$ (Trigonal Pyramidal)<br />
-* <strong>Water ($\text{H}_2\text{O}$)</strong>: 2 lone pairs $\implies 104.5^\circ$ (Bent)</p>
+* <strong>Methane ($\ce{CH4}$)</strong>: 0 lone pairs $\implies 109.5^\circ$ (Tetrahedral)<br />
+* <strong>Ammonia ($\ce{NH3}$)</strong>: 1 lone pair $\implies 107.0^\circ$ (Trigonal Pyramidal)<br />
+* <strong>Water ($\ce{H2O}$)</strong>: 2 lone pairs $\implies 104.5^\circ$ (Bent)</p>
+<h3 id="lewis-acid-base-adduct-formation">Lewis Acid-Base Adduct Formation</h3>
+<p>Coordination of a lone pair into an empty orbital alters central atom hybridization:</p>
+<p>$$\ce{NH3(g) + BF3(g) -&gt; H3N-BF3(s)}$$</p>
 <hr />
 <h2 id="3-high-yield-exam-tricks">3. High-Yield Exam Tricks</h2>
 <ol>
 <li><strong>Double and Triple Bonds</strong>: Count as a <strong>single electron domain</strong> when calculating the steric number ($\text{SN}$).</li>
-<li><strong>Equatorial vs. Axial in Trigonal Bipyramidal ($sp^3d$)</strong>: Lone pairs ALWAYS occupy <strong>equatorial positions</strong> to minimize $90^\circ$ repulsions (e.g., $\text{SF}_4$ has a See-Saw shape, $\text{ClF}_3$ has a T-shape, $\text{XeF}_2$ is Linear).</li>
+<li><strong>Equatorial vs. Axial in Trigonal Bipyramidal ($sp^3d$)</strong>: Lone pairs ALWAYS occupy <strong>equatorial positions</strong> to minimize $90^\circ$ repulsions (e.g., $\ce{SF4}$ has a See-Saw shape, $\ce{ClF3}$ has a T-shape, $\ce{XeF2}$ is Linear).</li>
 </ol>
     </div>
 

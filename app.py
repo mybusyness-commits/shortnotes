@@ -664,6 +664,49 @@ STUDIO_HTML = """
       padding: 1.75rem;
       box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
     }
+    .chem-modal-box {
+      background: #0f172a;
+      border: 1px solid #059669;
+      border-radius: 12px;
+      width: 92%;
+      max-width: 820px;
+      max-height: 88vh;
+      overflow-y: auto;
+      padding: 1.75rem;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.6);
+    }
+    .chem-tab-btn {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #94a3b8;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .chem-tab-btn.active {
+      background: #059669;
+      border-color: #10b981;
+      color: #fff;
+    }
+    .preset-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      transition: all 0.15s ease;
+    }
+    .preset-card:hover {
+      border-color: #10b981;
+      transform: translateY(-2px);
+      background: #0f231c;
+    }
   </style>
 </head>
 <body>
@@ -962,10 +1005,16 @@ NOTE_FORM_HTML = """
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
       <span>{% if is_edit %}Edit Topic{% else %}Write New Study Topic{% endif %}</span>
     </h3>
-    <button type="button" class="btn" onclick="openAIDraftModal()" style="background: linear-gradient(135deg, #7e22ce 0%, #3b82f6 100%); color: #fff; font-size: 0.85rem; padding: 0.45rem 1rem;">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/></svg>
-      <span>🪄 Quick Draft from Raw Text</span>
-    </button>
+    <div style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;">
+      <button type="button" class="btn" onclick="openChemHelperModal()" style="background: linear-gradient(135deg, #059669 0%, #0284c7 100%); color: #fff; font-size: 0.85rem; padding: 0.45rem 1rem;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v7.31"/><path d="M14 9.3V2"/><path d="M8.5 2h7"/><path d="M14 9.3a6.5 6.5 0 1 1-4 0"/></svg>
+        <span>🧪 Chemistry Helper</span>
+      </button>
+      <button type="button" class="btn" onclick="openAIDraftModal()" style="background: linear-gradient(135deg, #7e22ce 0%, #3b82f6 100%); color: #fff; font-size: 0.85rem; padding: 0.45rem 1rem;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/></svg>
+        <span>🪄 Quick Draft from Raw Text</span>
+      </button>
+    </div>
   </div>
 
   <!-- AI Studio Copilot Panel -->
@@ -1078,7 +1127,12 @@ NOTE_FORM_HTML = """
     <div class="form-group">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; flex-wrap: wrap; gap: 0.5rem;">
         <label class="form-label" style="margin-bottom: 0;">Topic Content (Markdown & KaTeX Formulas Supported) *</label>
-        <span style="font-size: 0.75rem; color: var(--text-muted);">Inline: <code>$E = mc^2$</code> | Block Display: <code>$$\\int_0^1 x dx$$</code></span>
+        <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+          <button type="button" onclick="openChemHelperModal()" class="btn" style="padding: 0.2rem 0.6rem; font-size: 0.75rem; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 4px; cursor: pointer;">
+            🧪 Chemistry Structures & Equations
+          </button>
+          <span style="font-size: 0.75rem; color: var(--text-muted);">Math: <code>$E=mc^2$</code> | Chem: <code>$\\ce{H2 + Cl2 -> 2HCl}$</code></span>
+        </div>
       </div>
       <textarea name="content" id="note-content" class="form-control" placeholder="Write or paste your study notes here..." required>{{ raw_content }}</textarea>
     </div>
@@ -1116,6 +1170,188 @@ NOTE_FORM_HTML = """
       <button type="button" class="btn" id="btn-run-draft" onclick="executeAIDraft()" style="background: linear-gradient(135deg, #7e22ce 0%, #3b82f6 100%); color: #fff;">
         <span>✨ Generate Full Topic</span>
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- Chemistry Structure & Equation Helper Modal -->
+<div class="ai-modal-overlay" id="chem-helper-modal">
+  <div class="chem-modal-box">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid #1e293b; padding-bottom: 0.75rem;">
+      <h3 style="font-size: 1.15rem; color: #fff; display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+        <span>🧪 Chemistry Structure & Equation Studio</span>
+      </h3>
+      <button type="button" onclick="closeChemHelperModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer; line-height: 1;">&times;</button>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem; border-bottom: 1px solid #1e293b; padding-bottom: 0.5rem;">
+      <button type="button" class="chem-tab-btn active" id="tab-btn-presets" onclick="switchChemTab('presets')">⚡ 1-Click Common Presets</button>
+      <button type="button" class="chem-tab-btn" id="tab-btn-search" onclick="switchChemTab('search')">🔍 PubChem Compound Search</button>
+      <button type="button" class="chem-tab-btn" id="tab-btn-reactions" onclick="switchChemTab('reactions')">⚗️ Reaction Equations (\\ce{...})</button>
+    </div>
+
+    <!-- TAB 1: 1-Click Presets -->
+    <div id="chem-tab-presets" class="chem-tab-content">
+      <p style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 1rem;">
+        Click any molecule to automatically insert its clean 2D skeletal vector block into your note. Adapts to both dark and light modes!
+      </p>
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 0.75rem; max-height: 50vh; overflow-y: auto; padding-right: 0.25rem;">
+        <div class="preset-card" onclick="insertChemPreset('Benzene', 'c1ccccc1')">
+          <strong style="color: #38bdf8; font-size: 0.85rem;">Benzene</strong>
+          <span style="font-size: 0.725rem; color: #94a3b8;">C₆H₆ (Aromatic ring)</span>
+          <code style="font-size: 0.7rem; color: #a7f3d0;">c1ccccc1</code>
+        </div>
+        <div class="preset-card" onclick="insertChemPreset('Phenol', 'Oc1ccccc1')">
+          <strong style="color: #38bdf8; font-size: 0.85rem;">Phenol</strong>
+          <span style="font-size: 0.725rem; color: #94a3b8;">C₆H₅OH (Hydroxybenzene)</span>
+          <code style="font-size: 0.7rem; color: #a7f3d0;">Oc1ccccc1</code>
+        </div>
+        <div class="preset-card" onclick="insertChemPreset('Toluene', 'Cc1ccccc1')">
+          <strong style="color: #38bdf8; font-size: 0.85rem;">Toluene</strong>
+          <span style="font-size: 0.725rem; color: #94a3b8;">C₇H₈ (Methylbenzene)</span>
+          <code style="font-size: 0.7rem; color: #a7f3d0;">Cc1ccccc1</code>
+        </div>
+        <div class="preset-card" onclick="insertChemPreset('Benzaldehyde', 'O=Cc1ccccc1')">
+          <strong style="color: #38bdf8; font-size: 0.85rem;">Benzaldehyde</strong>
+          <span style="font-size: 0.725rem; color: #94a3b8;">C₆H₅CHO (Almond odor)</span>
+          <code style="font-size: 0.7rem; color: #a7f3d0;">O=Cc1ccccc1</code>
+        </div>
+        <div class="preset-card" onclick="insertChemPreset('Benzoic Acid', 'O=C(O)c1ccccc1')">
+          <strong style="color: #38bdf8; font-size: 0.85rem;">Benzoic Acid</strong>
+          <span style="font-size: 0.725rem; color: #94a3b8;">C₆H₅COOH</span>
+          <code style="font-size: 0.7rem; color: #a7f3d0;">O=C(O)c1ccccc1</code>
+        </div>
+        <div class="preset-card" onclick="insertChemPreset('Aniline', 'Nc1ccccc1')">
+          <strong style="color: #38bdf8; font-size: 0.85rem;">Aniline</strong>
+          <span style="font-size: 0.725rem; color: #94a3b8;">C₆H₅NH₂ (Phenylamine)</span>
+          <code style="font-size: 0.7rem; color: #a7f3d0;">Nc1ccccc1</code>
+        </div>
+        <div class="preset-card" onclick="insertChemPreset('Nitrobenzene', 'O=[N+]([O-])c1ccccc1')">
+          <strong style="color: #38bdf8; font-size: 0.85rem;">Nitrobenzene</strong>
+          <span style="font-size: 0.725rem; color: #94a3b8;">C₆H₅NO₂</span>
+          <code style="font-size: 0.7rem; color: #a7f3d0;">O=[N+]([O-])c1ccccc1</code>
+        </div>
+        <div class="preset-card" onclick="insertChemPreset('Chlorobenzene', 'Clc1ccccc1')">
+          <strong style="color: #38bdf8; font-size: 0.85rem;">Chlorobenzene</strong>
+          <span style="font-size: 0.725rem; color: #94a3b8;">C₆H₅Cl</span>
+          <code style="font-size: 0.7rem; color: #a7f3d0;">Clc1ccccc1</code>
+        </div>
+        <div class="preset-card" onclick="insertChemPreset('Aspirin', 'CC(=O)Oc1ccccc1C(=O)O')">
+          <strong style="color: #38bdf8; font-size: 0.85rem;">Aspirin</strong>
+          <span style="font-size: 0.725rem; color: #94a3b8;">Acetylsalicylic acid</span>
+          <code style="font-size: 0.7rem; color: #a7f3d0;">CC(=O)Oc1ccccc1C(=O)O</code>
+        </div>
+        <div class="preset-card" onclick="insertChemPreset('Paracetamol', 'CC(=O)Nc1ccc(O)cc1')">
+          <strong style="color: #38bdf8; font-size: 0.85rem;">Paracetamol</strong>
+          <span style="font-size: 0.725rem; color: #94a3b8;">Acetaminophen</span>
+          <code style="font-size: 0.7rem; color: #a7f3d0;">CC(=O)Nc1ccc(O)cc1</code>
+        </div>
+        <div class="preset-card" onclick="insertChemPreset('Acetone', 'CC(=O)C')">
+          <strong style="color: #38bdf8; font-size: 0.85rem;">Acetone</strong>
+          <span style="font-size: 0.725rem; color: #94a3b8;">CH₃COCH₃ (Propan-2-one)</span>
+          <code style="font-size: 0.7rem; color: #a7f3d0;">CC(=O)C</code>
+        </div>
+        <div class="preset-card" onclick="insertChemPreset('Acetic Acid', 'CC(=O)O')">
+          <strong style="color: #38bdf8; font-size: 0.85rem;">Acetic Acid</strong>
+          <span style="font-size: 0.725rem; color: #94a3b8;">CH₃COOH (Ethanoic acid)</span>
+          <code style="font-size: 0.7rem; color: #a7f3d0;">CC(=O)O</code>
+        </div>
+        <div class="preset-card" onclick="insertChemPreset('Ethanol', 'CCO')">
+          <strong style="color: #38bdf8; font-size: 0.85rem;">Ethanol</strong>
+          <span style="font-size: 0.725rem; color: #94a3b8;">C₂H₅OH (Alcohol)</span>
+          <code style="font-size: 0.7rem; color: #a7f3d0;">CCO</code>
+        </div>
+        <div class="preset-card" onclick="insertChemPreset('Cyclohexane', 'C1CCCCC1')">
+          <strong style="color: #38bdf8; font-size: 0.85rem;">Cyclohexane</strong>
+          <span style="font-size: 0.725rem; color: #94a3b8;">C₆H₁₂ (Chair conformer)</span>
+          <code style="font-size: 0.7rem; color: #a7f3d0;">C1CCCCC1</code>
+        </div>
+        <div class="preset-card" onclick="insertChemPreset('Cyclopentane', 'C1CCCC1')">
+          <strong style="color: #38bdf8; font-size: 0.85rem;">Cyclopentane</strong>
+          <span style="font-size: 0.725rem; color: #94a3b8;">C₅H₁₀</span>
+          <code style="font-size: 0.7rem; color: #a7f3d0;">C1CCCC1</code>
+        </div>
+        <div class="preset-card" onclick="insertChemPreset('Glucose', 'C(C1C(C(C(C(O1)O)O)O)O)O')">
+          <strong style="color: #38bdf8; font-size: 0.85rem;">D-Glucose</strong>
+          <span style="font-size: 0.725rem; color: #94a3b8;">C₆H₁₂O₆ (Ring pyranose)</span>
+          <code style="font-size: 0.7rem; color: #a7f3d0;">C(C1C...O)O</code>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: Search PubChem -->
+    <div id="chem-tab-search" class="chem-tab-content" style="display: none;">
+      <p style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 0.75rem;">
+        Search over 115 million chemical compounds on PubChem. Automatically extracts SMILES string, IUPAC name, and molecular formula.
+      </p>
+      <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+        <input type="text" id="pubchem-search-q" class="form-control" placeholder="e.g. Ibuprofen, Cholesterol, Caffeine, Tartaric acid..." onkeydown="if(event.key==='Enter'){event.preventDefault();searchPubChem();}">
+        <button type="button" class="btn btn-primary" onclick="searchPubChem()" id="btn-pubchem-search" style="white-space: nowrap;">
+          <span>🔍 Search</span>
+        </button>
+      </div>
+
+      <div id="pubchem-search-status" style="display: none; padding: 0.75rem; border-radius: 6px; font-size: 0.85rem; margin-bottom: 1rem;"></div>
+
+      <div id="pubchem-search-result" style="display: none; background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1rem;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+          <div>
+            <h4 id="res-chem-name" style="color: #38bdf8; margin: 0 0 0.25rem 0; font-size: 1.05rem;"></h4>
+            <div id="res-chem-iupac" style="font-size: 0.75rem; color: #94a3b8;"></div>
+          </div>
+          <span class="badge" id="res-chem-formula" style="background: rgba(16, 185, 129, 0.2); color: #6ee7b7; font-size: 0.8rem;"></span>
+        </div>
+        <div style="margin-bottom: 0.75rem; background: #0f172a; padding: 0.5rem 0.75rem; border-radius: 6px;">
+          <div style="font-size: 0.7rem; color: #64748b; margin-bottom: 0.2rem;">SMILES NOTATION:</div>
+          <code id="res-chem-smiles" style="color: #f1f5f9; font-size: 0.8rem; word-break: break-all;"></code>
+        </div>
+        <div style="display: flex; gap: 0.75rem;">
+          <button type="button" class="btn btn-success" onclick="insertSearchedCompound()" style="font-size: 0.85rem; padding: 0.4rem 0.9rem;">
+            <span>➕ Insert Molecule Block</span>
+          </button>
+          <button type="button" class="btn btn-secondary" onclick="insertSearchedFormula()" style="font-size: 0.85rem; padding: 0.4rem 0.9rem;">
+            <span>Formula (\\ce{...})</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: Reaction Equations (\\ce{...}) -->
+    <div id="chem-tab-reactions" class="chem-tab-content" style="display: none;">
+      <p style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 1rem;">
+        KaTeX <code style="color: #38bdf8;">\\ce{...}</code> syntax handles arrows, reaction conditions, state symbols, and ionic charges crisply.
+      </p>
+      <div style="display: flex; flex-direction: column; gap: 0.65rem; max-height: 50vh; overflow-y: auto;">
+        <div class="preset-card" onclick="insertEquation('$\\\\ce{N2 + 3H2 <=> 2NH3}$')">
+          <strong style="color: #38bdf8; font-size: 0.85rem;">Reversible Equilibrium (Haber Process)</strong>
+          <code style="color: #a7f3d0; font-size: 0.8rem;">$\\ce{N2 + 3H2 <=> 2NH3}$</code>
+        </div>
+        <div class="preset-card" onclick="insertEquation('$\\\\ce{CaCO3(s) + 2HCl(aq) -> CaCl2(aq) + CO2 ^ + H2O(l)}$')">
+          <strong style="color: #38bdf8; font-size: 0.85rem;">Precipitation & Gas Evolution</strong>
+          <code style="color: #a7f3d0; font-size: 0.8rem;">$\\ce{CaCO3(s) + 2HCl(aq) -> CaCl2(aq) + CO2 ^ + H2O(l)}$</code>
+        </div>
+        <div class="preset-card" onclick="insertEquation('$\\\\ce{C6H6 + HNO3 ->[H2SO4][\\\\Delta] C6H5NO2 + H2O}$')">
+          <strong style="color: #38bdf8; font-size: 0.85rem;">Organic Reaction with Catalysts & Heat (\\Delta)</strong>
+          <code style="color: #a7f3d0; font-size: 0.8rem;">$\\ce{C6H6 + HNO3 ->[H2SO4][\\Delta] C6H5NO2 + H2O}$</code>
+        </div>
+        <div class="preset-card" onclick="insertEquation('$\\\\ce{CH4 + Cl2 ->[h\\\\nu] CH3Cl + HCl}$')">
+          <strong style="color: #38bdf8; font-size: 0.85rem;">Free Radical Halogenation (h\\nu)</strong>
+          <code style="color: #a7f3d0; font-size: 0.8rem;">$\\ce{CH4 + Cl2 ->[h\\nu] CH3Cl + HCl}$</code>
+        </div>
+        <div class="preset-card" onclick="insertEquation('$\\\\ce{Zn(s) + Cu^2+(aq) -> Zn^2+(aq) + Cu(s)}$')">
+          <strong style="color: #38bdf8; font-size: 0.85rem;">Redox Reaction & Ion Charges</strong>
+          <code style="color: #a7f3d0; font-size: 0.8rem;">$\\ce{Zn(s) + Cu^2+(aq) -> Zn^2+(aq) + Cu(s)}$</code>
+        </div>
+        <div class="preset-card" onclick="insertEquation('$\\\\ce{HCl + NaOH -> NaCl + H2O}$')">
+          <strong style="color: #38bdf8; font-size: 0.85rem;">Acid-Base Neutralization</strong>
+          <code style="color: #a7f3d0; font-size: 0.8rem;">$\\ce{HCl + NaOH -> NaCl + H2O}$</code>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; margin-top: 1.25rem; border-top: 1px solid #1e293b; padding-top: 0.75rem;">
+      <button type="button" class="btn btn-secondary" onclick="closeChemHelperModal()">Close</button>
     </div>
   </div>
 </div>
@@ -1354,6 +1590,107 @@ NOTE_FORM_HTML = """
       btn.disabled = false;
       btn.innerHTML = origHtml;
     }
+  }
+
+  function openChemHelperModal() {
+    document.getElementById('chem-helper-modal').style.display = 'flex';
+  }
+
+  function closeChemHelperModal() {
+    document.getElementById('chem-helper-modal').style.display = 'none';
+  }
+
+  function switchChemTab(tabName) {
+    document.querySelectorAll('.chem-tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.chem-tab-content').forEach(c => c.style.display = 'none');
+    const activeTab = document.getElementById('tab-btn-' + tabName);
+    const activeContent = document.getElementById('chem-tab-' + tabName);
+    if (activeTab) activeTab.classList.add('active');
+    if (activeContent) activeContent.style.display = 'block';
+  }
+
+  function insertIntoNoteContent(textToInsert) {
+    const textarea = document.getElementById('note-content');
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = textarea.value;
+    const before = text.substring(0, start);
+    const after = text.substring(end, text.length);
+    const prefix = (before.endsWith('\\n') || before.length === 0) ? '' : '\\n\\n';
+    const suffix = (after.startsWith('\\n') || after.length === 0) ? '' : '\\n\\n';
+    textarea.value = before + prefix + textToInsert + suffix + after;
+    textarea.focus();
+    const newPos = (before + prefix + textToInsert).length;
+    textarea.setSelectionRange(newPos, newPos);
+  }
+
+  function insertChemPreset(name, smiles) {
+    const block = '```chem ' + name + '\\n' + smiles + '\\n```';
+    insertIntoNoteContent(block);
+    closeChemHelperModal();
+    showAIFeedback('🧪 Molecule "' + name + '" inserted into topic!', true);
+  }
+
+  function insertEquation(eq) {
+    insertIntoNoteContent(eq);
+    closeChemHelperModal();
+    showAIFeedback('⚗️ Chemical equation inserted into topic!', true);
+  }
+
+  let currentFoundCompound = null;
+
+  async function searchPubChem() {
+    const q = document.getElementById('pubchem-search-q').value.trim();
+    if (!q) return;
+    const statusBox = document.getElementById('pubchem-search-status');
+    const resBox = document.getElementById('pubchem-search-result');
+    const btn = document.getElementById('btn-pubchem-search');
+    
+    statusBox.style.display = 'block';
+    statusBox.style.background = '#1e293b';
+    statusBox.style.color = '#38bdf8';
+    statusBox.textContent = 'Searching PubChem database for "' + q + '"...';
+    resBox.style.display = 'none';
+    btn.disabled = true;
+
+    try {
+      const resp = await fetch('{{ url_for("route_api_chem_search") }}?q=' + encodeURIComponent(q));
+      const res = await resp.json();
+      if (!res.success) {
+        statusBox.style.background = '#450a0a';
+        statusBox.style.color = '#fecaca';
+        statusBox.textContent = res.message;
+      } else {
+        currentFoundCompound = res.compound;
+        statusBox.style.display = 'none';
+        resBox.style.display = 'block';
+        document.getElementById('res-chem-name').textContent = res.compound.name;
+        document.getElementById('res-chem-iupac').textContent = res.compound.iupac ? ('IUPAC: ' + res.compound.iupac) : '';
+        document.getElementById('res-chem-formula').textContent = res.compound.formula + (res.compound.weight ? (' (' + res.compound.weight + ' g/mol)') : '');
+        document.getElementById('res-chem-smiles').textContent = res.compound.smiles;
+      }
+    } catch (err) {
+      statusBox.style.background = '#450a0a';
+      statusBox.style.color = '#fecaca';
+      statusBox.textContent = 'Error connecting to PubChem: ' + err.message;
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function insertSearchedCompound() {
+    if (!currentFoundCompound) return;
+    const block = '```chem ' + currentFoundCompound.name + '\\n' + currentFoundCompound.smiles + '\\n```';
+    insertIntoNoteContent(block);
+    closeChemHelperModal();
+    showAIFeedback('🧪 Molecule "' + currentFoundCompound.name + '" inserted into topic!', true);
+  }
+
+  function insertSearchedFormula() {
+    if (!currentFoundCompound || !currentFoundCompound.formula) return;
+    insertIntoNoteContent('$\\\\ce{' + currentFoundCompound.formula + '}$');
+    closeChemHelperModal();
+    showAIFeedback('⚗️ Formula inserted into topic!', true);
   }
 </script>
 """
@@ -3148,6 +3485,37 @@ RAW TEXT:
         return jsonify({"success": False, "message": res})
 
     return jsonify({"success": False, "message": f"Unknown action: {action}"})
+
+
+@app.route("/api/chem/search")
+def route_api_chem_search():
+    query = request.args.get("q", "").strip()
+    if not query:
+        return jsonify({"success": False, "message": "Search query required."})
+
+    try:
+        url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{requests.utils.quote(query)}/property/ConnectivitySMILES,CanonicalSMILES,MolecularFormula,MolecularWeight,IUPACName/JSON"
+        r = requests.get(url, timeout=7)
+        if r.status_code == 200:
+            data = r.json()
+            props = data.get("PropertyTable", {}).get("Properties", [])
+            if props:
+                p = props[0]
+                smiles = p.get("ConnectivitySMILES") or p.get("CanonicalSMILES") or ""
+                return jsonify({
+                    "success": True,
+                    "compound": {
+                        "name": query.title(),
+                        "smiles": smiles,
+                        "formula": p.get("MolecularFormula", ""),
+                        "weight": p.get("MolecularWeight", ""),
+                        "iupac": p.get("IUPACName", query.title()),
+                        "cid": p.get("CID")
+                    }
+                })
+        return jsonify({"success": False, "message": f"Compound '{query}' not found on PubChem. Try a common chemical name or IUPAC name."})
+    except Exception as e:
+        return jsonify({"success": False, "message": f"PubChem lookup error: {str(e)}"})
 
 
 @app.route("/pages")

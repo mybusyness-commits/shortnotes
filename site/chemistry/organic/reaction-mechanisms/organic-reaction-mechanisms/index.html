@@ -61,11 +61,14 @@
   <!-- CSS Stylesheet (Clean Relative Path) -->
   <link rel="stylesheet" href="../../../../static/css/style.css">
   
-  <!-- KaTeX for crisp mathematical/scientific formula rendering -->
+  <!-- KaTeX for crisp mathematical/scientific formula rendering + mhchem for chemistry equations -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="../../../../static/js/mhchem.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"
           onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); if (window.onKaTeXRendered) window.onKaTeXRendered();"></script>
+  <script defer src="../../../../static/js/smiles-drawer.min.js"></script>
+  <script defer src="../../../../static/js/chem.js"></script>
 
   <!-- Universal Ad Platform Head Code (Google AdSense, Media.net, Ezoic, etc.) -->
   
@@ -590,13 +593,27 @@
 </tbody>
 </table></div>
 <hr />
-<h2 id="2-key-regiochemical-rules">2. Key Regiochemical Rules</h2>
+<h2 id="2-representative-reaction-equations-substrates">2. Representative Reaction Equations &amp; Substrates</h2>
+<h3 id="s_n2-bimolecular-nucleophilic-substitution">$S_N2$ Bimolecular Nucleophilic Substitution</h3>
+<p>Bimolecular backside attack on an unhindered primary substrate with complete stereochemical inversion:</p>
+<p>$$\ce{CH3CH2-Br + OH- -&gt;[DMSO] CH3CH2-OH + Br-}$$</p>
+<div class="molecule-card"><div class="molecule-render" data-smiles="CCBr"></div><div class="molecule-caption"><span class="molecule-title">Bromoethane Substrate</span><code class="molecule-smiles">CCBr</code></div></div>
+
+<h3 id="e2-bimolecular-elimination-zaitsev-major-product">$E2$ Bimolecular Elimination (Zaitsev Major Product)</h3>
+<p>Concerted anti-periplanar proton abstraction yielding the more substituted, thermodynamically stable alkene:</p>
+<p>$$\ce{(CH3)2CH-Br + EtO- -&gt;[\Delta] CH3-CH=CH2 + EtOH + Br-}$$</p>
+<div class="molecule-card"><div class="molecule-render" data-smiles="CC(Br)C"></div><div class="molecule-caption"><span class="molecule-title">2-Bromopropane Substrate</span><code class="molecule-smiles">CC(Br)C</code></div></div>
+
+<div class="molecule-card"><div class="molecule-render" data-smiles="CC=C"></div><div class="molecule-caption"><span class="molecule-title">Propene (Alkene Product)</span><code class="molecule-smiles">CC=C</code></div></div>
+
+<hr />
+<h2 id="3-key-regiochemical-rules">3. Key Regiochemical Rules</h2>
 <h3 id="zaitsevs-rule-saytzeff">Zaitsev's Rule (Saytzeff)</h3>
 <p>In elimination reactions, the more substituted (more stable) alkene is the major product when using a small, unhindered base (e.g., $\text{NaOCH}_3$).</p>
 <h3 id="hofmann-rule">Hofmann Rule</h3>
 <p>When a bulky, sterically hindered base like potassium tert-butoxide ($t\text{-BuOK}$) is used, proton abstraction occurs at the least hindered carbon, giving the less substituted alkene as the major product.</p>
 <hr />
-<h2 id="3-high-yield-exam-tips">3. High-Yield Exam Tips</h2>
+<h2 id="4-high-yield-exam-tips">4. High-Yield Exam Tips</h2>
 <ol>
 <li><strong>Primary Alkyl Halides ($1^\circ$)</strong>: Almost always undergo <strong>$S_N2$</strong> with good nucleophiles or <strong>$E2$</strong> with strong, bulky bases. Never $S_N1$ or $E1$ under normal conditions due to unstable primary carbocations.</li>
 <li><strong>Tertiary Alkyl Halides ($3^\circ$)</strong>: Never undergo $S_N2$ due to extreme steric congestion. If a strong base is present, <strong>$E2$</strong> dominates. With weak nucleophiles/bases and heat, a mixture of <strong>$S_N1$</strong> and <strong>$E1$</strong> occurs.</li>

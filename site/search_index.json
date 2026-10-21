@@ -33,7 +33,7 @@
       "molecular-geometry"
     ],
     "reading_time": 2,
-    "content": "1. Steric Number & Hybridization Rule The steric number determines the electron domain geometry and hybridization state around the central atom: \\text{SN} = + | Steric Number | Hybridization | Ideal Bond Angle | Electron Domain Geometry | | :--- | :--- | :--- | :--- | | 2 | sp | 180^\\circ | Linear | | 3 | sp^2 | 120^\\circ | Trigonal Planar | | 4 | sp^3 | 109.5^\\circ | Tetrahedral | | 5 | sp^3d | 90^\\circ, 120^\\circ | Trigonal Bipyramidal | | 6 | sp^3d^2 | 90^\\circ | Octahedral | --- 2. VSEPR Lon"
+    "content": "1. Steric Number & Hybridization Rule The steric number determines the electron domain geometry and hybridization state around the central atom: \\text{SN} = + | Steric Number | Hybridization | Ideal Bond Angle | Electron Domain Geometry | Example Molecule | | :--- | :--- | :--- | :--- | :--- | | 2 | sp | 180^\\circ | Linear | \\ce{BeCl2}, \\ce{CO2} | | 3 | sp^2 | 120^\\circ | Trigonal Planar | \\ce{BF3}, \\ce{SO3} | | 4 | sp^3 | 109.5^\\circ | Tetrahedral | \\ce{CH4}, \\ce{NH4+} | | 5 | sp^3d | 90^\\circ,"
   },
   {
     "title": "Alkanes Nomenclature & Conformational Analysis",
@@ -45,7 +45,7 @@
     "chapter": "hydrocarbons",
     "chapter_name": "Hydrocarbons",
     "url": "/chemistry/organic/hydrocarbons/alkanes-nomenclature-conformational-analysis/",
-    "excerpt": "High yield study notes on alkane IUPAC nomenclature, Newman projections, and conformational stability (staggered vs eclipsed).",
+    "excerpt": "High yield study notes on alkane IUPAC nomenclature, Newman projections, chair conformations, and free radical halogenation.",
     "tags": [
       "chemistry",
       "organic-chemistry",
@@ -54,7 +54,7 @@
       "newman-projection"
     ],
     "reading_time": 1,
-    "content": "1. Conformations of Ethane and Butane - Staggered conformation is more stable than eclipsed conformation due to minimized torsional strain. - Potential energy difference between staggered and eclipsed ethane is approximately 12.5\\text{ kJ/mol} . Newman Projection Stability \\text{Anti} > \\text{Gauche} > \\text{Eclipsed} > \\text{Fully Eclipsed}"
+    "content": "1. Conformations of Ethane and Butane - Staggered conformation is more stable than eclipsed conformation due to minimized torsional strain. - Potential energy difference between staggered and eclipsed ethane is approximately 12.5\\text{ kJ/mol} . Newman Projection Stability Order \\text{Anti} > \\text{Gauche} > \\text{Eclipsed} > \\text{Fully Eclipsed} --- 2. Ring Strain & Cyclohexane Conformations Cyclopropane and cyclobutane suffer heavy angle and torsional strain. Cyclohexane adopts a virtually st"
   },
   {
     "title": "Electrophilic vs Nucleophilic Substitution & Elimination (SN1, SN2, E1, E2)",

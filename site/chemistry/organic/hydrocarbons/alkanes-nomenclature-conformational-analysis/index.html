@@ -13,7 +13,7 @@
   </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Alkanes Nomenclature & Conformational Analysis | shrtnotes</title>
-  <meta name="description" content="High yield study notes on alkane IUPAC nomenclature, Newman projections, and conformational stability (staggered vs eclipsed).">
+  <meta name="description" content="High yield study notes on alkane IUPAC nomenclature, Newman projections, chair conformations, and free radical halogenation.">
   
   <!-- Search Engine Verification Tags -->
   
@@ -31,7 +31,7 @@
   <link rel="canonical" href="https://shrtnotes.pages.dev/chemistry/organic/hydrocarbons/alkanes-nomenclature-conformational-analysis/">
   <meta property="og:site_name" content="shrtnotes">
   <meta property="og:title" content="Alkanes Nomenclature & Conformational Analysis | shrtnotes">
-  <meta property="og:description" content="High yield study notes on alkane IUPAC nomenclature, Newman projections, and conformational stability (staggered vs eclipsed).">
+  <meta property="og:description" content="High yield study notes on alkane IUPAC nomenclature, Newman projections, chair conformations, and free radical halogenation.">
   <meta property="og:type" content="article">
   <meta property="og:url" content="https://shrtnotes.pages.dev/chemistry/organic/hydrocarbons/alkanes-nomenclature-conformational-analysis/">
   
@@ -39,7 +39,7 @@
   <!-- Twitter / X Card Metadata -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Alkanes Nomenclature & Conformational Analysis | shrtnotes">
-  <meta name="twitter:description" content="High yield study notes on alkane IUPAC nomenclature, Newman projections, and conformational stability (staggered vs eclipsed).">
+  <meta name="twitter:description" content="High yield study notes on alkane IUPAC nomenclature, Newman projections, chair conformations, and free radical halogenation.">
   
 
   <!-- Global WebSite Schema.org JSON-LD -->
@@ -61,11 +61,14 @@
   <!-- CSS Stylesheet (Clean Relative Path) -->
   <link rel="stylesheet" href="../../../../static/css/style.css">
   
-  <!-- KaTeX for crisp mathematical/scientific formula rendering -->
+  <!-- KaTeX for crisp mathematical/scientific formula rendering + mhchem for chemistry equations -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="../../../../static/js/mhchem.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"
           onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); if (window.onKaTeXRendered) window.onKaTeXRendered();"></script>
+  <script defer src="../../../../static/js/smiles-drawer.min.js"></script>
+  <script defer src="../../../../static/js/chem.js"></script>
 
   <!-- Universal Ad Platform Head Code (Google AdSense, Media.net, Ezoic, etc.) -->
   
@@ -124,7 +127,7 @@
     {
       "@type": "TechArticle",
       "headline": "Alkanes Nomenclature & Conformational Analysis",
-      "description": "High yield study notes on alkane IUPAC nomenclature, Newman projections, and conformational stability (staggered vs eclipsed).",
+      "description": "High yield study notes on alkane IUPAC nomenclature, Newman projections, chair conformations, and free radical halogenation.",
       "articleSection": "Hydrocarbons",
       "keywords": "chemistry, organic-chemistry, alkanes, conformations, newman-projection",
       "author": {
@@ -543,8 +546,27 @@
 <li><strong>Staggered conformation</strong> is more stable than <strong>eclipsed conformation</strong> due to minimized torsional strain.</li>
 <li>Potential energy difference between staggered and eclipsed ethane is approximately $12.5\text{ kJ/mol}$ ($2.9\text{ kcal/mol}$).</li>
 </ul>
-<h3 id="newman-projection-stability">Newman Projection Stability</h3>
+<h3 id="newman-projection-stability-order">Newman Projection Stability Order</h3>
 <p>$$\text{Anti} &gt; \text{Gauche} &gt; \text{Eclipsed} &gt; \text{Fully Eclipsed}$$</p>
+<hr />
+<h2 id="2-ring-strain-cyclohexane-conformations">2. Ring Strain &amp; Cyclohexane Conformations</h2>
+<p>Cyclopropane ($60^\circ$) and cyclobutane ($90^\circ$) suffer heavy angle and torsional strain. Cyclohexane adopts a virtually strain-free <strong>chair conformation</strong> with ideal $109.5^\circ$ bond angles:</p>
+<div class="molecule-card"><div class="molecule-render" data-smiles="C1CCCCC1"></div><div class="molecule-caption"><span class="molecule-title">Cyclohexane (Strain-free C6H12)</span><code class="molecule-smiles">C1CCCCC1</code></div></div>
+
+<div class="molecule-card"><div class="molecule-render" data-smiles="C1CCCC1"></div><div class="molecule-caption"><span class="molecule-title">Cyclopentane (Envelope Form C5H10)</span><code class="molecule-smiles">C1CCCC1</code></div></div>
+
+<hr />
+<h2 id="3-branched-alkanes-isomerism">3. Branched Alkanes &amp; Isomerism</h2>
+<p>Branching lowers the boiling point due to reduced surface contact area and weaker London dispersion forces:</p>
+<div class="molecule-card"><div class="molecule-render" data-smiles="CC(C)(C)C"></div><div class="molecule-caption"><span class="molecule-title">Neopentane (2,2-Dimethylpropane, b.p. 9.5°C)</span><code class="molecule-smiles">CC(C)(C)C</code></div></div>
+
+<div class="molecule-card"><div class="molecule-render" data-smiles="CC(C)C"></div><div class="molecule-caption"><span class="molecule-title">Isobutane (2-Methylpropane, b.p. -11.7°C)</span><code class="molecule-smiles">CC(C)C</code></div></div>
+
+<hr />
+<h2 id="4-free-radical-halogenation-reaction">4. Free Radical Halogenation Reaction</h2>
+<p>Alkanes undergo photochemical substitution with halogens in the presence of UV light ($h\nu$) or heat:</p>
+<p>$$\ce{CH4 + Cl2 -&gt;[h\nu] CH3Cl + HCl}$$</p>
+<p>$$\ce{CH3Cl + Cl2 -&gt;[h\nu] CH2Cl2 + HCl}$$</p>
     </div>
 
     <!-- Post-Content High-Yield Ad Slot (Zero-Interruption Natural Break) -->

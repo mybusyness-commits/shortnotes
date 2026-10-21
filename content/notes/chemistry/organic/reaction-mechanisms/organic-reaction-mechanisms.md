@@ -22,7 +22,33 @@ last_modified: '2026-10-21'
 
 ---
 
-## 2. Key Regiochemical Rules
+## 2. Representative Reaction Equations & Substrates
+
+### $S_N2$ Bimolecular Nucleophilic Substitution
+Bimolecular backside attack on an unhindered primary substrate with complete stereochemical inversion:
+
+$$\ce{CH3CH2-Br + OH- ->[DMSO] CH3CH2-OH + Br-}$$
+
+```chem Bromoethane Substrate
+CCBr
+```
+
+### $E2$ Bimolecular Elimination (Zaitsev Major Product)
+Concerted anti-periplanar proton abstraction yielding the more substituted, thermodynamically stable alkene:
+
+$$\ce{(CH3)2CH-Br + EtO- ->[\Delta] CH3-CH=CH2 + EtOH + Br-}$$
+
+```chem 2-Bromopropane Substrate
+CC(Br)C
+```
+
+```chem Propene (Alkene Product)
+CC=C
+```
+
+---
+
+## 3. Key Regiochemical Rules
 
 ### Zaitsev's Rule (Saytzeff)
 In elimination reactions, the more substituted (more stable) alkene is the major product when using a small, unhindered base (e.g., $\text{NaOCH}_3$).
@@ -32,6 +58,6 @@ When a bulky, sterically hindered base like potassium tert-butoxide ($t\text{-Bu
 
 ---
 
-## 3. High-Yield Exam Tips
+## 4. High-Yield Exam Tips
 1. **Primary Alkyl Halides ($1^\circ$)**: Almost always undergo **$S_N2$** with good nucleophiles or **$E2$** with strong, bulky bases. Never $S_N1$ or $E1$ under normal conditions due to unstable primary carbocations.
 2. **Tertiary Alkyl Halides ($3^\circ$)**: Never undergo $S_N2$ due to extreme steric congestion. If a strong base is present, **$E2$** dominates. With weak nucleophiles/bases and heat, a mixture of **$S_N1$** and **$E1$** occurs.
