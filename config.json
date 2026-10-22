@@ -115,6 +115,11 @@
               "id": "chemical-kinetics",
               "name": "Chemical Kinetics",
               "description": "Rate equations, reaction order, Arrhenius equation, and collision theory."
+            },
+            {
+              "id": "chemicalequilibrium",
+              "name": "Chemical Equilibrium",
+              "description": ""
             }
           ]
         }

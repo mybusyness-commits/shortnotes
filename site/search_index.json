@@ -1,5 +1,29 @@
 [
   {
+    "title": "INTRODUCTION TO CHEMICAL EQUILIBRIUM",
+    "slug": "introduction-to-chemical-equilibrium",
+    "subject": "chemistry",
+    "subject_name": "Chemistry",
+    "branch": "physical",
+    "branch_name": "Physical Chemistry",
+    "chapter": "chemicalequilibrium",
+    "chapter_name": "Chemical Equilibrium",
+    "url": "/chemistry/physical/chemicalequilibrium/introduction-to-chemical-equilibrium/",
+    "excerpt": "Learn the fundamentals of chemical equilibrium, dynamic balance, equilibrium constants, and Le Chatelier's principle in physical chemistry.",
+    "tags": [
+      "chemical equilibrium",
+      "dynamic equilibrium",
+      "equilibrium constant",
+      "physical chemistry",
+      "le chatelier",
+      "reversible reactions",
+      "kc",
+      "kp"
+    ],
+    "reading_time": 3,
+    "content": "Topic 1: INTRODUCTION TO CHEMICAL EQUILIBRIUM In a reversible chemical reaction, the \\text{rate of forward reaction} = to the \\text{rate of backward reaction} , it is said to be in chemical equilibrium. Characteristics of Chemical Equilibrium: The reaction hasn’t stopped; it's just that the forward and backward processes happen at identical speeds. The concentration of reactants and products remains constant over time. It can only be achieved in a closed system. . Chemical equilibrium tells you "
+  },
+  {
     "title": "Cell Organelles, Membrane Transport & Cellular Respiration",
     "slug": "cell-organelles-and-atp",
     "subject": "biology",

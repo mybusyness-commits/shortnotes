@@ -139,6 +139,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://shrtnotes.pages.dev/chemistry/physical/chemicalequilibrium/introduction-to-chemical-equilibrium/</loc>
+    <lastmod>2026-10-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://shrtnotes.pages.dev/chemistry/physical/chemical-thermodynamics/</loc>
     <lastmod>2026-10-22</lastmod>
     <changefreq>daily</changefreq>
@@ -146,6 +152,12 @@
   </url>
   <url>
     <loc>https://shrtnotes.pages.dev/chemistry/physical/chemical-kinetics/</loc>
+    <lastmod>2026-10-22</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://shrtnotes.pages.dev/chemistry/physical/chemicalequilibrium/</loc>
     <lastmod>2026-10-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.85</priority>
