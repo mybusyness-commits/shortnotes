@@ -24,7 +24,7 @@ branch: physical
 In a reversible chemical reaction, the $\text{rate of forward reaction} =$ to the $\text{rate of backward reaction}$, it is said to be in chemical equilibrium.
 
 ### Characteristics of Chemical Equilibrium:
-* The reaction hasn’t stopped; it's just that the forward and backward processes happen at identical speeds.
+* The reaction never stops; it's just that the forward and backward processes happen at identical speeds.
 * The concentration of reactants and products remains constant over time.
 * It can only be achieved in a closed system. (In a closed system, no exchange of matter takes place. Energy exchange can happen).
 
