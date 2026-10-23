@@ -51,7 +51,7 @@
       </h1>
       <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">
         {% if current_subject.branches %}
-          {{ current_subject.branches|length }} Branches &bull; {{ total_notes_count }} Total {% if total_notes_count == 1 %}Topic{% else %}Topics{% endif %}
+          {{ current_subject.branches|length }} Branches &bull; {{ current_subject.total_chapters or (grouped_chapters|length) }} Chapters &bull; {{ total_notes_count }} Total {% if total_notes_count == 1 %}Topic{% else %}Topics{% endif %}
         {% else %}
           {{ grouped_chapters|length }} {% if grouped_chapters|length == 1 %}Chapter{% else %}Chapters{% endif %} &bull; {{ total_notes_count }} Total {% if total_notes_count == 1 %}Topic{% else %}Topics{% endif %}
         {% endif %}

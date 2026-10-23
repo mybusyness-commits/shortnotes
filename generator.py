@@ -135,6 +135,13 @@ def load_config():
     with open(CONFIG_FILE, "r", encoding="utf-8") as f:
         data = json.load(f)
 
+    # Calculate total_chapters for each subject (combining direct chapters and branch chapters)
+    for sub in data.get("subjects", []):
+        branches = sub.get("branches") or []
+        direct_chs = sub.get("chapters") or []
+        branch_chs_count = sum(len(b.get("chapters") or []) for b in branches)
+        sub["total_chapters"] = len(direct_chs) + branch_chs_count
+
     # Merge private secrets from secrets.json if present (never tracked in git)
     secrets_file = BASE_DIR / "secrets.json"
     if secrets_file.exists():
@@ -177,6 +184,10 @@ def save_config(config_data):
             except Exception:
                 pass
         data_to_save["ai"]["api_key"] = ""
+
+    # Strip computed runtime helper fields before persisting
+    for sub in data_to_save.get("subjects", []):
+        sub.pop("total_chapters", None)
 
     with open(CONFIG_FILE, "w", encoding="utf-8") as f:
         json.dump(data_to_save, f, indent=2)

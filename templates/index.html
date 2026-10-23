@@ -21,7 +21,7 @@
 <div class="subjects-grid" id="subjects-grid">
   {% for sub in config.subjects %}
   {% set sub_notes_count = subjects_data[sub.id].notes|length if sub.id in subjects_data else 0 %}
-  {% set sub_chapters_count = sub.chapters|length if sub.chapters else 0 %}
+  {% set sub_chapters_count = sub.total_chapters if sub.total_chapters is defined else (sub.chapters|length if sub.chapters else 0) %}
   <a href="{{ root_path }}{{ sub.id }}/" class="subject-card" aria-label="Browse {{ sub.name }} chapters and topics">
     <div class="subject-icon-box">
       {{ get_icon(sub.icon)|safe }}
@@ -31,7 +31,7 @@
     
     <div class="subject-stats">
       {% if sub.branches %}
-      <span><strong>{{ sub.branches|length }}</strong> Branches</span>
+      <span><strong>{{ sub.branches|length }}</strong> Branches ({{ sub_chapters_count }} Chapters)</span>
       <span>&bull;</span>
       <span><strong>{{ sub_notes_count }}</strong> Topics</span>
       {% else %}
@@ -80,7 +80,7 @@
           <h3 class="subject-feed-title">{{ sub.name }}</h3>
           <span class="subject-feed-meta">
             {{ sub_notes|length }} {% if sub_notes|length == 1 %}Topic{% else %}Topics{% endif %} &bull; 
-            {% if sub.branches %}{{ sub.branches|length }} Branches{% else %}{{ sub.chapters|length }} Chapters{% endif %}
+            {% if sub.branches %}{{ sub.branches|length }} Branches &bull; {{ sub.total_chapters or sub_chapters_count }} Chapters{% else %}{{ sub.chapters|length }} Chapters{% endif %}
           </span>
         </div>
       </div>

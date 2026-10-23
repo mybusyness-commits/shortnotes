@@ -139,11 +139,25 @@
               <div class="dropdown-menu-header">All Subjects & Chapters</div>
               <div class="dropdown-menu-grid">
                 {% for sub in config.subjects %}
+                {% set total_chs = sub.total_chapters if sub.total_chapters is defined else (sub.chapters|length if sub.chapters else 0) %}
+                {% if not total_chs and sub.branches %}
+                  {% set ns = namespace(count=0) %}
+                  {% for b in sub.branches %}
+                    {% set ns.count = ns.count + (b.chapters|length if b.chapters else 0) %}
+                  {% endfor %}
+                  {% set total_chs = ns.count %}
+                {% endif %}
                 <a href="{{ root_path }}{{ sub.id }}/" class="dropdown-sub-item">
                   <div class="dropdown-sub-icon">{{ get_icon(sub.icon)|safe }}</div>
                   <div class="dropdown-sub-info">
                     <span class="dropdown-sub-title">{{ sub.name }}</span>
-                    <span class="dropdown-sub-count">{{ sub.chapters|length }} chapters</span>
+                    <span class="dropdown-sub-count">
+                      {% if sub.branches %}
+                        {{ sub.branches|length }} branches &bull; {{ total_chs }} {% if total_chs == 1 %}chapter{% else %}chapters{% endif %}
+                      {% else %}
+                        {{ total_chs }} {% if total_chs == 1 %}chapter{% else %}chapters{% endif %}
+                      {% endif %}
+                    </span>
                   </div>
                 </a>
                 {% endfor %}
