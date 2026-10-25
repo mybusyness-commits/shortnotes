@@ -70,6 +70,10 @@
   <script defer src="../../../static/js/smiles-drawer.min.js"></script>
   <script defer src="../../../static/js/chem.js"></script>
 
+  <!-- Supabase Auth & Student Hub SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="../../../static/js/auth.js"></script>
+
   <!-- Universal Ad Platform Head Code (Google AdSense, Media.net, Ezoic, etc.) -->
   
     
@@ -246,6 +250,21 @@
           </svg>
         </button>
 
+        <!-- Student Auth & Learning Hub Button -->
+        <div id="user-auth-container" class="user-auth-container">
+          <button type="button" id="auth-signin-btn" class="auth-nav-btn" onclick="window.shrtAuth.openModal('signin')" aria-label="Sign in to track progress">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>Sign In</span>
+          </button>
+          
+          <div id="user-profile-menu" class="user-profile-menu" style="display: none;">
+            <a href="../../../hub/" class="user-hub-pill" title="Open My Learning Hub & AI Guidance">
+              <span class="user-hub-avatar" id="nav-user-initial">S</span>
+              <span class="user-hub-name" id="nav-user-name">My Hub</span>
+            </a>
+          </div>
+        </div>
+
         <!-- Mobile Menu Toggle Button -->
         <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Open mobile menu">
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -308,6 +327,18 @@
       <ul class="mobile-nav-list">
         <li><a href="../../../" class="mobile-nav-item">Home</a></li>
         <li><a href="../../../about/" class="mobile-nav-item">About Us</a></li>
+        <li id="mobile-nav-auth-item">
+          <button type="button" onclick="window.shrtAuth.openModal('signin')" class="mobile-nav-item" style="background:none; border:none; width:100%; text-align:left; cursor:pointer;">
+            <span class="mobile-nav-icon">🔑</span>
+            <span>Sign In / Create Account</span>
+          </button>
+        </li>
+        <li>
+          <a href="../../../hub/" class="mobile-nav-item">
+            <span class="mobile-nav-icon">🎓</span>
+            <span>Student Hub</span>
+          </a>
+        </li>
       </ul>
 
       <div class="mobile-nav-section-title" style="margin-top: 1.25rem;">Subjects</div>
@@ -705,6 +736,27 @@ Where $C$ is the cofactor matrix with entries $C_{ij} = (-1)^{i+j} M_{ij}$, and 
 </ul>
     </div>
 
+    <!-- Interactive Revision Progress Tracker -->
+    <div id="note-revision-tracker" class="note-revision-tracker-bar" data-topic-path="mathematics/linear-algebra/matrix-multiplication-inverses" data-subject="mathematics" data-chapter="linear-algebra" data-title="Matrix Multiplication & Inverses: Formulas, Properties & Step-by-Step Guide">
+      <div style="display: flex; align-items: center; gap: 0.65rem;">
+        <span style="font-size: 1.25rem;">📌</span>
+        <div>
+          <strong style="color: var(--text-primary); font-size: 0.9rem; display: block;">Topic Revision Tracker</strong>
+          <span style="color: var(--text-muted); font-size: 0.775rem;">Mark this topic as revised to update your syllabus progress in your Student Hub</span>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.6rem;">
+        <span id="revision-status-badge" class="revision-status-badge" style="display: none;">Completed</span>
+        <button type="button" id="btn-mark-revised" class="btn-mark-revised" onclick="window.shrtTracker.toggleRevision()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+          <span>Mark as Revised</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Conceptual Self-Check Quiz -->
+    <div id="topic-quiz-card" class="topic-quiz-card" data-topic-path="mathematics/linear-algebra/matrix-multiplication-inverses" data-subject="mathematics" data-chapter="linear-algebra" data-title="Matrix Multiplication & Inverses: Formulas, Properties & Step-by-Step Guide" data-quiz-json='[{"question": "For matrix product $AB$ to be defined, what condition must hold?", "options": ["Number of columns in $A$ must equal number of rows in $B$", "Matrices must have identical dimensions", "Number of rows in $A$ must equal rows in $B$", "Determinant of $A$ must be non-zero"], "answer": 0, "tag": "matrix-multiplication-conformability", "explanation": "Multiplying an $m \\times k$ matrix by a $k \\times n$ matrix requires the inner dimensions ($k$) to match."}, {"question": "What is the condition for an $n \\times n$ square matrix $A$ to be invertible (non-singular)?", "options": ["$\\det(A) \\neq 0$", "$\\det(A) = 0$", "$A = A^T$", "Trace of $A$ is zero"], "answer": 0, "tag": "matrix-invertibility-determinant", "explanation": "A square matrix is invertible if and only if its determinant is non-zero (full rank)."}, {"question": "If $A$ and $B$ are invertible matrices of the same size, what is the inverse of their product $(AB)^{-1}$?", "options": ["$B^{-1}A^{-1}$", "$A^{-1}B^{-1}$", "$AB^{-1}$", "$A^{-1} + B^{-1}$"], "answer": 0, "tag": "matrix-inverse-product-rule", "explanation": "The socks-and-shoes property reverses the order: $(AB)^{-1} = B^{-1}A^{-1}$."}]'></div>
+
     <!-- Post-Content High-Yield Ad Slot (Zero-Interruption Natural Break) -->
     
     <div class="post-content-ad-wrapper">
@@ -908,6 +960,9 @@ Where $C$ is the cofactor matrix with entries $C_{ij} = (-1)^{i+j} M_{ij}$, and 
   <!-- Main JavaScript File -->
   <script src="../../../static/js/main.js"></script>
   
+<script defer src="../../../static/js/tracker.js"></script>
+<script defer src="../../../static/js/quiz.js"></script>
+
 
   <!-- Adsterra Social Bar / In-Page Push (Non-intrusive High-CPM Notification) -->
   

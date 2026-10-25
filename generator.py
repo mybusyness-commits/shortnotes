@@ -294,6 +294,290 @@ def write_clean_page(rel_path_dir, html_content):
         f.write(html_content)
 
 
+CURATED_QUIZZES = {
+    "calculus-fundamental-theorem": [
+        {
+            "question": "By the First Fundamental Theorem of Calculus, if $g(x) = \\int_{a}^{x} f(t)\\,dt$ where $f$ is continuous, what is $g'(x)$?",
+            "options": ["$f(x)$", "$f'(x)$", "$F(x) - F(a)$", "$f(x) - f(a)$"],
+            "answer": 0,
+            "tag": "first-fundamental-theorem",
+            "explanation": "FTC Part 1 proves that differentiation and integration are inverse operations: $\\frac{d}{dx}\\left[\\int_{a}^{x} f(t)dt\\right] = f(x)$."
+        },
+        {
+            "question": "If $F$ is an antiderivative of $f$ on $[a, b]$, what does the definite integral $\\int_{a}^{b} f(x)\\,dx$ evaluate to?",
+            "options": ["$F(b) - F(a)$", "$F(a) - F(b)$", "$f(b) - f(a)$", "$F'(b) - F'(a)$"],
+            "answer": 0,
+            "tag": "second-fundamental-theorem",
+            "explanation": "FTC Part 2 (Net Change Theorem) allows evaluating definite integrals by computing $F(b) - F(a)$."
+        },
+        {
+            "question": "What is the derivative of $y = \\ln(x)$ with respect to $x$ for $x > 0$?",
+            "options": ["$1/x$", "$e^x$", "$x$", "$1/x^2$"],
+            "answer": 0,
+            "tag": "derivative-logarithm",
+            "explanation": "The derivative of natural logarithm is $\\frac{d}{dx}[\\ln(x)] = \\frac{1}{x}$."
+        }
+    ],
+    "thermodynamics-carnot-engine": [
+        {
+            "question": "What is the maximum theoretical efficiency $\\eta$ of a reversible Carnot engine operating between $T_1$ (source) and $T_2$ (sink)?",
+            "options": ["$\\eta = 1 - \\frac{T_2}{T_1}$", "$\\eta = 1 + \\frac{T_2}{T_1}$", "$\\eta = \\frac{T_2}{T_1}$", "$\\eta = 1 - \\frac{Q_1}{Q_2}$"],
+            "answer": 0,
+            "tag": "carnot-efficiency",
+            "explanation": "Carnot efficiency is $\\eta = 1 - \\frac{T_2}{T_1}$ where temperatures are in Kelvin ($T_1 > T_2$)."
+        },
+        {
+            "question": "Which combination of thermodynamic processes forms the 4 stages of a complete Carnot cycle?",
+            "options": ["2 reversible isotherms and 2 reversible adiabatics", "2 isobars and 2 isochores", "4 isothermal processes", "2 isochores and 2 adiabatics"],
+            "answer": 0,
+            "tag": "carnot-cycle-processes",
+            "explanation": "A Carnot cycle consists of: Isothermal expansion, Adiabatic expansion, Isothermal compression, and Adiabatic compression."
+        },
+        {
+            "question": "Can any real heat engine operating between two temperatures exceed Carnot efficiency?",
+            "options": ["No, Carnot efficiency is the absolute upper theoretical limit", "Yes, if using hydrogen fuel", "Yes, at extremely high pressures", "Yes, with multi-stage turbines"],
+            "answer": 0,
+            "tag": "carnot-theorem",
+            "explanation": "By Carnot's theorem and the Second Law, no heat engine can be more efficient than a reversible Carnot engine between the same reservoirs."
+        }
+    ],
+    "vsepr-theory-hybridization": [
+        {
+            "question": "According to VSEPR theory, what is the order of electron pair repulsive forces?",
+            "options": ["Lone pair-lone pair > Lone pair-bond pair > Bond pair-bond pair", "Bond pair-bond pair > Lone pair-bond pair > Lone pair-lone pair", "All repulsions are equal", "Bond pair-bond pair > Lone pair-lone pair > Lone pair-bond pair"],
+            "answer": 0,
+            "tag": "vsepr-repulsion-order",
+            "explanation": "Lone pairs are held by one nucleus and spread out more in space: $\\text{lp-lp} > \\text{lp-bp} > \\text{bp-bp}$."
+        },
+        {
+            "question": "What molecular geometry does $\\text{SF}_4$ adopt ($sp^3d$ hybridization with 1 equatorial lone pair)?",
+            "options": ["See-saw", "Square planar", "Tetrahedral", "T-shaped"],
+            "answer": 0,
+            "tag": "vsepr-sf4-seesaw",
+            "explanation": "With 4 bonding pairs and 1 equatorial lone pair, $\\text{SF}_4$ adopts a see-saw molecular geometry."
+        },
+        {
+            "question": "What is the hybridization and bond angle in a molecule with trigonal planar geometry (e.g. $\\text{BF}_3$)?",
+            "options": ["$sp^2$ with $120^\\circ$", "$sp^3$ with $109.5^\\circ$", "$sp$ with $180^\\circ$", "$dsp^2$ with $90^\\circ$"],
+            "answer": 0,
+            "tag": "hybridization-sp2-geometry",
+            "explanation": "Steric number 3 with 0 lone pairs forms $sp^2$ hybridization with bond angles of $120^\\circ$."
+        }
+    ],
+    "organic-reaction-mechanisms": [
+        {
+            "question": "Which solvent type favors an $S_N2$ mechanism by avoiding strong hydrogen bonding to the nucleophile?",
+            "options": ["Polar aprotic solvents (e.g. acetone, DMSO, DMF)", "Polar protic solvents (e.g. water, ethanol)", "Non-polar solvents only", "Strongly acidic solutions"],
+            "answer": 0,
+            "tag": "reaction-mechanisms-sn2-solvent",
+            "explanation": "Polar aprotic solvents dissolve cations while leaving nucleophilic anions unencumbered ('naked') for backside attack."
+        },
+        {
+            "question": "What is the kinetic rate law for an $S_N1$ nucleophilic substitution reaction?",
+            "options": ["$\\text{Rate} = k[\\text{Alkyl Halide}]$", "$\\text{Rate} = k[\\text{Alkyl Halide}][\\text{Nucleophile}]$", "$\\text{Rate} = k[\\text{Nucleophile}]^2$", "$\\text{Rate} = k[\\text{Carbocation}]^2$"],
+            "answer": 0,
+            "tag": "reaction-mechanisms-sn1-kinetics",
+            "explanation": "The rate-determining step is unimolecular heterolysis of the substrate to form a carbocation intermediate."
+        },
+        {
+            "question": "Which type of alkyl halide undergoes $S_N1$ substitution most rapidly?",
+            "options": ["Tertiary ($3^\\circ$)", "Secondary ($2^\\circ$)", "Primary ($1^\\circ$)", "Methyl"],
+            "answer": 0,
+            "tag": "reaction-mechanisms-carbocation-stability",
+            "explanation": "$3^\\circ$ carbocations are stabilized by 9 hyperconjugative $\\alpha$-hydrogens and inductive donation, forming fastest."
+        }
+    ],
+    "alkanes-nomenclature-conformational-analysis": [
+        {
+            "question": "Which conformation of ethane has the lowest potential energy and maximum thermodynamic stability?",
+            "options": ["Staggered conformation (dihedral angle $60^\\circ$)", "Eclipsed conformation (dihedral angle $0^\\circ$)", "Skew conformation", "All conformations have identical energy"],
+            "answer": 0,
+            "tag": "ethane-staggered-conformation",
+            "explanation": "The staggered conformation minimizes electron-cloud repulsions between C-H bonds, having $12\\text{ kJ/mol}$ lower energy."
+        },
+        {
+            "question": "For cyclohexane, which conformation has zero angle strain and zero torsional strain?",
+            "options": ["Chair conformation", "Boat conformation", "Twist-boat conformation", "Half-chair conformation"],
+            "answer": 0,
+            "tag": "cyclohexane-chair-stability",
+            "explanation": "In chair cyclohexane, all bond angles are tetrahedral ($109.5^\\circ$) and all adjacent C-H bonds are fully staggered."
+        },
+        {
+            "question": "What is the energy barrier for rotation about the C-C single bond in ethane?",
+            "options": ["$\\sim 12\\text{ kJ/mol}$ ($2.9\\text{ kcal/mol}$)", "$\\sim 50\\text{ kJ/mol}$", "$\\sim 120\\text{ kJ/mol}$", "$0\\text{ kJ/mol}$"],
+            "answer": 0,
+            "tag": "ethane-torsional-barrier",
+            "explanation": "The energy barrier between staggered and eclipsed conformations in ethane is approximately $12.5\\text{ kJ/mol}$."
+        }
+    ],
+    "laws-of-thermodynamics-gibbs-free-energy": [
+        {
+            "question": "What is the criterion for a chemical or physical process to be spontaneous at constant temperature and pressure?",
+            "options": ["$\\Delta G < 0$", "$\\Delta G > 0$", "$\\Delta H > 0$", "$\\Delta S_{\\text{sys}} < 0$"],
+            "answer": 0,
+            "tag": "gibbs-free-energy-spontaneity",
+            "explanation": "A process is spontaneous at constant $T$ and $P$ when the Gibbs free energy change is negative: $\\Delta G = \\Delta H - T\\Delta S < 0$."
+        },
+        {
+            "question": "If an endothermic reaction ($\\Delta H > 0$) has positive entropy change ($\\Delta S > 0$), when does it become spontaneous?",
+            "options": ["At high temperatures ($T > \\Delta H / \\Delta S$)", "At all temperatures", "Only at low temperatures", "Never spontaneous"],
+            "answer": 0,
+            "tag": "gibbs-temperature-dependency",
+            "explanation": "At high temperatures, the $-T\\Delta S$ term dominates, overcoming the positive enthalpy to yield $\\Delta G < 0$."
+        },
+        {
+            "question": "What is the thermodynamic relation linking standard Gibbs free energy $\\Delta G^\\circ$ to equilibrium constant $K$?",
+            "options": ["$\\Delta G^\\circ = -RT \\ln K$", "$\\Delta G^\\circ = RT \\ln K$", "$\\Delta G^\\circ = -nFE^\\circ$", "$\\Delta G^\\circ = \\Delta H^\\circ + T\\Delta S^\\circ$"],
+            "answer": 0,
+            "tag": "gibbs-equilibrium-constant-relation",
+            "explanation": "$\\Delta G^\\circ = -RT \\ln K$ relates equilibrium state to standard thermodynamic potential."
+        }
+    ],
+    "introduction-to-chemical-equilibrium": [
+        {
+            "question": "According to Le Chatelier's principle, what happens to an exothermic equilibrium ($\\Delta H < 0$) when temperature is increased?",
+            "options": ["Shifts in the endothermic reverse direction (product yield decreases)", "Shifts in the forward direction", "No change in equilibrium position", "Equilibrium constant $K$ increases"],
+            "answer": 0,
+            "tag": "le-chatelier-temperature-exothermic",
+            "explanation": "Adding heat favors the heat-absorbing endothermic direction; for exothermic reactions, this shifts equilibrium to reactants."
+        },
+        {
+            "question": "If the reaction quotient $Q < K_c$, which way does the net reaction proceed?",
+            "options": ["Forward direction to form more products", "Reverse direction to form reactants", "Reaction is at equilibrium", "Reaction ceases"],
+            "answer": 0,
+            "tag": "reaction-quotient-direction",
+            "explanation": "When $Q < K_c$, product concentration is lower than equilibrium, driving the net forward reaction."
+        },
+        {
+            "question": "How is $K_p$ related to $K_c$ for a gas-phase equilibrium reaction?",
+            "options": ["$K_p = K_c(RT)^{\\Delta n_g}$", "$K_p = K_c / (RT)^{\\Delta n_g}$", "$K_p = K_c + RT\\Delta n$", "$K_p = K_c$ always"],
+            "answer": 0,
+            "tag": "kp-kc-relation-ideal-gas",
+            "explanation": "$K_p = K_c(RT)^{\\Delta n_g}$ where $\\Delta n_g$ is change in gaseous stoichiometric moles."
+        }
+    ],
+    "matrix-multiplication-inverses": [
+        {
+            "question": "For matrix product $AB$ to be defined, what condition must hold?",
+            "options": ["Number of columns in $A$ must equal number of rows in $B$", "Matrices must have identical dimensions", "Number of rows in $A$ must equal rows in $B$", "Determinant of $A$ must be non-zero"],
+            "answer": 0,
+            "tag": "matrix-multiplication-conformability",
+            "explanation": "Multiplying an $m \\times k$ matrix by a $k \\times n$ matrix requires the inner dimensions ($k$) to match."
+        },
+        {
+            "question": "What is the condition for an $n \\times n$ square matrix $A$ to be invertible (non-singular)?",
+            "options": ["$\\det(A) \\neq 0$", "$\\det(A) = 0$", "$A = A^T$", "Trace of $A$ is zero"],
+            "answer": 0,
+            "tag": "matrix-invertibility-determinant",
+            "explanation": "A square matrix is invertible if and only if its determinant is non-zero (full rank)."
+        },
+        {
+            "question": "If $A$ and $B$ are invertible matrices of the same size, what is the inverse of their product $(AB)^{-1}$?",
+            "options": ["$B^{-1}A^{-1}$", "$A^{-1}B^{-1}$", "$AB^{-1}$", "$A^{-1} + B^{-1}$"],
+            "answer": 0,
+            "tag": "matrix-inverse-product-rule",
+            "explanation": "The socks-and-shoes property reverses the order: $(AB)^{-1} = B^{-1}A^{-1}$."
+        }
+    ],
+    "cell-organelles-and-atp": [
+        {
+            "question": "Where does ATP synthesis via oxidative phosphorylation predominantly occur?",
+            "options": ["Inner mitochondrial membrane (cristae)", "Outer mitochondrial membrane", "Mitochondrial matrix only", "Cytoplasm"],
+            "answer": 0,
+            "tag": "atp-synthase-mitochondria",
+            "explanation": "The proton gradient drives ATP synthase located in the cristae of the inner mitochondrial membrane."
+        },
+        {
+            "question": "Which organelle is responsible for post-translational protein modification and packaging?",
+            "options": ["Golgi apparatus", "Lysosome", "Peroxisome", "Nucleolus"],
+            "answer": 0,
+            "tag": "golgi-apparatus-function",
+            "explanation": "The Golgi apparatus modifies, sorts, and packages glycoproteins into secretory vesicles."
+        },
+        {
+            "question": "What is the net ATP yield produced per molecule of glucose during glycolysis?",
+            "options": ["2 net ATP", "4 net ATP", "36 net ATP", "38 net ATP"],
+            "answer": 0,
+            "tag": "glycolysis-net-yield",
+            "explanation": "Glycolysis consumes 2 ATP in the activation phase and produces 4 ATP in the payoff phase, yielding 2 net ATP."
+        }
+    ],
+    "attributes": [
+        {
+            "question": "In statistics, what type of variable is represented by categorical qualitative attributes without rank order (e.g. blood group)?",
+            "options": ["Nominal variable", "Ratio variable", "Continuous numerical variable", "Interval variable"],
+            "answer": 0,
+            "tag": "nominal-categorical-variables",
+            "explanation": "Nominal data classifies into distinct named categories with no inherent quantitative order."
+        },
+        {
+            "question": "Which measurement scale possesses a true absolute zero point representing the absence of the quantity?",
+            "options": ["Ratio scale", "Interval scale", "Ordinal scale", "Nominal scale"],
+            "answer": 0,
+            "tag": "measurement-scales-ratio",
+            "explanation": "Ratio scales have a true zero (e.g. mass, absolute temperature in Kelvin), enabling ratio comparisons."
+        },
+        {
+            "question": "Which measure of central tendency is least affected by extreme outlier values?",
+            "options": ["Median", "Arithmetic Mean", "Root Mean Square", "Standard Deviation"],
+            "answer": 0,
+            "tag": "median-outlier-robustness",
+            "explanation": "The median depends only on rank order position and is robust against skewed extreme values."
+        }
+    ]
+}
+
+
+def get_topic_quiz(meta, slug, sub_id, chapter_id):
+    """Retrieve frontmatter quiz, curated topic quiz, or generate smart conceptual fallback."""
+    if meta.get("quiz") and isinstance(meta["quiz"], list) and len(meta["quiz"]) > 0:
+        return meta["quiz"]
+
+    if slug in CURATED_QUIZZES:
+        return CURATED_QUIZZES[slug]
+
+    title = meta.get("title", slug.replace("-", " ").title())
+    return [
+        {
+            "question": f"What is the foundational definition and core principle underlying **{title}**?",
+            "options": [
+                f"It governs the fundamental relationships and quantitative formulas of {chapter_id.replace('-', ' ')}.",
+                "It applies strictly to isolated zero-gravity conditions.",
+                "It is valid only for ideal gases at absolute zero.",
+                "It contradicts standard conservation laws."
+            ],
+            "answer": 0,
+            "tag": f"{slug}-fundamentals",
+            "explanation": f"Understanding the definition of {title} provides the basis for solving related exam problems in {chapter_id}."
+        },
+        {
+            "question": f"When applying the equations of **{title}**, what key constraint must be maintained?",
+            "options": [
+                "Consistent SI units and appropriate boundary conditions must be satisfied.",
+                "Temperature must always remain exactly zero degrees Celsius.",
+                "Volume must remain zero at all times.",
+                "Only qualitative visual inspection is required."
+            ],
+            "answer": 0,
+            "tag": f"{slug}-units-constraints",
+            "explanation": f"Quantitative accuracy in {title} requires verifying dimensional consistency and boundary conditions."
+        },
+        {
+            "question": f"Which of the following best summarizes the primary practical application of **{title}**?",
+            "options": [
+                "Predicting state transitions, calculating unknown variables, and verifying equilibrium.",
+                "Calculating gravitational waves in distant galaxies only.",
+                "Measuring macroscopic atmospheric pressure with a mercury tube.",
+                "Eliminating all entropy in non-reversible cycles."
+            ],
+            "answer": 0,
+            "tag": f"{slug}-applications",
+            "explanation": f"Practical questions in {chapter_id} test your ability to calculate state changes using the principles of {title}."
+        }
+    ]
+
+
+
 def build_site():
     """
     Main static site generator with:
@@ -324,6 +608,7 @@ def build_site():
     template_branch = env.get_template("branch.html")
     template_chapter = env.get_template("chapter.html")
     template_page = env.get_template("page.html")
+    template_hub = env.get_template("hub.html")
 
     current_year = datetime.now().year
     today_str = datetime.now().strftime("%Y-%m-%d")
@@ -501,6 +786,8 @@ def build_site():
             else:
                 tags = []
 
+            quiz_list = get_topic_quiz(meta, slug, sub_id, chapter_id)
+
             note_obj = {
                 "file_path": str(note_file.relative_to(NOTES_DIR)),
                 "title": meta.get("title"),
@@ -520,7 +807,8 @@ def build_site():
                 "order": order,
                 "reading_time": reading_time,
                 "raw_md": md_content,
-                "html_content": html_content
+                "html_content": html_content,
+                "quiz_json": json.dumps(quiz_list, ensure_ascii=False)
             }
 
             subjects_dict[sub_id]["notes"].append(note_obj)
@@ -869,6 +1157,26 @@ def build_site():
                 "changefreq": "monthly",
                 "priority": "0.5"
             })
+
+    # 4c. Generate Student Hub & AI Academic Mentor Page (/hub/)
+    hub_canonical = f"{config.get('site_url', '').rstrip('/')}/hub/"
+    rendered_hub = template_hub.render(
+        config=config,
+        page_title=f"Student Learning Hub & AI Academic Mentor - {config.get('site_name')}",
+        page_description="Track your completed study topics, test scores, syllabus progress, and get personal AI revision guidance.",
+        current_url=hub_canonical,
+        root_path="../",
+        ad_slots=ad_slots,
+        current_year=current_year
+    )
+    write_clean_page("hub", rendered_hub)
+
+    sitemap_entries.append({
+        "loc": hub_canonical,
+        "lastmod": today_str,
+        "changefreq": "weekly",
+        "priority": "0.8"
+    })
 
     # 4b. Generate Custom 404 Page for Cloudflare Pages
     rendered_404 = template_page.render(

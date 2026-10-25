@@ -70,6 +70,10 @@
   <script defer src="../../../static/js/smiles-drawer.min.js"></script>
   <script defer src="../../../static/js/chem.js"></script>
 
+  <!-- Supabase Auth & Student Hub SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="../../../static/js/auth.js"></script>
+
   <!-- Universal Ad Platform Head Code (Google AdSense, Media.net, Ezoic, etc.) -->
   
     
@@ -233,6 +237,21 @@
           </svg>
         </button>
 
+        <!-- Student Auth & Learning Hub Button -->
+        <div id="user-auth-container" class="user-auth-container">
+          <button type="button" id="auth-signin-btn" class="auth-nav-btn" onclick="window.shrtAuth.openModal('signin')" aria-label="Sign in to track progress">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>Sign In</span>
+          </button>
+          
+          <div id="user-profile-menu" class="user-profile-menu" style="display: none;">
+            <a href="../../../hub/" class="user-hub-pill" title="Open My Learning Hub & AI Guidance">
+              <span class="user-hub-avatar" id="nav-user-initial">S</span>
+              <span class="user-hub-name" id="nav-user-name">My Hub</span>
+            </a>
+          </div>
+        </div>
+
         <!-- Mobile Menu Toggle Button -->
         <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Open mobile menu">
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -295,6 +314,18 @@
       <ul class="mobile-nav-list">
         <li><a href="../../../" class="mobile-nav-item">Home</a></li>
         <li><a href="../../../about/" class="mobile-nav-item">About Us</a></li>
+        <li id="mobile-nav-auth-item">
+          <button type="button" onclick="window.shrtAuth.openModal('signin')" class="mobile-nav-item" style="background:none; border:none; width:100%; text-align:left; cursor:pointer;">
+            <span class="mobile-nav-icon">🔑</span>
+            <span>Sign In / Create Account</span>
+          </button>
+        </li>
+        <li>
+          <a href="../../../hub/" class="mobile-nav-item">
+            <span class="mobile-nav-icon">🎓</span>
+            <span>Student Hub</span>
+          </a>
+        </li>
       </ul>
 
       <div class="mobile-nav-section-title" style="margin-top: 1.25rem;">Subjects</div>

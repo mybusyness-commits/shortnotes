@@ -70,6 +70,10 @@
   <script defer src="../../../static/js/smiles-drawer.min.js"></script>
   <script defer src="../../../static/js/chem.js"></script>
 
+  <!-- Supabase Auth & Student Hub SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="../../../static/js/auth.js"></script>
+
   <!-- Universal Ad Platform Head Code (Google AdSense, Media.net, Ezoic, etc.) -->
   
     
@@ -246,6 +250,21 @@
           </svg>
         </button>
 
+        <!-- Student Auth & Learning Hub Button -->
+        <div id="user-auth-container" class="user-auth-container">
+          <button type="button" id="auth-signin-btn" class="auth-nav-btn" onclick="window.shrtAuth.openModal('signin')" aria-label="Sign in to track progress">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>Sign In</span>
+          </button>
+          
+          <div id="user-profile-menu" class="user-profile-menu" style="display: none;">
+            <a href="../../../hub/" class="user-hub-pill" title="Open My Learning Hub & AI Guidance">
+              <span class="user-hub-avatar" id="nav-user-initial">S</span>
+              <span class="user-hub-name" id="nav-user-name">My Hub</span>
+            </a>
+          </div>
+        </div>
+
         <!-- Mobile Menu Toggle Button -->
         <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Open mobile menu">
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -308,6 +327,18 @@
       <ul class="mobile-nav-list">
         <li><a href="../../../" class="mobile-nav-item">Home</a></li>
         <li><a href="../../../about/" class="mobile-nav-item">About Us</a></li>
+        <li id="mobile-nav-auth-item">
+          <button type="button" onclick="window.shrtAuth.openModal('signin')" class="mobile-nav-item" style="background:none; border:none; width:100%; text-align:left; cursor:pointer;">
+            <span class="mobile-nav-icon">🔑</span>
+            <span>Sign In / Create Account</span>
+          </button>
+        </li>
+        <li>
+          <a href="../../../hub/" class="mobile-nav-item">
+            <span class="mobile-nav-icon">🎓</span>
+            <span>Student Hub</span>
+          </a>
+        </li>
       </ul>
 
       <div class="mobile-nav-section-title" style="margin-top: 1.25rem;">Subjects</div>
@@ -599,6 +630,27 @@
 </ul>
     </div>
 
+    <!-- Interactive Revision Progress Tracker -->
+    <div id="note-revision-tracker" class="note-revision-tracker-bar" data-topic-path="biology/cell-biology/cell-organelles-and-atp" data-subject="biology" data-chapter="cell-biology" data-title="Cell Organelles, Membrane Transport & Cellular Respiration">
+      <div style="display: flex; align-items: center; gap: 0.65rem;">
+        <span style="font-size: 1.25rem;">📌</span>
+        <div>
+          <strong style="color: var(--text-primary); font-size: 0.9rem; display: block;">Topic Revision Tracker</strong>
+          <span style="color: var(--text-muted); font-size: 0.775rem;">Mark this topic as revised to update your syllabus progress in your Student Hub</span>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.6rem;">
+        <span id="revision-status-badge" class="revision-status-badge" style="display: none;">Completed</span>
+        <button type="button" id="btn-mark-revised" class="btn-mark-revised" onclick="window.shrtTracker.toggleRevision()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+          <span>Mark as Revised</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Conceptual Self-Check Quiz -->
+    <div id="topic-quiz-card" class="topic-quiz-card" data-topic-path="biology/cell-biology/cell-organelles-and-atp" data-subject="biology" data-chapter="cell-biology" data-title="Cell Organelles, Membrane Transport & Cellular Respiration" data-quiz-json='[{"question": "Where does ATP synthesis via oxidative phosphorylation predominantly occur?", "options": ["Inner mitochondrial membrane (cristae)", "Outer mitochondrial membrane", "Mitochondrial matrix only", "Cytoplasm"], "answer": 0, "tag": "atp-synthase-mitochondria", "explanation": "The proton gradient drives ATP synthase located in the cristae of the inner mitochondrial membrane."}, {"question": "Which organelle is responsible for post-translational protein modification and packaging?", "options": ["Golgi apparatus", "Lysosome", "Peroxisome", "Nucleolus"], "answer": 0, "tag": "golgi-apparatus-function", "explanation": "The Golgi apparatus modifies, sorts, and packages glycoproteins into secretory vesicles."}, {"question": "What is the net ATP yield produced per molecule of glucose during glycolysis?", "options": ["2 net ATP", "4 net ATP", "36 net ATP", "38 net ATP"], "answer": 0, "tag": "glycolysis-net-yield", "explanation": "Glycolysis consumes 2 ATP in the activation phase and produces 4 ATP in the payoff phase, yielding 2 net ATP."}]'></div>
+
     <!-- Post-Content High-Yield Ad Slot (Zero-Interruption Natural Break) -->
     
     <div class="post-content-ad-wrapper">
@@ -788,6 +840,9 @@
   <!-- Main JavaScript File -->
   <script src="../../../static/js/main.js"></script>
   
+<script defer src="../../../static/js/tracker.js"></script>
+<script defer src="../../../static/js/quiz.js"></script>
+
 
   <!-- Adsterra Social Bar / In-Page Push (Non-intrusive High-CPM Notification) -->
   

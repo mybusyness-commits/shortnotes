@@ -70,6 +70,10 @@
   <script defer src="../../../../static/js/smiles-drawer.min.js"></script>
   <script defer src="../../../../static/js/chem.js"></script>
 
+  <!-- Supabase Auth & Student Hub SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="../../../../static/js/auth.js"></script>
+
   <!-- Universal Ad Platform Head Code (Google AdSense, Media.net, Ezoic, etc.) -->
   
     
@@ -252,6 +256,21 @@
           </svg>
         </button>
 
+        <!-- Student Auth & Learning Hub Button -->
+        <div id="user-auth-container" class="user-auth-container">
+          <button type="button" id="auth-signin-btn" class="auth-nav-btn" onclick="window.shrtAuth.openModal('signin')" aria-label="Sign in to track progress">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>Sign In</span>
+          </button>
+          
+          <div id="user-profile-menu" class="user-profile-menu" style="display: none;">
+            <a href="../../../../hub/" class="user-hub-pill" title="Open My Learning Hub & AI Guidance">
+              <span class="user-hub-avatar" id="nav-user-initial">S</span>
+              <span class="user-hub-name" id="nav-user-name">My Hub</span>
+            </a>
+          </div>
+        </div>
+
         <!-- Mobile Menu Toggle Button -->
         <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Open mobile menu">
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -314,6 +333,18 @@
       <ul class="mobile-nav-list">
         <li><a href="../../../../" class="mobile-nav-item">Home</a></li>
         <li><a href="../../../../about/" class="mobile-nav-item">About Us</a></li>
+        <li id="mobile-nav-auth-item">
+          <button type="button" onclick="window.shrtAuth.openModal('signin')" class="mobile-nav-item" style="background:none; border:none; width:100%; text-align:left; cursor:pointer;">
+            <span class="mobile-nav-icon">🔑</span>
+            <span>Sign In / Create Account</span>
+          </button>
+        </li>
+        <li>
+          <a href="../../../../hub/" class="mobile-nav-item">
+            <span class="mobile-nav-icon">🎓</span>
+            <span>Student Hub</span>
+          </a>
+        </li>
       </ul>
 
       <div class="mobile-nav-section-title" style="margin-top: 1.25rem;">Subjects</div>
@@ -593,6 +624,27 @@
 <p>$$\ce{CH3Cl + Cl2 -&gt;[h\nu] CH2Cl2 + HCl}$$</p>
     </div>
 
+    <!-- Interactive Revision Progress Tracker -->
+    <div id="note-revision-tracker" class="note-revision-tracker-bar" data-topic-path="chemistry/organic/hydrocarbons/alkanes-nomenclature-conformational-analysis" data-subject="chemistry" data-chapter="hydrocarbons" data-title="Alkanes Nomenclature & Conformational Analysis">
+      <div style="display: flex; align-items: center; gap: 0.65rem;">
+        <span style="font-size: 1.25rem;">📌</span>
+        <div>
+          <strong style="color: var(--text-primary); font-size: 0.9rem; display: block;">Topic Revision Tracker</strong>
+          <span style="color: var(--text-muted); font-size: 0.775rem;">Mark this topic as revised to update your syllabus progress in your Student Hub</span>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.6rem;">
+        <span id="revision-status-badge" class="revision-status-badge" style="display: none;">Completed</span>
+        <button type="button" id="btn-mark-revised" class="btn-mark-revised" onclick="window.shrtTracker.toggleRevision()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+          <span>Mark as Revised</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Conceptual Self-Check Quiz -->
+    <div id="topic-quiz-card" class="topic-quiz-card" data-topic-path="chemistry/organic/hydrocarbons/alkanes-nomenclature-conformational-analysis" data-subject="chemistry" data-chapter="hydrocarbons" data-title="Alkanes Nomenclature & Conformational Analysis" data-quiz-json='[{"question": "Which conformation of ethane has the lowest potential energy and maximum thermodynamic stability?", "options": ["Staggered conformation (dihedral angle $60^\\circ$)", "Eclipsed conformation (dihedral angle $0^\\circ$)", "Skew conformation", "All conformations have identical energy"], "answer": 0, "tag": "ethane-staggered-conformation", "explanation": "The staggered conformation minimizes electron-cloud repulsions between C-H bonds, having $12\\text{ kJ/mol}$ lower energy."}, {"question": "For cyclohexane, which conformation has zero angle strain and zero torsional strain?", "options": ["Chair conformation", "Boat conformation", "Twist-boat conformation", "Half-chair conformation"], "answer": 0, "tag": "cyclohexane-chair-stability", "explanation": "In chair cyclohexane, all bond angles are tetrahedral ($109.5^\\circ$) and all adjacent C-H bonds are fully staggered."}, {"question": "What is the energy barrier for rotation about the C-C single bond in ethane?", "options": ["$\\sim 12\\text{ kJ/mol}$ ($2.9\\text{ kcal/mol}$)", "$\\sim 50\\text{ kJ/mol}$", "$\\sim 120\\text{ kJ/mol}$", "$0\\text{ kJ/mol}$"], "answer": 0, "tag": "ethane-torsional-barrier", "explanation": "The energy barrier between staggered and eclipsed conformations in ethane is approximately $12.5\\text{ kJ/mol}$."}]'></div>
+
     <!-- Post-Content High-Yield Ad Slot (Zero-Interruption Natural Break) -->
     
     <div class="post-content-ad-wrapper">
@@ -790,6 +842,9 @@
   <!-- Main JavaScript File -->
   <script src="../../../../static/js/main.js"></script>
   
+<script defer src="../../../../static/js/tracker.js"></script>
+<script defer src="../../../../static/js/quiz.js"></script>
+
 
   <!-- Adsterra Social Bar / In-Page Push (Non-intrusive High-CPM Notification) -->
   

@@ -70,6 +70,10 @@
   <script defer src="../../../../static/js/smiles-drawer.min.js"></script>
   <script defer src="../../../../static/js/chem.js"></script>
 
+  <!-- Supabase Auth & Student Hub SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="../../../../static/js/auth.js"></script>
+
   <!-- Universal Ad Platform Head Code (Google AdSense, Media.net, Ezoic, etc.) -->
   
     
@@ -252,6 +256,21 @@
           </svg>
         </button>
 
+        <!-- Student Auth & Learning Hub Button -->
+        <div id="user-auth-container" class="user-auth-container">
+          <button type="button" id="auth-signin-btn" class="auth-nav-btn" onclick="window.shrtAuth.openModal('signin')" aria-label="Sign in to track progress">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>Sign In</span>
+          </button>
+          
+          <div id="user-profile-menu" class="user-profile-menu" style="display: none;">
+            <a href="../../../../hub/" class="user-hub-pill" title="Open My Learning Hub & AI Guidance">
+              <span class="user-hub-avatar" id="nav-user-initial">S</span>
+              <span class="user-hub-name" id="nav-user-name">My Hub</span>
+            </a>
+          </div>
+        </div>
+
         <!-- Mobile Menu Toggle Button -->
         <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Open mobile menu">
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -314,6 +333,18 @@
       <ul class="mobile-nav-list">
         <li><a href="../../../../" class="mobile-nav-item">Home</a></li>
         <li><a href="../../../../about/" class="mobile-nav-item">About Us</a></li>
+        <li id="mobile-nav-auth-item">
+          <button type="button" onclick="window.shrtAuth.openModal('signin')" class="mobile-nav-item" style="background:none; border:none; width:100%; text-align:left; cursor:pointer;">
+            <span class="mobile-nav-icon">🔑</span>
+            <span>Sign In / Create Account</span>
+          </button>
+        </li>
+        <li>
+          <a href="../../../../hub/" class="mobile-nav-item">
+            <span class="mobile-nav-icon">🎓</span>
+            <span>Student Hub</span>
+          </a>
+        </li>
       </ul>
 
       <div class="mobile-nav-section-title" style="margin-top: 1.25rem;">Subjects</div>
@@ -637,6 +668,27 @@
 </ul>
     </div>
 
+    <!-- Interactive Revision Progress Tracker -->
+    <div id="note-revision-tracker" class="note-revision-tracker-bar" data-topic-path="chemistry/physical/chemical-thermodynamics/laws-of-thermodynamics-gibbs-free-energy" data-subject="chemistry" data-chapter="chemical-thermodynamics" data-title="First & Second Laws of Thermodynamics, Enthalpy & Gibbs Free Energy">
+      <div style="display: flex; align-items: center; gap: 0.65rem;">
+        <span style="font-size: 1.25rem;">📌</span>
+        <div>
+          <strong style="color: var(--text-primary); font-size: 0.9rem; display: block;">Topic Revision Tracker</strong>
+          <span style="color: var(--text-muted); font-size: 0.775rem;">Mark this topic as revised to update your syllabus progress in your Student Hub</span>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.6rem;">
+        <span id="revision-status-badge" class="revision-status-badge" style="display: none;">Completed</span>
+        <button type="button" id="btn-mark-revised" class="btn-mark-revised" onclick="window.shrtTracker.toggleRevision()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+          <span>Mark as Revised</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Conceptual Self-Check Quiz -->
+    <div id="topic-quiz-card" class="topic-quiz-card" data-topic-path="chemistry/physical/chemical-thermodynamics/laws-of-thermodynamics-gibbs-free-energy" data-subject="chemistry" data-chapter="chemical-thermodynamics" data-title="First & Second Laws of Thermodynamics, Enthalpy & Gibbs Free Energy" data-quiz-json='[{"question": "What is the criterion for a chemical or physical process to be spontaneous at constant temperature and pressure?", "options": ["$\\Delta G < 0$", "$\\Delta G > 0$", "$\\Delta H > 0$", "$\\Delta S_{\\text{sys}} < 0$"], "answer": 0, "tag": "gibbs-free-energy-spontaneity", "explanation": "A process is spontaneous at constant $T$ and $P$ when the Gibbs free energy change is negative: $\\Delta G = \\Delta H - T\\Delta S < 0$."}, {"question": "If an endothermic reaction ($\\Delta H > 0$) has positive entropy change ($\\Delta S > 0$), when does it become spontaneous?", "options": ["At high temperatures ($T > \\Delta H / \\Delta S$)", "At all temperatures", "Only at low temperatures", "Never spontaneous"], "answer": 0, "tag": "gibbs-temperature-dependency", "explanation": "At high temperatures, the $-T\\Delta S$ term dominates, overcoming the positive enthalpy to yield $\\Delta G < 0$."}, {"question": "What is the thermodynamic relation linking standard Gibbs free energy $\\Delta G^\\circ$ to equilibrium constant $K$?", "options": ["$\\Delta G^\\circ = -RT \\ln K$", "$\\Delta G^\\circ = RT \\ln K$", "$\\Delta G^\\circ = -nFE^\\circ$", "$\\Delta G^\\circ = \\Delta H^\\circ + T\\Delta S^\\circ$"], "answer": 0, "tag": "gibbs-equilibrium-constant-relation", "explanation": "$\\Delta G^\\circ = -RT \\ln K$ relates equilibrium state to standard thermodynamic potential."}]'></div>
+
     <!-- Post-Content High-Yield Ad Slot (Zero-Interruption Natural Break) -->
     
     <div class="post-content-ad-wrapper">
@@ -834,6 +886,9 @@
   <!-- Main JavaScript File -->
   <script src="../../../../static/js/main.js"></script>
   
+<script defer src="../../../../static/js/tracker.js"></script>
+<script defer src="../../../../static/js/quiz.js"></script>
+
 
   <!-- Adsterra Social Bar / In-Page Push (Non-intrusive High-CPM Notification) -->
   

@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hub-container" id="hub-container">
+  <!-- GUEST / LOGGED-OUT HERO STATE -->
+  <div id="hub-guest-view" class="hub-guest-card" style="display: none;">
+    <div class="hub-guest-icon">🎓</div>
+    <h1 class="hub-guest-title">Student Learning Hub & AI Academic Mentor</h1>
+    <p class="hub-guest-subtitle">
+      Sign in or create a free student account to track your completed topics, save quiz attempts, visualize syllabus progress, and get personal AI revision guidance.
+    </p>
+    <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; margin-top: 1.5rem;">
+      <button type="button" class="btn btn-primary" onclick="window.shrtAuth.openModal('signin')" style="padding: 0.65rem 1.4rem; font-size: 0.95rem; font-weight: 600;">
+        <span>🔑 Sign In</span>
+      </button>
+      <button type="button" class="btn btn-secondary" onclick="window.shrtAuth.openModal('signup')" style="padding: 0.65rem 1.4rem; font-size: 0.95rem; font-weight: 600;">
+        <span>✨ Create Free Account</span>
+      </button>
+    </div>
+
+    <!-- Feature Pillars -->
+    <div class="hub-features-grid">
+      <div class="hub-feature-pill">
+        <div class="hub-feat-icon">📊</div>
+        <strong>Syllabus Tracking</strong>
+        <span>Mark topics as revised and see completion rings across Physics, Chemistry, Math & Biology.</span>
+      </div>
+      <div class="hub-feature-pill">
+        <div class="hub-feat-icon">🧠</div>
+        <strong>Quiz Performance</strong>
+        <span>Automatically logs your test scores and extracts specific weak concepts you missed.</span>
+      </div>
+      <div class="hub-feature-pill">
+        <div class="hub-feat-icon">🤖</div>
+        <strong>AI Academic Mentor</strong>
+        <span>1-Click AI diagnostic analyzes your test history and builds personalized recovery quizzes.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUTHENTICATED STUDENT DASHBOARD -->
+  <div id="hub-auth-view" style="display: none;">
+    <!-- Profile & Streak Header Card -->
+    <div class="hub-profile-card">
+      <div class="hub-profile-main">
+        <div class="hub-avatar" id="hub-user-avatar">S</div>
+        <div class="hub-user-meta">
+          <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+            <h1 class="hub-user-name" id="hub-user-name">Welcome Back!</h1>
+            <span class="hub-badge" id="hub-user-badge">Student</span>
+          </div>
+          <div class="hub-user-details">
+            <span id="hub-user-email" style="color: var(--text-muted); font-size: 0.85rem;">loading...</span>
+            <span style="color: var(--text-muted);">&bull;</span>
+            <div style="display: inline-flex; align-items: center; gap: 0.4rem;">
+              <span style="font-size: 0.775rem; color: var(--text-muted);">Target:</span>
+              <select id="hub-target-exam-select" onchange="window.shrtHub.handleExamChange(this.value)" class="hub-exam-select">
+                <option value="CBSE / Board Exams">CBSE / Board Exams</option>
+                <option value="JEE (Main & Adv)">JEE (Engineering Entrance)</option>
+                <option value="NEET (Medical)">NEET (Medical Entrance)</option>
+                <option value="College / University STEM">College / University STEM</option>
+                <option value="General Self-Study">General Self-Study</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hub-streak-box">
+        <div class="hub-streak-num" id="hub-topics-completed-count">0</div>
+        <div class="hub-streak-label">Topics Revised</div>
+      </div>
+
+      <button type="button" class="btn btn-secondary hub-signout-btn" onclick="window.shrtAuth.signOut()">
+        <span>Sign Out</span>
+      </button>
+    </div>
+
+    <!-- Navigation Hub Tabs -->
+    <div class="hub-nav-tabs">
+      <button type="button" class="hub-tab active" id="hub-tab-btn-progress" onclick="window.shrtHub.switchTab('progress')">
+        <span>📊 Syllabus Progress</span>
+      </button>
+      <button type="button" class="hub-tab" id="hub-tab-btn-quizzes" onclick="window.shrtHub.switchTab('quizzes')">
+        <span>🧠 Quizzes & Weak Concepts</span>
+      </button>
+      <button type="button" class="hub-tab" id="hub-tab-btn-ai" onclick="window.shrtHub.switchTab('ai')">
+        <span>🤖 AI Academic Mentor</span>
+      </button>
+    </div>
+
+    <!-- TAB 1: SYLLABUS PROGRESS -->
+    <div id="hub-tab-progress" class="hub-tab-panel">
+      <div class="section-header" style="margin-bottom: 1.25rem;">
+        <div>
+          <h2 class="section-title">Subject Syllabus Completion</h2>
+          <span class="section-header-subtitle">Click any subject or chapter to view completed vs pending study topics</span>
+        </div>
+        <span class="recent-pill" id="hub-total-progress-pill">0% Overall</span>
+      </div>
+
+      <div class="hub-subjects-grid" id="hub-subjects-progress-grid">
+        <!-- Rendered dynamically via JS -->
+      </div>
+    </div>
+
+    <!-- TAB 2: QUIZZES & WEAK CONCEPTS RADAR -->
+    <div id="hub-tab-quizzes" class="hub-tab-panel" style="display: none;">
+      <!-- Stats Summary Row -->
+      <div class="hub-stats-row">
+        <div class="hub-stat-card">
+          <div class="hub-stat-label">Total Quizzes Attempted</div>
+          <div class="hub-stat-val" id="hub-total-quizzes">0</div>
+        </div>
+        <div class="hub-stat-card">
+          <div class="hub-stat-label">Average Score</div>
+          <div class="hub-stat-val" id="hub-avg-score">0%</div>
+        </div>
+        <div class="hub-stat-card">
+          <div class="hub-stat-label">Identified Weak Concepts</div>
+          <div class="hub-stat-val" id="hub-weak-tags-count" style="color: #f87171;">0</div>
+        </div>
+      </div>
+
+      <!-- Weak Concepts Radar -->
+      <div class="hub-card" style="margin-bottom: 1.5rem;">
+        <div class="hub-card-header">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span style="font-size: 1.2rem;">🎯</span>
+            <strong style="font-size: 1rem; color: #fff;">Weak Concepts Radar</strong>
+          </div>
+          <span style="font-size: 0.75rem; color: var(--text-muted);">Concepts you answered incorrectly in self-check quizzes</span>
+        </div>
+        <div id="hub-weak-tags-list" class="hub-tags-cloud">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- Recent Quiz Attempts Table -->
+      <div class="hub-card">
+        <div class="hub-card-header">
+          <strong style="font-size: 1rem; color: #fff;">Recent Quiz Attempts</strong>
+        </div>
+        <div style="overflow-x: auto;">
+          <table class="data-table" id="hub-quiz-logs-table">
+            <thead>
+              <tr>
+                <th>Topic</th>
+                <th>Subject</th>
+                <th>Score</th>
+                <th>Accuracy</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="hub-quiz-logs-body">
+              <tr><td colspan="5" style="text-align:center; color:var(--text-muted);">No quizzes attempted yet. Try the self-check quizzes at the end of any study topic!</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: PERSONAL AI ACADEMIC MENTOR -->
+    <div id="hub-tab-ai" class="hub-tab-panel" style="display: none;">
+      <div class="ai-mentor-hero">
+        <div class="ai-mentor-badge">
+          <span class="ai-pulse-dot"></span>
+          <span>Personal AI Academic Mentor &bull; Powered by Gemini</span>
+        </div>
+        <h2 style="font-size: 1.35rem; color: #fff; margin: 0.5rem 0 0.4rem;">Smart Diagnostic & Personalized Revision Roadmap</h2>
+        <p style="font-size: 0.875rem; color: #cbd5e1; max-width: 680px; margin: 0 auto 1.25rem;">
+          Your AI Mentor reviews your completed topics, quiz performance, and missed questions to generate a customized 3-step action plan and targeted recovery quiz.
+        </p>
+
+        <button type="button" class="btn" id="btn-run-ai-mentor" onclick="window.shrtHub.runAIMentor()" style="background: linear-gradient(135deg, #7e22ce 0%, #3b82f6 100%); color: #fff; font-size: 0.95rem; padding: 0.65rem 1.5rem; font-weight: 700; box-shadow: 0 4px 14px rgba(126, 34, 206, 0.4);">
+          <span>🪄 Generate Today's AI Guidance & Roadmap</span>
+        </button>
+      </div>
+
+      <!-- Live AI Guidance Container -->
+      <div id="ai-mentor-results" style="display: none; margin-top: 1.5rem;">
+        <!-- Injected dynamically by JS -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/static/js/hub.js"></script>
+{% endblock %}
