@@ -332,7 +332,7 @@
     if (!box) return;
     box.style.display = 'block';
     box.className = 'auth-alert auth-alert-' + (type || 'error');
-    box.textContent = msg;
+    box.innerHTML = msg;
   }
 
   function hideAlert() {
@@ -381,7 +381,15 @@
         showAlert('Account created! If confirmation is required, please check your email inbox.', 'success');
       }
     } catch (err) {
-      showAlert(err.message || 'Failed to sign up. Try another email.', 'error');
+      var msg = err.message || 'Failed to sign up. Try another email.';
+      if (msg.toLowerCase().includes('rate limit')) {
+        msg = '⚠️ <strong>Email Rate Limit Exceeded</strong> (Supabase default is 3 emails/hour).<br><br>' +
+              '<strong>To fix this instantly:</strong><br>' +
+              '1. Open your <a href="https://supabase.com/dashboard/project/jsvqrjmsmgbdaxdchbzh/auth/providers" target="_blank" style="color:#60a5fa; text-decoration:underline; font-weight:600;">Supabase Auth Providers</a>.<br>' +
+              '2. Click <strong>Email</strong> and turn <strong>OFF</strong> <em>"Confirm email"</em> &rarr; Click <strong>Save</strong>.<br><br>' +
+              'Once turned off, student signups are instant with no rate limits!';
+      }
+      showAlert(msg, 'error');
     } finally {
       btn.disabled = false;
       btn.textContent = 'Create Free Account →';
@@ -401,7 +409,11 @@
       await resetPassword(email);
       showAlert('Password reset link sent! Please check your email inbox.', 'success');
     } catch (err) {
-      showAlert(err.message || 'Error sending reset email.', 'error');
+      var msg = err.message || 'Error sending reset email.';
+      if (msg.toLowerCase().includes('rate limit')) {
+        msg = '⚠️ <strong>Email Rate Limit Exceeded</strong> (Supabase default is 3 emails/hour). Please wait a few minutes before requesting another reset link, or configure custom SMTP in Supabase settings.';
+      }
+      showAlert(msg, 'error');
     } finally {
       btn.disabled = false;
       btn.textContent = 'Send Reset Link →';
