@@ -608,7 +608,6 @@ def build_site():
     template_branch = env.get_template("branch.html")
     template_chapter = env.get_template("chapter.html")
     template_page = env.get_template("page.html")
-    template_hub = env.get_template("hub.html")
 
     current_year = datetime.now().year
     today_str = datetime.now().strftime("%Y-%m-%d")
@@ -1157,26 +1156,6 @@ def build_site():
                 "changefreq": "monthly",
                 "priority": "0.5"
             })
-
-    # 4c. Generate Student Hub & AI Academic Mentor Page (/hub/)
-    hub_canonical = f"{config.get('site_url', '').rstrip('/')}/hub/"
-    rendered_hub = template_hub.render(
-        config=config,
-        page_title=f"Student Learning Hub & AI Academic Mentor - {config.get('site_name')}",
-        page_description="Track your completed study topics, test scores, syllabus progress, and get personal AI revision guidance.",
-        current_url=hub_canonical,
-        root_path="../",
-        ad_slots=ad_slots,
-        current_year=current_year
-    )
-    write_clean_page("hub", rendered_hub)
-
-    sitemap_entries.append({
-        "loc": hub_canonical,
-        "lastmod": today_str,
-        "changefreq": "weekly",
-        "priority": "0.8"
-    })
 
     # 4b. Generate Custom 404 Page for Cloudflare Pages
     rendered_404 = template_page.render(

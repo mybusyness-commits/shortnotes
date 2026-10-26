@@ -4,13 +4,23 @@
 <!-- Hero Section -->
 <section class="hero-section">
   <div class="hero-badge">
-    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/><path d="m10 15 5-3-5-3v6Z"/>
     </svg>
-    <span>Chapter-Wise & High-Yield</span>
+    <span>Curated Chapter-Wise Reference</span>
   </div>
-  <h1 class="hero-title">Study Faster with <span>Short Notes</span></h1>
-  <p class="hero-subtitle">Bite-sized, exam-ready formulas, derivations, and concepts arranged chapter-wise across STEM subjects. Distraction-free revision.</p>
+  <h1 class="hero-title">Conceptual Study Notes for <span>STEM Mastery</span></h1>
+  <p class="hero-subtitle">High-yield revision summaries, verified KaTeX formulas, and self-checks arranged chapter-wise. Engineered for deep comprehension and zero distraction.</p>
+
+  <!-- Interactive Quick Subject Jump Bar -->
+  <div class="hero-subject-chips">
+    {% for sub in config.subjects %}
+    <a href="{{ root_path }}{{ sub.id }}/" class="hero-chip chip-{{ sub.id }}">
+      <span class="hero-chip-icon">{{ get_icon(sub.icon)|safe }}</span>
+      <span class="hero-chip-name">{{ sub.name }}</span>
+    </a>
+    {% endfor %}
+  </div>
 </section>
 
 <!-- Subject Categories Grid -->

@@ -199,25 +199,7 @@
       {{ content|safe }}
     </div>
 
-    <!-- Interactive Revision Progress Tracker -->
-    <div id="note-revision-tracker" class="note-revision-tracker-bar" data-topic-path="{{ note.url_path }}" data-subject="{{ note.subject }}" data-chapter="{{ note.chapter }}" data-title="{{ note.title }}">
-      <div style="display: flex; align-items: center; gap: 0.65rem;">
-        <span style="font-size: 1.25rem;">📌</span>
-        <div>
-          <strong style="color: var(--text-primary); font-size: 0.9rem; display: block;">Topic Revision Tracker</strong>
-          <span style="color: var(--text-muted); font-size: 0.775rem;">Mark this topic as revised to update your syllabus progress in your Student Hub</span>
-        </div>
-      </div>
-      <div style="display: flex; align-items: center; gap: 0.6rem;">
-        <span id="revision-status-badge" class="revision-status-badge" style="display: none;">Completed</span>
-        <button type="button" id="btn-mark-revised" class="btn-mark-revised" onclick="window.shrtTracker.toggleRevision()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
-          <span>Mark as Revised</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Conceptual Self-Check Quiz -->
+    <!-- Conceptual Self-Check Quiz (Standalone Interactive Revision) -->
     <div id="topic-quiz-card" class="topic-quiz-card" data-topic-path="{{ note.url_path }}" data-subject="{{ note.subject }}" data-chapter="{{ note.chapter }}" data-title="{{ note.title }}" data-quiz-json='{{ note.quiz_json|safe }}'></div>
 
     <!-- Post-Content High-Yield Ad Slot (Zero-Interruption Natural Break) -->
@@ -256,46 +238,9 @@
       {% endif %}
     </div>
   </article>
-
-  <!-- Desktop Lateral Rail (Optimizes Widescreen Lateral Space for Ads & Quick Navigation) -->
-  <aside class="lateral-rail">
-    <!-- Right Lateral Primary Ad Slot -->
-    {% if ad_slots.sidebar %}
-    <div class="lateral-ad-box lateral-ad-right-top">
-      {{ ad_slots.sidebar|safe }}
-    </div>
-    {% endif %}
-
-    <div class="lateral-card">
-      <div class="lateral-card-header">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/></svg>
-        <span>In This Chapter</span>
-      </div>
-      <ul class="lateral-topics-list">
-        {% if note.chapter in grouped_chapters %}
-          {% for item in grouped_chapters[note.chapter].notes %}
-          <li class="lateral-topic-item {% if item.slug == note.slug %}active{% endif %}">
-            <a href="{{ root_path }}{{ item.url_path }}/">
-              <span class="lateral-topic-dot"></span>
-              <span class="lateral-topic-text">{{ item.title }}</span>
-            </a>
-          </li>
-          {% endfor %}
-        {% endif %}
-      </ul>
-    </div>
-
-    <!-- Right Lateral Secondary Ad Slot (Bottom Placement) -->
-    {% if ad_slots.in_article %}
-    <div class="lateral-ad-box lateral-ad-right-bottom" style="margin-top: 1.25rem;">
-      {{ ad_slots.in_article|safe }}
-    </div>
-    {% endif %}
-  </aside>
 </div>
 {% endblock %}
 
 {% block scripts %}
-<script defer src="{{ root_path }}static/js/tracker.js"></script>
 <script defer src="{{ root_path }}static/js/quiz.js"></script>
 {% endblock %}

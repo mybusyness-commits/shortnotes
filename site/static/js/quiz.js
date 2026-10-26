@@ -171,7 +171,7 @@
     }
   }
 
-  async function finishQuiz(totalCount) {
+  function finishQuiz(totalCount) {
     currentQuizState.completed = true;
     var score = currentQuizState.score;
     var pct = Math.round((score / totalCount) * 100);
@@ -180,22 +180,19 @@
 
     summaryCard.style.display = 'block';
     var meta = getMeta();
-    var user = window.shrtAuth?.getUser();
 
-    var headline = pct >= 80 ? '🌟 Outstanding Mastery!' : (pct >= 50 ? '👍 Good Effort!' : '💡 Needs Revision');
-    var badgeColor = pct >= 80 ? '#10b981' : (pct >= 50 ? '#3b82f6' : '#f59e0b');
+    var headline = pct >= 80 ? '🌟 Outstanding Conceptual Mastery!' : (pct >= 50 ? '👍 Good Effort!' : '💡 Needs Conceptual Revision');
+    var badgeColor = pct >= 80 ? '#10b981' : (pct >= 50 ? 'var(--accent)' : '#f59e0b');
 
-    var authHtml = '';
-    if (user) {
-      authHtml = '<div class="quiz-saved-pill">✓ Score recorded to your Learning Hub profile</div>';
-    } else {
-      authHtml = [
-        '<div class="quiz-guest-cta">',
-        '  <span>Want to save this score & track weak concepts?</span>',
-        '  <button type="button" class="btn btn-primary" onclick="window.shrtAuth.openModal(\'signup\', \'Sign in to record your test scores and get AI guidance!\')" style="padding:0.4rem 0.85rem; font-size:0.8rem;">Save to Student Hub &rarr;</button>',
-        '</div>'
-      ].join('\n');
-    }
+    // Save to local storage for persistent in-browser memory
+    try {
+      localStorage.setItem('shrtnotes_quiz_' + meta.topicPath, JSON.stringify({
+        score: score,
+        total: totalCount,
+        pct: pct,
+        date: new Date().toLocaleDateString()
+      }));
+    } catch (e) {}
 
     summaryCard.innerHTML = [
       '<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">',
@@ -204,32 +201,10 @@
       '    <div style="font-size:0.875rem; color:var(--text-secondary);">You scored <strong>' + score + ' out of ' + totalCount + '</strong> (' + pct + '%) on this topic.</div>',
       '  </div>',
       '  <div style="display:flex; gap:0.5rem; align-items:center;">',
-      '    <button type="button" class="btn btn-secondary" onclick="window.shrtQuiz.retake()" style="font-size:0.8rem; padding:0.45rem 0.9rem;">↻ Retake Quiz</button>',
+      '    <button type="button" class="btn btn-secondary" onclick="window.shrtQuiz.retake()" style="font-size:0.8rem; padding:0.45rem 0.9rem;">↻ Retake Self-Check</button>',
       '  </div>',
-      '</div>',
-      authHtml
+      '</div>'
     ].join('\n');
-
-    // Save to Supabase if logged in
-    if (user && window.shrtAuth) {
-      var sb = window.shrtAuth.getClient();
-      if (sb) {
-        try {
-          await sb.from('quiz_logs').insert([{
-            user_id: user.id,
-            topic_path: meta.topicPath,
-            subject: meta.subject,
-            chapter: meta.chapter,
-            score: score,
-            total_questions: totalCount,
-            missed_tags: currentQuizState.missedTags,
-            created_at: new Date().toISOString()
-          }]);
-        } catch (e) {
-          console.warn('Failed to log quiz attempt:', e);
-        }
-      }
-    }
   }
 
   function retakeQuiz() {

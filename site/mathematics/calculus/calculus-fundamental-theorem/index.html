@@ -58,6 +58,11 @@
   }
   </script>
   
+  <!-- Typography: Plus Jakarta Sans & Space Grotesk & JetBrains Mono for High-Craft Editorial Identity -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
   <!-- CSS Stylesheet (Clean Relative Path) -->
   <link rel="stylesheet" href="../../../static/css/style.css">
   
@@ -69,10 +74,6 @@
           onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]}); if (window.onKaTeXRendered) window.onKaTeXRendered();"></script>
   <script defer src="../../../static/js/smiles-drawer.min.js"></script>
   <script defer src="../../../static/js/chem.js"></script>
-
-  <!-- Supabase Auth & Student Hub SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script defer src="../../../static/js/auth.js"></script>
 
   <!-- Universal Ad Platform Head Code (Google AdSense, Media.net, Ezoic, etc.) -->
   
@@ -150,12 +151,15 @@
   <header class="navbar">
     <div class="nav-container">
       <a href="../../../" class="brand-logo" aria-label="shrtnotes Home">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
-          <path d="M6 6h10"/>
-          <path d="M6 10h10"/>
-        </svg>
-        <span>shrtnotes<span class="brand-dot">.</span></span>
+        <div class="brand-symbol">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
+            <path d="M8 7h8"/>
+            <path d="M8 11h8"/>
+            <path d="M8 15h5"/>
+          </svg>
+        </div>
+        <span class="brand-text">shrtnotes<span class="brand-dot">.</span></span>
       </a>
 
       <!-- Desktop Navigation Links in Strict Order: Home -> About -> Subjects (Dropdown) -->
@@ -235,35 +239,22 @@
       </nav>
 
       <div class="nav-actions">
-        <!-- Search Trigger Icon Button (Reveals Search Bar) -->
-        <button id="search-toggle-btn" class="theme-toggle-btn search-toggle-btn" aria-label="Search study topics" title="Search topics (press /)">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Search Trigger Button with Keyboard Shortcut Badge -->
+        <button id="search-toggle-btn" class="nav-search-trigger" aria-label="Search study topics" title="Search topics (press / or ⌘K)">
+          <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="11" cy="11" r="8"/>
             <path d="m21 21-4.3-4.3"/>
           </svg>
+          <span class="search-placeholder">Quick search...</span>
+          <kbd class="search-kbd">⌘K</kbd>
         </button>
 
         <!-- Theme Toggle (Light / Dark) -->
-        <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Toggle dark/light mode">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Toggle dark/light mode" title="Toggle theme">
+          <svg class="theme-icon-dark" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
           </svg>
         </button>
-
-        <!-- Student Auth & Learning Hub Button -->
-        <div id="user-auth-container" class="user-auth-container">
-          <button type="button" id="auth-signin-btn" class="auth-nav-btn" onclick="window.shrtAuth.openModal('signin')" aria-label="Sign in to track progress">
-            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            <span>Sign In</span>
-          </button>
-          
-          <div id="user-profile-menu" class="user-profile-menu" style="display: none;">
-            <a href="../../../hub/" class="user-hub-pill" title="Open My Learning Hub & AI Guidance">
-              <span class="user-hub-avatar" id="nav-user-initial">S</span>
-              <span class="user-hub-name" id="nav-user-name">My Hub</span>
-            </a>
-          </div>
-        </div>
 
         <!-- Mobile Menu Toggle Button -->
         <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Open mobile menu">
@@ -327,18 +318,6 @@
       <ul class="mobile-nav-list">
         <li><a href="../../../" class="mobile-nav-item">Home</a></li>
         <li><a href="../../../about/" class="mobile-nav-item">About Us</a></li>
-        <li id="mobile-nav-auth-item">
-          <button type="button" onclick="window.shrtAuth.openModal('signin')" class="mobile-nav-item" style="background:none; border:none; width:100%; text-align:left; cursor:pointer;">
-            <span class="mobile-nav-icon">🔑</span>
-            <span>Sign In / Create Account</span>
-          </button>
-        </li>
-        <li>
-          <a href="../../../hub/" class="mobile-nav-item">
-            <span class="mobile-nav-icon">🎓</span>
-            <span>Student Hub</span>
-          </a>
-        </li>
       </ul>
 
       <div class="mobile-nav-section-title" style="margin-top: 1.25rem;">Subjects</div>
@@ -705,25 +684,7 @@ $$\frac{dy}{dx} = 6x \cos(3x^2 + 1)$$</p>
 </ul>
     </div>
 
-    <!-- Interactive Revision Progress Tracker -->
-    <div id="note-revision-tracker" class="note-revision-tracker-bar" data-topic-path="mathematics/calculus/calculus-fundamental-theorem" data-subject="mathematics" data-chapter="calculus" data-title="Fundamental Theorem of Calculus & Key Derivatives">
-      <div style="display: flex; align-items: center; gap: 0.65rem;">
-        <span style="font-size: 1.25rem;">📌</span>
-        <div>
-          <strong style="color: var(--text-primary); font-size: 0.9rem; display: block;">Topic Revision Tracker</strong>
-          <span style="color: var(--text-muted); font-size: 0.775rem;">Mark this topic as revised to update your syllabus progress in your Student Hub</span>
-        </div>
-      </div>
-      <div style="display: flex; align-items: center; gap: 0.6rem;">
-        <span id="revision-status-badge" class="revision-status-badge" style="display: none;">Completed</span>
-        <button type="button" id="btn-mark-revised" class="btn-mark-revised" onclick="window.shrtTracker.toggleRevision()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
-          <span>Mark as Revised</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Conceptual Self-Check Quiz -->
+    <!-- Conceptual Self-Check Quiz (Standalone Interactive Revision) -->
     <div id="topic-quiz-card" class="topic-quiz-card" data-topic-path="mathematics/calculus/calculus-fundamental-theorem" data-subject="mathematics" data-chapter="calculus" data-title="Fundamental Theorem of Calculus & Key Derivatives" data-quiz-json='[{"question": "By the First Fundamental Theorem of Calculus, if $g(x) = \\int_{a}^{x} f(t)\\,dt$ where $f$ is continuous, what is $g'(x)$?", "options": ["$f(x)$", "$f'(x)$", "$F(x) - F(a)$", "$f(x) - f(a)$"], "answer": 0, "tag": "first-fundamental-theorem", "explanation": "FTC Part 1 proves that differentiation and integration are inverse operations: $\\frac{d}{dx}\\left[\\int_{a}^{x} f(t)dt\\right] = f(x)$."}, {"question": "If $F$ is an antiderivative of $f$ on $[a, b]$, what does the definite integral $\\int_{a}^{b} f(x)\\,dx$ evaluate to?", "options": ["$F(b) - F(a)$", "$F(a) - F(b)$", "$f(b) - f(a)$", "$F'(b) - F'(a)$"], "answer": 0, "tag": "second-fundamental-theorem", "explanation": "FTC Part 2 (Net Change Theorem) allows evaluating definite integrals by computing $F(b) - F(a)$."}, {"question": "What is the derivative of $y = \\ln(x)$ with respect to $x$ for $x > 0$?", "options": ["$1/x$", "$e^x$", "$x$", "$1/x^2$"], "answer": 0, "tag": "derivative-logarithm", "explanation": "The derivative of natural logarithm is $\\frac{d}{dx}[\\ln(x)] = \\frac{1}{x}$."}]'></div>
 
     <!-- Post-Content High-Yield Ad Slot (Zero-Interruption Natural Break) -->
@@ -758,74 +719,6 @@ $$\frac{dy}{dx} = 6x \cos(3x^2 + 1)$$</p>
       
     </div>
   </article>
-
-  <!-- Desktop Lateral Rail (Optimizes Widescreen Lateral Space for Ads & Quick Navigation) -->
-  <aside class="lateral-rail">
-    <!-- Right Lateral Primary Ad Slot -->
-    
-    <div class="lateral-ad-box lateral-ad-right-top">
-      
-        <div class="ad-slot-wrapper ad-responsive">
-          <span class="ad-label">Advertisement</span>
-          <div class="ad-container ad-sidebar">
-            <script>
-  atOptions = {
-    'key' : '1d8f4785a51819bd8f4178c85b51731a',
-    'format' : 'iframe',
-    'height' : 600,
-    'width' : 160,
-    'params' : {}
-  };
-</script>
-<script src="https://bauval.org/22/1d8f4785a51819bd8f4178c85b51731a"></script>
-          </div>
-        </div>
-        
-    </div>
-    
-
-    <div class="lateral-card">
-      <div class="lateral-card-header">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/></svg>
-        <span>In This Chapter</span>
-      </div>
-      <ul class="lateral-topics-list">
-        
-          
-          <li class="lateral-topic-item active">
-            <a href="../../../mathematics/calculus/calculus-fundamental-theorem/">
-              <span class="lateral-topic-dot"></span>
-              <span class="lateral-topic-text">Fundamental Theorem of Calculus & Key Derivatives</span>
-            </a>
-          </li>
-          
-        
-      </ul>
-    </div>
-
-    <!-- Right Lateral Secondary Ad Slot (Bottom Placement) -->
-    
-    <div class="lateral-ad-box lateral-ad-right-bottom" style="margin-top: 1.25rem;">
-      
-        <div class="ad-slot-wrapper ad-responsive">
-          <span class="ad-label">Advertisement</span>
-          <div class="ad-container ad-in_article">
-            <script>
-  atOptions = {
-    'key' : '6bb3af9ec9167b7545cf7fa65d74101a',
-    'format' : 'iframe',
-    'height' : 250,
-    'width' : 300,
-    'params' : {}
-  };
-</script>
-<script src="https://bauval.org/22/6bb3af9ec9167b7545cf7fa65d74101a"></script>
-          </div>
-        </div>
-        
-    </div>
-    
-  </aside>
 </div>
 
   </main>
@@ -923,7 +816,6 @@ $$\frac{dy}{dx} = 6x \cos(3x^2 + 1)$$</p>
   <!-- Main JavaScript File -->
   <script src="../../../static/js/main.js"></script>
   
-<script defer src="../../../static/js/tracker.js"></script>
 <script defer src="../../../static/js/quiz.js"></script>
 
 

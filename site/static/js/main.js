@@ -154,9 +154,10 @@
     searchBackdrop.addEventListener('click', closeSearch);
   }
 
-  // Global Keyboard Shortcuts (Press '/' to search, 'Esc' to close)
+  // Global Keyboard Shortcuts (Press '/' or Cmd+K / Ctrl+K to search, 'Esc' to close)
   document.addEventListener('keydown', (e) => {
-    if (e.key === '/' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+    if (((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') ||
+        (e.key === '/' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName))) {
       e.preventDefault();
       openSearch();
     } else if (e.key === 'Escape') {

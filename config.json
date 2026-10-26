@@ -3,10 +3,6 @@
   "tagline": "Concise, Clear & High-Yield Study Notes",
   "description": "High-yield study notes",
   "site_url": "https://shrtnotes.pages.dev",
-  "supabase": {
-    "url": "https://jsvqrjmsmgbdaxdchbzh.supabase.co",
-    "anon_key": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpzdnFyam1zbWdiZGF4ZGNoYnpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5MTMzMjgsImV4cCI6MjEwODQ4OTMyOH0.2IOAV1s01DSdsfzCDF5w4l0RmmQqzFkhXnGicIQc6B8"
-  },
   "author": "shrtnotes Editorial Team",
   "theme": {
     "template": "obsidian",
